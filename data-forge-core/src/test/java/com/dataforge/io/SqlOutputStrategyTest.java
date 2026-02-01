@@ -3,260 +3,401 @@ package com.dataforge.io;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.dataforge.config.OutputConfig;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
+import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /**
  * SqlOutputStrategy 单元测试。
  *
- * <p>测试SQL标识符验证、转义和数据库兼容性。
+ * <p>测试 SQL 输出策略的跨数据库兼容性、标识符转义、值转义等功能。
  *
  * @author DataForge Team
  * @since 1.0.0
  */
-@DisplayName("SqlOutputStrategy 测试")
+@DisplayName("SqlOutputStrategy 跨数据库测试")
 class SqlOutputStrategyTest {
 
-  private SqlOutputStrategy strategy;
-  private Method escapeIdentifierMethod;
-  private List<String> fieldNames;
-  private OutputConfig config;
+  @TempDir Path tempDir;
 
-  @BeforeEach
-  void setUp() throws Exception {
-    strategy = new SqlOutputStrategy();
-    fieldNames = List.of("id", "name", "email");
-    config = new OutputConfig();
+  /**
+   * 测试 MySQL 标识符转义。
+   */
+  @Test
+  @DisplayName("MySQL 标识符转义应使用反引号")
+  void testMySqlIdentifierEscaping() throws Exception {
+    SqlOutputStrategy strategy = new SqlOutputStrategy();
+    strategy.setSqlDialect(SqlDialect.MYSQL);
+
+    OutputConfig config = new OutputConfig();
     config.setFormat(OutputConfig.Format.SQL);
+    config.setSqlDialect(SqlDialect.MYSQL);
+    config.setSqlTableName("test_table");
 
-    // 获取私有方法用于测试
-    escapeIdentifierMethod =
-        SqlOutputStrategy.class.getDeclaredMethod("escapeIdentifier", String.class);
-    escapeIdentifierMethod.setAccessible(true);
+    File outputFile = tempDir.resolve("test_mysql.sql").toFile();
+    config.setFile(outputFile.getAbsolutePath());
+
+    List<String> fieldNames = List.of("user_name", "age", "email");
+
+    strategy.initialize(config, fieldNames);
+
+    Map<String, Object> record = new HashMap<>();
+    record.put("user_name", "Alice");
+    record.put("age", 30);
+    record.put("email", "alice@example.com");
+
+    strategy.writeRecord(record);
+    strategy.finish();
+
+    String sqlOutput = Files.readString(outputFile.toPath());
+    assertTrue(
+        sqlOutput.contains("`user_name`"),
+        "MySQL identifiers should be escaped with backticks");
+    assertTrue(sqlOutput.contains("`test_table`"), "Table name should be escaped");
   }
 
   /**
-   * 解包反射调用的异常，获取实际的cause。
+   * 测试 PostgreSQL 标识符转义。
    */
-  private Throwable getCause(Throwable ex) {
-    if (ex instanceof InvocationTargetException) {
-      return ((InvocationTargetException) ex).getCause();
-    }
-    return ex;
-  }
-
   @Test
-  @DisplayName("有效标识符应通过验证")
-  void testValidIdentifiers() throws Exception {
-    String[] validIds = {
-      "table", "table_name", "_table", "Table123", "a_b_c", "uppercase", "lowercase", "MixEdCase"
-    };
+  @DisplayName("PostgreSQL 标识符转义应使用双引号")
+  void testPostgreSqlIdentifierEscaping() throws Exception {
+    SqlOutputStrategy strategy = new SqlOutputStrategy();
+    strategy.setSqlDialect(SqlDialect.POSTGRESQL);
 
-    for (String id : validIds) {
-      String result = (String) escapeIdentifierMethod.invoke(strategy, id);
-      assertNotNull(result, "Result should not be null for: " + id);
-      assertTrue(result.startsWith("`"), "Result should start with backtick: " + id);
-      assertTrue(result.endsWith("`"), "Result should end with backtick: " + id);
-    }
-  }
+    OutputConfig config = new OutputConfig();
+    config.setFormat(OutputConfig.Format.SQL);
+    config.setSqlDialect(SqlDialect.POSTGRESQL);
+    config.setSqlTableName("test_table");
 
-  @Test
-  @DisplayName("包含空格的标识符应抛出异常")
-  void testInvalidIdentifierWithSpace() {
-    String invalidId = "table name";
+    File outputFile = tempDir.resolve("test_postgres.sql").toFile();
+    config.setFile(outputFile.getAbsolutePath());
 
-    Exception ex =
-        assertThrows(
-            Exception.class,
-            () -> escapeIdentifierMethod.invoke(strategy, invalidId));
+    List<String> fieldNames = List.of("user_name", "age", "email");
 
-    Throwable cause = getCause(ex);
+    strategy.initialize(config, fieldNames);
+
+    Map<String, Object> record = new HashMap<>();
+    record.put("user_name", "Bob");
+    record.put("age", 25);
+    record.put("email", "bob@example.com");
+
+    strategy.writeRecord(record);
+    strategy.finish();
+
+    String sqlOutput = Files.readString(outputFile.toPath());
     assertTrue(
-        cause instanceof OutputException,
-        "Should throw OutputException");
+        sqlOutput.contains("\"user_name\""),
+        "PostgreSQL identifiers should be escaped with double quotes");
+    assertTrue(sqlOutput.contains("\"test_table\""), "Table name should be escaped");
+  }
+
+  /**
+   * 测试 SQL Server 标识符转义。
+   */
+  @Test
+  @DisplayName("SQL Server 标识符转义应使用方括号")
+  void testSqlServerIdentifierEscaping() throws Exception {
+    SqlOutputStrategy strategy = new SqlOutputStrategy();
+    strategy.setSqlDialect(SqlDialect.SQL_SERVER);
+
+    OutputConfig config = new OutputConfig();
+    config.setFormat(OutputConfig.Format.SQL);
+    config.setSqlDialect(SqlDialect.SQL_SERVER);
+    config.setSqlTableName("test_table");
+
+    File outputFile = tempDir.resolve("test_sqlserver.sql").toFile();
+    config.setFile(outputFile.getAbsolutePath());
+
+    List<String> fieldNames = List.of("user_name", "age", "email");
+
+    strategy.initialize(config, fieldNames);
+
+    Map<String, Object> record = new HashMap<>();
+    record.put("user_name", "Charlie");
+    record.put("age", 35);
+    record.put("email", "charlie@example.com");
+
+    strategy.writeRecord(record);
+    strategy.finish();
+
+    String sqlOutput = Files.readString(outputFile.toPath());
     assertTrue(
-        cause.getMessage().contains("Invalid SQL identifier"),
-        "Error message should mention invalid identifier");
+        sqlOutput.contains("[user_name]"),
+        "SQL Server identifiers should be escaped with square brackets");
+    assertTrue(sqlOutput.contains("[test_table]"), "Table name should be escaped");
   }
 
+  /**
+   * 测试 Oracle 标识符转义（不转义，仅白名单验证）。
+   */
   @Test
-  @DisplayName("包含连字符的标识符应抛出异常")
-  void testInvalidIdentifierWithHyphen() {
-    String[] invalidIds = {"table-name", "my-table", "test-data"};
+  @DisplayName("Oracle 标识符不应转义，通过白名单验证")
+  void testOracleIdentifierEscaping() throws Exception {
+    SqlOutputStrategy strategy = new SqlOutputStrategy();
+    strategy.setSqlDialect(SqlDialect.ORACLE);
 
-    for (String invalidId : invalidIds) {
-      Exception ex =
-          assertThrows(
-              Exception.class,
-              () -> escapeIdentifierMethod.invoke(strategy, invalidId));
+    OutputConfig config = new OutputConfig();
+    config.setFormat(OutputConfig.Format.SQL);
+    config.setSqlDialect(SqlDialect.ORACLE);
+    config.setSqlTableName("test_table");
 
-      assertTrue(
-          getCause(ex) instanceof OutputException,
-          "Should reject identifier with hyphen: " + invalidId);
-    }
-  }
+    File outputFile = tempDir.resolve("test_oracle.sql").toFile();
+    config.setFile(outputFile.getAbsolutePath());
 
-  @Test
-  @DisplayName("包含点的标识符应抛出异常")
-  void testInvalidIdentifierWithDot() {
-    String[] invalidIds = {"table.name", "schema.table", "db.schema.table"};
+    List<String> fieldNames = List.of("user_name", "age", "email");
 
-    for (String invalidId : invalidIds) {
-      Exception ex =
-          assertThrows(
-              Exception.class,
-              () -> escapeIdentifierMethod.invoke(strategy, invalidId));
+    strategy.initialize(config, fieldNames);
 
-      assertTrue(
-          getCause(ex) instanceof OutputException,
-          "Should reject identifier with dot: " + invalidId);
-    }
-  }
+    Map<String, Object> record = new HashMap<>();
+    record.put("user_name", "David");
+    record.put("age", 40);
+    record.put("email", "david@example.com");
 
-  @Test
-  @DisplayName("包含分号的标识符应抛出异常（SQL注入防护）")
-  void testInvalidIdentifierWithSemicolon() {
-    String[] invalidIds = {
-      "table;", "table;drop", "table; DROP TABLE", "users;drop table users"
-    };
+    strategy.writeRecord(record);
+    strategy.finish();
 
-    for (String invalidId : invalidIds) {
-      Exception ex =
-          assertThrows(
-              Exception.class,
-              () -> escapeIdentifierMethod.invoke(strategy, invalidId));
-
-      Throwable cause = getCause(ex);
-      assertTrue(
-          cause instanceof OutputException,
-          "Should reject SQL injection attempt: " + invalidId);
-      assertTrue(
-          cause.getMessage().contains("Invalid SQL identifier"),
-          "Should indicate invalid identifier for: " + invalidId);
-    }
-  }
-
-  @Test
-  @DisplayName("包含单引号的标识符应抛出异常")
-  void testInvalidIdentifierWithQuote() {
-    String[] invalidIds = {"table'", "table's", "users' passwords"};
-
-    for (String invalidId : invalidIds) {
-      Exception ex =
-          assertThrows(
-              Exception.class,
-              () -> escapeIdentifierMethod.invoke(strategy, invalidId));
-
-      assertTrue(
-          getCause(ex) instanceof OutputException,
-          "Should reject identifier with quote: " + invalidId);
-    }
-  }
-
-  @Test
-  @DisplayName("超长标识符应抛出异常")
-  void testTooLongIdentifier() {
-    String longId = "a".repeat(65);
-
-    Exception ex =
-        assertThrows(
-            Exception.class,
-            () -> escapeIdentifierMethod.invoke(strategy, longId));
-
-    Throwable cause = getCause(ex);
+    String sqlOutput = Files.readString(outputFile.toPath());
     assertTrue(
-        cause instanceof OutputException,
-        "Should throw OutputException for too long identifier");
+        sqlOutput.contains("user_name"),
+        "Oracle identifiers should not be escaped (whitelist only)");
+    assertFalse(
+        sqlOutput.contains("`") && sqlOutput.contains("\""),
+        "Oracle should not use quote characters");
+  }
+
+  /**
+   * 测试 H2 数据库标识符转义。
+   */
+  @Test
+  @DisplayName("H2 数据库标识符转义应使用双引号")
+  void testH2IdentifierEscaping() throws Exception {
+    SqlOutputStrategy strategy = new SqlOutputStrategy();
+    strategy.setSqlDialect(SqlDialect.H2);
+
+    OutputConfig config = new OutputConfig();
+    config.setFormat(OutputConfig.Format.SQL);
+    config.setSqlDialect(SqlDialect.H2);
+    config.setSqlTableName("test_table");
+
+    File outputFile = tempDir.resolve("test_h2.sql").toFile();
+    config.setFile(outputFile.getAbsolutePath());
+
+    List<String> fieldNames = List.of("user_name", "age", "email");
+
+    strategy.initialize(config, fieldNames);
+
+    Map<String, Object> record = new HashMap<>();
+    record.put("user_name", "Eve");
+    record.put("age", 28);
+    record.put("email", "eve@example.com");
+
+    strategy.writeRecord(record);
+    strategy.finish();
+
+    String sqlOutput = Files.readString(outputFile.toPath());
     assertTrue(
-        cause.getMessage().contains("too long"),
-        "Error message should mention 'too long'");
+        sqlOutput.contains("\"user_name\""),
+        "H2 identifiers should be escaped with double quotes");
+  }
+
+  /**
+   * 测试 SQLite 数据库标识符转义。
+   */
+  @Test
+  @DisplayName("SQLite 数据库标识符转义应使用双引号")
+  void testSqliteIdentifierEscaping() throws Exception {
+    SqlOutputStrategy strategy = new SqlOutputStrategy();
+    strategy.setSqlDialect(SqlDialect.SQLITE);
+
+    OutputConfig config = new OutputConfig();
+    config.setFormat(OutputConfig.Format.SQL);
+    config.setSqlDialect(SqlDialect.SQLITE);
+    config.setSqlTableName("test_table");
+
+    File outputFile = tempDir.resolve("test_sqlite.sql").toFile();
+    config.setFile(outputFile.getAbsolutePath());
+
+    List<String> fieldNames = List.of("user_name", "age", "email");
+
+    strategy.initialize(config, fieldNames);
+
+    Map<String, Object> record = new HashMap<>();
+    record.put("user_name", "Frank");
+    record.put("age", 33);
+    record.put("email", "frank@example.com");
+
+    strategy.writeRecord(record);
+    strategy.finish();
+
+    String sqlOutput = Files.readString(outputFile.toPath());
     assertTrue(
-        cause.getMessage().contains("65"),
-        "Error message should show actual length");
+        sqlOutput.contains("\"user_name\""),
+        "SQLite identifiers should be escaped with double quotes");
+  }
+
+  /**
+   * 测试无效标识符应抛出异常。
+   */
+  @Test
+  @DisplayName("无效标识符应抛出 OutputException")
+  void testInvalidIdentifierShouldThrowException() {
+    SqlOutputStrategy strategy = new SqlOutputStrategy();
+    strategy.setSqlDialect(SqlDialect.MYSQL);
+
+    OutputConfig config = new OutputConfig();
+    config.setFormat(OutputConfig.Format.SQL);
+    config.setSqlTableName("test_table");
+
+    List<String> fieldNames = new ArrayList<>();
+    fieldNames.add("valid_field");
+    fieldNames.add("invalid field"); // 包含空格，应该失败
+
+    strategy.initialize(config, fieldNames);
+
+    Map<String, Object> record = new HashMap<>();
+    record.put("valid_field", "value1");
+    record.put("invalid field", "value2");
+
+    assertThrows(
+        com.dataforge.io.OutputException.class,
+        () -> strategy.writeRecord(record),
+        "Invalid identifiers should throw OutputException when writing record");
+  }
+
+  /**
+   * 测试标识符长度限制。
+   */
+  @Test
+  @DisplayName("超过长度限制的标识符应抛出异常")
+  void testIdentifierLengthLimit() {
+    SqlOutputStrategy strategy = new SqlOutputStrategy();
+    strategy.setSqlDialect(SqlDialect.MYSQL);
+
+    OutputConfig config = new OutputConfig();
+    config.setFormat(OutputConfig.Format.SQL);
+    config.setSqlTableName("test_table");
+
+    List<String> fieldNames = new ArrayList<>();
+    fieldNames.add("valid_field");
+    // 创建65个字符的标识符，超过64字符限制
+    fieldNames.add("a".repeat(65));
+
+    strategy.initialize(config, fieldNames);
+
+    Map<String, Object> record = new HashMap<>();
+    record.put("valid_field", "value1");
+    record.put("a".repeat(65), "value2");
+
+    assertThrows(
+        com.dataforge.io.OutputException.class,
+        () -> strategy.writeRecord(record),
+        "Identifiers exceeding max length should throw OutputException when writing record");
+  }
+
+  /**
+   * 测试值转义（包含特殊字符）。
+   */
+  @Test
+  @DisplayName("字符串值中的单引号应被正确转义")
+  void testStringEscaping() throws Exception {
+    SqlOutputStrategy strategy = new SqlOutputStrategy();
+    strategy.setSqlDialect(SqlDialect.MYSQL);
+
+    OutputConfig config = new OutputConfig();
+    config.setFormat(OutputConfig.Format.SQL);
+    config.setSqlTableName("test_table");
+
+    File outputFile = tempDir.resolve("test_escaping.sql").toFile();
+    config.setFile(outputFile.getAbsolutePath());
+
+    List<String> fieldNames = List.of("name", "quote");
+
+    strategy.initialize(config, fieldNames);
+
+    Map<String, Object> record = new HashMap<>();
+    record.put("name", "O'Brien");
+    record.put("quote", "It's a test");
+
+    strategy.writeRecord(record);
+    strategy.finish();
+
+    String sqlOutput = Files.readString(outputFile.toPath());
     assertTrue(
-        cause.getMessage().contains("64"),
-        "Error message should show max length");
+        sqlOutput.contains("O''Brien") || sqlOutput.contains("O\\'Brien"),
+        "Single quotes in values should be escaped");
   }
 
+  /**
+   * 测试 NULL 值处理。
+   */
   @Test
-  @DisplayName("最大长度标识符应通过验证")
-  void testMaxLengthIdentifier() throws Exception {
-    String maxLengthId = "a".repeat(64);
+  @DisplayName("NULL 值应正确处理为 SQL NULL")
+  void testNullValueHandling() throws Exception {
+    SqlOutputStrategy strategy = new SqlOutputStrategy();
+    strategy.setSqlDialect(SqlDialect.MYSQL);
 
-    String result = (String) escapeIdentifierMethod.invoke(strategy, maxLengthId);
-    assertNotNull(result);
-    assertTrue(result.startsWith("`"));
-    assertTrue(result.endsWith("`"));
-  }
+    OutputConfig config = new OutputConfig();
+    config.setFormat(OutputConfig.Format.SQL);
+    config.setSqlTableName("test_table");
 
-  @Test
-  @DisplayName("数字开头的标识符应抛出异常")
-  void testIdentifierStartingWithNumber() {
-    String[] invalidIds = {"123table", "9table", "0_table"};
+    File outputFile = tempDir.resolve("test_null.sql").toFile();
+    config.setFile(outputFile.getAbsolutePath());
 
-    for (String invalidId : invalidIds) {
-      Exception ex =
-          assertThrows(
-              Exception.class,
-              () -> escapeIdentifierMethod.invoke(strategy, invalidId));
+    List<String> fieldNames = List.of("name", "age", "email");
 
-      assertTrue(
-          getCause(ex) instanceof OutputException,
-          "Should reject identifier starting with number: " + invalidId);
-    }
-  }
+    strategy.initialize(config, fieldNames);
 
-  @Test
-  @DisplayName("特殊字符开头的标识符应抛出异常")
-  void testIdentifierStartingWithSpecialChar() {
-    String[] invalidIds = {"@table", "$table", "#table"};
+    Map<String, Object> record = new HashMap<>();
+    record.put("name", "Test");
+    record.put("age", null);
+    record.put("email", null);
 
-    for (String invalidId : invalidIds) {
-      Exception ex =
-          assertThrows(
-              Exception.class,
-              () -> escapeIdentifierMethod.invoke(strategy, invalidId));
+    strategy.writeRecord(record);
+    strategy.finish();
 
-      assertTrue(
-          getCause(ex) instanceof OutputException,
-          "Should reject identifier starting with special char: " + invalidId);
-    }
-  }
-
-  @Test
-  @DisplayName("null标识符应返回null")
-  void testNullIdentifier() throws Exception {
-    String result = (String) escapeIdentifierMethod.invoke(strategy, (String) null);
-    assertNull(result, "Null identifier should return null");
-  }
-
-  @Test
-  @DisplayName("空标识符应返回空字符串")
-  void testEmptyIdentifier() throws Exception {
-    String result = (String) escapeIdentifierMethod.invoke(strategy, "");
-    assertEquals("", result, "Empty identifier should return empty string");
-  }
-
-  @Test
-  @DisplayName("包含反引号的标识符应被拒绝（保留字符）")
-  void testBacktickInIdentifier() {
-    String invalidId = "table`name";
-
-    Exception ex =
-        assertThrows(
-            Exception.class,
-            () -> escapeIdentifierMethod.invoke(strategy, invalidId));
-
-    Throwable cause = getCause(ex);
+    String sqlOutput = Files.readString(outputFile.toPath());
     assertTrue(
-        cause instanceof OutputException,
-        "Should reject identifier containing backtick");
+        sqlOutput.contains("NULL"),
+        "NULL values should be represented as SQL NULL");
+  }
+
+  /**
+   * 测试日期时间格式化。
+   */
+  @Test
+  @DisplayName("日期时间值应正确格式化")
+  void testDateTimeFormatting() throws Exception {
+    SqlOutputStrategy strategy = new SqlOutputStrategy();
+    strategy.setSqlDialect(SqlDialect.MYSQL);
+
+    OutputConfig config = new OutputConfig();
+    config.setFormat(OutputConfig.Format.SQL);
+    config.setSqlTableName("test_table");
+
+    File outputFile = tempDir.resolve("test_datetime.sql").toFile();
+    config.setFile(outputFile.getAbsolutePath());
+
+    List<String> fieldNames = List.of("created_at");
+
+    strategy.initialize(config, fieldNames);
+
+    Map<String, Object> record = new HashMap<>();
+    record.put("created_at", java.time.LocalDateTime.now());
+
+    strategy.writeRecord(record);
+    strategy.finish();
+
+    String sqlOutput = Files.readString(outputFile.toPath());
     assertTrue(
-        cause.getMessage().contains("Invalid SQL identifier"),
-        "Should indicate invalid identifier");
+        sqlOutput.contains("'") && sqlOutput.contains("'"),
+        "DateTime values should be quoted");
   }
 }

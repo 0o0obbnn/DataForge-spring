@@ -22,15 +22,16 @@ import org.springframework.stereotype.Component;
 /**
  * SQL INSERT输出策略实现。
  *
- * <p>将生成的数据转换为SQL INSERT语句输出到文件或标准输出。 支持自定义表名、字符编码等配置。 采用流式写入，支持大数据量输出而不会导致内存溢出。
+ * <p>将生成的数据转换为SQL INSERT语句输出到文件或标准输出。 支持自定义表名、字符编码、SQL方言等配置。 采用流式写入，支持大数据量输出而不会导致内存溢出。
  *
  * <p><b>数据库兼容性</b>:
  * <ul>
- *   <li>MySQL: ✅ 完全兼容（使用反引号转义）</li>
- *   <li>MariaDB: ✅ 完全兼容（与MySQL相同）</li>
- *   <li>PostgreSQL: ⚠️ 需使用双引号转义，当前实现不完全兼容</li>
- *   <li>SQL Server: ⚠️ 需使用方括号转义，当前实现不完全兼容</li>
- *   <li>Oracle: ⚠️ 不支持标识符转义，当前实现不完全兼容</li>
+ *   <li>MySQL / MariaDB: ✅ 完全兼容（使用反引号转义）</li>
+ *   <li>PostgreSQL: ✅ 完全兼容（使用双引号转义）</li>
+ *   <li>SQL Server: ✅ 完全兼容（使用方括号转义）</li>
+ *   <li>Oracle: ✅ 完全兼容（依赖白名单验证，不转义）</li>
+ *   <li>H2: ✅ 完全兼容（使用双引号转义）</li>
+ *   <li>SQLite: ✅ 完全兼容（使用双引号转义）</li>
  * </ul>
  *
  * <p><b>安全特性</b>:
@@ -57,14 +58,24 @@ public class SqlOutputStrategy implements OutputStrategy {
    *   <li>后续字符可以是字母、数字或下划线</li>
    *   <li>符合标准SQL标识符规范</li>
    * </ul>
-   *
-   * <p><b>注意</b>: 此实现使用MySQL风格的反引号转义，仅兼容MySQL/MariaDB数据库。
    */
   private static final Pattern IDENTIFIER_PATTERN =
       Pattern.compile("^[a-zA-Z_][a-zA-Z0-9_]*$");
 
   /** SQL标识符最大长度（符合SQL标准） */
   private static final int MAX_IDENTIFIER_LENGTH = 64;
+
+  /** SQL方言，用于跨数据库标识符转义。 */
+  private SqlDialect dialect = SqlDialect.MYSQL;
+
+  /**
+   * 设置SQL方言。
+   *
+   * @param dialect SQL方言
+   */
+  public void setSqlDialect(SqlDialect dialect) {
+    this.dialect = dialect;
+  }
 
   /** 输出配置。 */
   private OutputConfig config;
@@ -110,6 +121,11 @@ public class SqlOutputStrategy implements OutputStrategy {
 
     if (tableName == null || tableName.trim().isEmpty()) {
       tableName = "test_data";
+    }
+
+    // 设置SQL方言
+    if (config.getSqlDialect() != null) {
+      this.dialect = config.getSqlDialect();
     }
 
     try {
@@ -343,23 +359,17 @@ public class SqlOutputStrategy implements OutputStrategy {
   }
 
   /**
-   * 转义SQL标识符（表名、列名）。
+   * 转义SQL标识符。
    *
-   * <p>使用白名单验证确保标识符符合标准SQL规范，防止SQL注入。 使用MySQL风格的反引号转义，仅适用于MySQL/MariaDB数据库。
-   *
-   * <p><b>验证规则</b>:
-   * <ul>
-   *   <li>必须以字母或下划线开头</li>
-   *   <li>只能包含字母、数字或下划线</li>
-   *   <li>长度不能超过64字符</li>
-   * </ul>
+   * <p>根据配置的 SQL 方言使用相应的转义规则。 通过白名单验证标识符格式，确保只包含合法字符。
    *
    * <p><b>数据库兼容性</b>:
    * <ul>
    *   <li>MySQL/MariaDB: ✅ 完全兼容（反引号转义）</li>
-   *   <li>PostgreSQL: ⚠️ 需使用双引号转义</li>
-   *   <li>SQL Server: ⚠️ 需使用方括号转义</li>
-   *   <li>Oracle: ⚠️ 不支持标识符转义</li>
+   *   <li>PostgreSQL: ✅ 完全兼容（双引号转义）</li>
+   *   <li>SQL Server: ✅ 完全兼容（方括号转义）</li>
+   *   <li>Oracle: ✅ 完全兼容（白名单验证，不转义）</li>
+   *   <li>H2/SQLite: ✅ 完全兼容（双引号转义）</li>
    * </ul>
    *
    * @param identifier 标识符
@@ -390,8 +400,8 @@ public class SqlOutputStrategy implements OutputStrategy {
               identifier, identifier.length(), MAX_IDENTIFIER_LENGTH));
     }
 
-    // MySQL风格转义（反引号）
-    return "`" + identifier.replace("`", "``") + "`";
+    // 根据SQL方言进行转义
+    return dialect.escapeIdentifier(identifier);
   }
 
   /**

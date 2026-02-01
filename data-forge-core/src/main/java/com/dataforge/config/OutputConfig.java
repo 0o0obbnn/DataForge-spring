@@ -1,5 +1,6 @@
 package com.dataforge.config;
 
+import com.dataforge.io.SqlDialect;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -77,6 +78,9 @@ public class OutputConfig {
 
   /** SQL表名，当format为SQL时使用。 */
   private String sqlTableName = "test_data";
+
+  /** SQL方言，当format为SQL时使用，默认为MySQL。 */
+  private SqlDialect sqlDialect = SqlDialect.MYSQL;
 
   /** MIME类型，用于HTTP响应头。 */
   private String mimeType;
@@ -241,6 +245,24 @@ public class OutputConfig {
    */
   public void setSqlTableName(final String sqlTableName) {
     this.sqlTableName = sqlTableName;
+  }
+
+  /**
+   * 获取SQL方言。
+   *
+   * @return SQL方言
+   */
+  public SqlDialect getSqlDialect() {
+    return sqlDialect;
+  }
+
+  /**
+   * 设置SQL方言。
+   *
+   * @param sqlDialect SQL方言
+   */
+  public void setSqlDialect(final SqlDialect sqlDialect) {
+    this.sqlDialect = sqlDialect;
   }
 
   /**
