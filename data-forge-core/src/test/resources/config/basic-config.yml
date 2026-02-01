@@ -1,0 +1,30 @@
+dataforge:
+  count: 10
+  threads: 1
+  validate: true
+  seed: 12345
+  
+  output:
+    format: csv
+    file: "output/sample-data.csv"
+    encoding: "UTF-8"
+    csvIncludeHeader: true
+    csvDelimiter: ","
+  
+  fields:
+    - name: "id"
+      type: "uuid"
+      params:
+        type: "UUID4"
+    
+    - name: "name"
+      type: "name"
+      params:
+        type: "CN"
+        gender: "ANY"
+    
+    - name: "englishName"
+      type: "name"
+      params:
+        type: "EN"
+        gender: "ANY"

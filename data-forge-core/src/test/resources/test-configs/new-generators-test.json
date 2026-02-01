@@ -1,0 +1,271 @@
+{
+  "name": "新增生成器功能测试",
+  "description": "测试WebSocket、代理、随机数和小数生成器的功能",
+  "version": "1.0.0",
+  "fields": [
+    {
+      "name": "websocket_url",
+      "type": "websocket",
+      "description": "WebSocket URL",
+      "config": {
+        "format": "URL",
+        "protocol": "WS",
+        "host": "localhost",
+        "port": 8080,
+        "path": "/websocket"
+      }
+    },
+    {
+      "name": "websocket_secure",
+      "type": "websocket",
+      "description": "安全WebSocket连接",
+      "config": {
+        "format": "URL",
+        "protocol": "WSS",
+        "port": 443,
+        "include_query": true,
+        "subprotocol": "CHAT"
+      }
+    },
+    {
+      "name": "websocket_config",
+      "type": "websocket",
+      "description": "WebSocket配置信息",
+      "config": {
+        "format": "JSON",
+        "protocol": "WS",
+        "include_headers": true,
+        "timeout": 30,
+        "heartbeat": 60,
+        "compression": true
+      }
+    },
+    {
+      "name": "http_proxy",
+      "type": "proxy",
+      "description": "HTTP代理",
+      "config": {
+        "format": "URL",
+        "type": "HTTP",
+        "host": "proxy.example.com",
+        "port": 8080
+      }
+    },
+    {
+      "name": "socks_proxy",
+      "type": "proxy",
+      "description": "SOCKS5代理",
+      "config": {
+        "format": "URL",
+        "type": "SOCKS5",
+        "auth_required": true,
+        "country": "US",
+        "speed": "FAST"
+      }
+    },
+    {
+      "name": "proxy_config",
+      "type": "proxy",
+      "description": "代理配置信息",
+      "config": {
+        "format": "JSON",
+        "type": "HTTPS",
+        "auth_required": true,
+        "anonymous": false,
+        "country": "UK",
+        "city": "London",
+        "reliability": "HIGH"
+      }
+    },
+    {
+      "name": "proxy_pac",
+      "type": "proxy",
+      "description": "PAC脚本",
+      "config": {
+        "format": "PAC",
+        "type": "HTTP",
+        "host": "corporate-proxy.company.com",
+        "port": 3128
+      }
+    },
+    {
+      "name": "random_int",
+      "type": "random_number",
+      "description": "随机整数",
+      "config": {
+        "type": "INT",
+        "min": 1,
+        "max": 1000,
+        "format": "DECIMAL"
+      }
+    },
+    {
+      "name": "random_hex",
+      "type": "random_number",
+      "description": "十六进制随机数",
+      "config": {
+        "type": "INT",
+        "min": 16,
+        "max": 255,
+        "format": "HEX"
+      }
+    },
+    {
+      "name": "random_binary",
+      "type": "random_number",
+      "description": "二进制随机数",
+      "config": {
+        "type": "INT",
+        "min": 1,
+        "max": 31,
+        "format": "BINARY"
+      }
+    },
+    {
+      "name": "random_long",
+      "type": "random_number",
+      "description": "长整数",
+      "config": {
+        "type": "LONG",
+        "min": 1000000,
+        "max": 9999999,
+        "format": "DECIMAL"
+      }
+    },
+    {
+      "name": "random_bigint",
+      "type": "random_number",
+      "description": "大整数",
+      "config": {
+        "type": "BIGINT",
+        "precision": 20,
+        "format": "DECIMAL"
+      }
+    },
+    {
+      "name": "random_normal",
+      "type": "random_number",
+      "description": "正态分布随机数",
+      "config": {
+        "type": "INT",
+        "distribution": "NORMAL",
+        "mean": 100,
+        "stddev": 20,
+        "min": 0,
+        "max": 200
+      }
+    },
+    {
+      "name": "random_scientific",
+      "type": "random_number",
+      "description": "科学计数法随机数",
+      "config": {
+        "type": "LONG",
+        "min": 1000000,
+        "max": 999999999,
+        "format": "SCIENTIFIC"
+      }
+    },
+    {
+      "name": "decimal_simple",
+      "type": "decimal",
+      "description": "简单小数",
+      "config": {
+        "type": "DOUBLE",
+        "min": 0.0,
+        "max": 100.0,
+        "scale": 2,
+        "format": "PLAIN"
+      }
+    },
+    {
+      "name": "decimal_currency",
+      "type": "decimal",
+      "description": "货币格式小数",
+      "config": {
+        "type": "DOUBLE",
+        "min": 10.0,
+        "max": 10000.0,
+        "scale": 2,
+        "format": "CURRENCY",
+        "currency_code": "USD",
+        "locale": "en_US"
+      }
+    },
+    {
+      "name": "decimal_percentage",
+      "type": "decimal",
+      "description": "百分比格式",
+      "config": {
+        "type": "DOUBLE",
+        "min": 0.0,
+        "max": 100.0,
+        "scale": 1,
+        "format": "PERCENTAGE"
+      }
+    },
+    {
+      "name": "decimal_scientific",
+      "type": "decimal",
+      "description": "科学计数法小数",
+      "config": {
+        "type": "DOUBLE",
+        "min": 0.001,
+        "max": 999999.999,
+        "format": "SCIENTIFIC"
+      }
+    },
+    {
+      "name": "decimal_custom",
+      "type": "decimal",
+      "description": "自定义格式小数",
+      "config": {
+        "type": "DOUBLE",
+        "min": 1000.0,
+        "max": 999999.0,
+        "format": "CUSTOM",
+        "pattern": "#,##0.00"
+      }
+    },
+    {
+      "name": "decimal_bigdecimal",
+      "type": "decimal",
+      "description": "高精度小数",
+      "config": {
+        "type": "BIGDECIMAL",
+        "min": 0.0,
+        "max": 1000000.0,
+        "precision": 15,
+        "scale": 6,
+        "rounding": "HALF_UP"
+      }
+    },
+    {
+      "name": "decimal_normal",
+      "type": "decimal",
+      "description": "正态分布小数",
+      "config": {
+        "type": "DOUBLE",
+        "distribution": "NORMAL",
+        "mean": 50.0,
+        "stddev": 15.0,
+        "min": 0.0,
+        "max": 100.0,
+        "scale": 3
+      }
+    },
+    {
+      "name": "decimal_positive",
+      "type": "decimal",
+      "description": "正数小数",
+      "config": {
+        "type": "DOUBLE",
+        "min": -10.0,
+        "max": 10.0,
+        "positive_only": true,
+        "exclude_zero": true,
+        "scale": 4
+      }
+    }
+  ]
+}

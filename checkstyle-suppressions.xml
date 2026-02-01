@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+        "-//Checkstyle//DTD Suppressions Configuration 1.3//EN"
+        "https://checkstyle.org/dtds/suppressions_1_3.dtd">
+
+<suppressions>
+    <!-- 忽略生成的代码 -->
+    <suppress checks="" files="target/generated-sources/.*"/>
+    <suppress checks="" files=".*\$.*\.java"/>
+    
+    <!-- 忽略测试代码中的某些规则 -->
+    <suppress checks="MethodLength" files=".*Test\.java"/>
+    <suppress checks="CyclomaticComplexity" files=".*Test\.java"/>
+    <suppress checks="MagicNumber" files=".*Test\.java"/>
+    
+    <!-- 忽略特定类或方法的规则 -->
+    <!-- <suppress checks="ClassLength" files="SpecificClass\.java"/> -->
+    <!-- <suppress checks="ParameterNumber" files="SpecificClass\.java" methods="specificMethod"/> -->
+    
+    <!-- 忽略某些命名规则 -->
+    <suppress checks="MemberName" files=".*\.java"/> <!-- 临时忽略成员变量命名规则 -->
+</suppressions>

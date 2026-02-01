@@ -1,0 +1,388 @@
+# 货币生成器配置文件
+# Currency Generator Configuration
+# 版本: 1.0
+# 最后更新: 2026-01-28
+# 说明: 支持生成世界各国货币代码、符号、名称和金额
+
+currencies:
+  # 主要货币
+  USD:
+    symbol: "$"
+    name: "US Dollar"
+    region: "AMERICAS"
+    digits: 2
+    common: true
+  EUR:
+    symbol: "€"
+    name: "Euro"
+    region: "EUROPE"
+    digits: 2
+    common: true
+  CNY:
+    symbol: "¥"
+    name: "Chinese Yuan"
+    region: "ASIA"
+    digits: 2
+    common: true
+  JPY:
+    symbol: "¥"
+    name: "Japanese Yen"
+    region: "ASIA"
+    digits: 0
+    common: true
+  GBP:
+    symbol: "£"
+    name: "British Pound"
+    region: "EUROPE"
+    digits: 2
+    common: true
+
+  # 其他常用货币
+  AUD:
+    symbol: "A$"
+    name: "Australian Dollar"
+    region: "OCEANIA"
+    digits: 2
+    common: true
+  CAD:
+    symbol: "C$"
+    name: "Canadian Dollar"
+    region: "AMERICAS"
+    digits: 2
+    common: true
+  CHF:
+    symbol: "Fr"
+    name: "Swiss Franc"
+    region: "EUROPE"
+    digits: 2
+    common: true
+  HKD:
+    symbol: "HK$"
+    name: "Hong Kong Dollar"
+    region: "ASIA"
+    digits: 2
+    common: true
+  SGD:
+    symbol: "S$"
+    name: "Singapore Dollar"
+    region: "ASIA"
+    digits: 2
+    common: true
+  KRW:
+    symbol: "₩"
+    name: "South Korean Won"
+    region: "ASIA"
+    digits: 0
+    common: true
+  INR:
+    symbol: "₹"
+    name: "Indian Rupee"
+    region: "ASIA"
+    digits: 2
+    common: true
+  RUB:
+    symbol: "₽"
+    name: "Russian Ruble"
+    region: "EUROPE"
+    digits: 2
+    common: true
+  BRL:
+    symbol: "R$"
+    name: "Brazilian Real"
+    region: "AMERICAS"
+    digits: 2
+    common: true
+  MXN:
+    symbol: "$"
+    name: "Mexican Peso"
+    region: "AMERICAS"
+    digits: 2
+    common: true
+  ZAR:
+    symbol: "R"
+    name: "South African Rand"
+    region: "AFRICA"
+    digits: 2
+    common: true
+  SEK:
+    symbol: "kr"
+    name: "Swedish Krona"
+    region: "EUROPE"
+    digits: 2
+    common: true
+  NOK:
+    symbol: "kr"
+    name: "Norwegian Krone"
+    region: "EUROPE"
+    digits: 2
+    common: true
+  DKK:
+    symbol: "kr"
+    name: "Danish Krone"
+    region: "EUROPE"
+    digits: 2
+    common: true
+  PLN:
+    symbol: "zł"
+    name: "Polish Zloty"
+    region: "EUROPE"
+    digits: 2
+    common: true
+
+  # 不太常用的货币
+  TRY:
+    symbol: "₺"
+    name: "Turkish Lira"
+    region: "EUROPE"
+    digits: 2
+    common: false
+  THB:
+    symbol: "฿"
+    name: "Thai Baht"
+    region: "ASIA"
+    digits: 2
+    common: false
+  MYR:
+    symbol: "RM"
+    name: "Malaysian Ringgit"
+    region: "ASIA"
+    digits: 2
+    common: false
+  IDR:
+    symbol: "Rp"
+    name: "Indonesian Rupiah"
+    region: "ASIA"
+    digits: 2
+    common: false
+  PHP:
+    symbol: "₱"
+    name: "Philippine Peso"
+    region: "ASIA"
+    digits: 2
+    common: false
+  VND:
+    symbol: "₫"
+    name: "Vietnamese Dong"
+    region: "ASIA"
+    digits: 0
+    common: false
+  EGP:
+    symbol: "£"
+    name: "Egyptian Pound"
+    region: "AFRICA"
+    digits: 2
+    common: false
+  NGN:
+    symbol: "₦"
+    name: "Nigerian Naira"
+    region: "AFRICA"
+    digits: 2
+    common: false
+  KES:
+    symbol: "KSh"
+    name: "Kenyan Shilling"
+    region: "AFRICA"
+    digits: 2
+    common: false
+  MAD:
+    symbol: "د.م."
+    name: "Moroccan Dirham"
+    region: "AFRICA"
+    digits: 2
+    common: false
+
+  # 中东货币
+  AED:
+    symbol: "د.إ"
+    name: "UAE Dirham"
+    region: "ASIA"
+    digits: 2
+    common: false
+  SAR:
+    symbol: "﷼"
+    name: "Saudi Riyal"
+    region: "ASIA"
+    digits: 2
+    common: false
+  QAR:
+    symbol: "﷼"
+    name: "Qatari Riyal"
+    region: "ASIA"
+    digits: 2
+    common: false
+  KWD:
+    symbol: "د.ك"
+    name: "Kuwaiti Dinar"
+    region: "ASIA"
+    digits: 3
+    common: false
+  BHD:
+    symbol: ".د.ب"
+    name: "Bahraini Dinar"
+    region: "ASIA"
+    digits: 3
+    common: false
+
+  # 拉丁美洲货币
+  ARS:
+    symbol: "$"
+    name: "Argentine Peso"
+    region: "AMERICAS"
+    digits: 2
+    common: false
+  CLP:
+    symbol: "$"
+    name: "Chilean Peso"
+    region: "AMERICAS"
+    digits: 0
+    common: false
+  COP:
+    symbol: "$"
+    name: "Colombian Peso"
+    region: "AMERICAS"
+    digits: 2
+    common: false
+  PEN:
+    symbol: "S/"
+    name: "Peruvian Sol"
+    region: "AMERICAS"
+    digits: 2
+    common: false
+  UYU:
+    symbol: "$U"
+    name: "Uruguayan Peso"
+    region: "AMERICAS"
+    digits: 2
+    common: false
+
+  # 欧洲其他货币
+  CZK:
+    symbol: "Kč"
+    name: "Czech Koruna"
+    region: "EUROPE"
+    digits: 2
+    common: false
+  HUF:
+    symbol: "Ft"
+    name: "Hungarian Forint"
+    region: "EUROPE"
+    digits: 2
+    common: false
+  RON:
+    symbol: "lei"
+    name: "Romanian Leu"
+    region: "EUROPE"
+    digits: 2
+    common: false
+  BGN:
+    symbol: "лв"
+    name: "Bulgarian Lev"
+    region: "EUROPE"
+    digits: 2
+    common: false
+  HRK:
+    symbol: "kn"
+    name: "Croatian Kuna"
+    region: "EUROPE"
+    digits: 2
+    common: false
+
+  # 加密货币（虚拟）
+  BTC:
+    symbol: "₿"
+    name: "Bitcoin"
+    region: "DIGITAL"
+    digits: 8
+    common: false
+  ETH:
+    symbol: "Ξ"
+    name: "Ethereum"
+    region: "DIGITAL"
+    digits: 18
+    common: false
+  USDT:
+    symbol: "₮"
+    name: "Tether"
+    region: "DIGITAL"
+    digits: 6
+    common: false
+
+# 全局配置
+settings:
+  # 默认输出类型
+  default_output_type: "CODE"
+
+  # 默认金额范围
+  default_amount_min: 0.01
+  default_amount_max: 10000.00
+
+  # 默认金额格式
+  default_format: "FORMATTED"
+
+  # 是否默认只使用常用货币
+  default_common_only: true
+
+# 输出类型定义
+output_types:
+  CODE:
+    name: "货币代码"
+    description: "ISO 4217货币代码（USD, EUR等）"
+    example: "USD"
+
+  SYMBOL:
+    name: "货币符号"
+    description: "货币符号（$, €, ¥等）"
+    example: "$"
+
+  NAME:
+    name: "货币名称"
+    description: "货币全名（US Dollar等）"
+    example: "US Dollar"
+
+  AMOUNT:
+    name: "金额"
+    description: "随机金额值"
+    example: "1234.56"
+
+  FULL:
+    name: "完整信息"
+    description: "包含所有货币信息"
+    example: '{"code":"USD","symbol":"$","name":"US Dollar","amount":"1234.56"}'
+
+# 金额格式定义
+amount_formats:
+  PLAIN:
+    name: "纯数字"
+    description: "无格式的数字字符串"
+    example: "1234.56"
+
+  FORMATTED:
+    name: "格式化"
+    description: "根据locale格式化的金额"
+    example: "1,234.56"
+
+  SYMBOL:
+    name: "带符号"
+    description: "包含货币符号"
+    example: "$1,234.56"
+
+# 地区分类
+regions:
+  AMERICAS:
+    name: "美洲"
+    description: "北美洲和南美洲货币"
+  EUROPE:
+    name: "欧洲"
+    description: "欧洲货币"
+  ASIA:
+    name: "亚洲"
+    description: "亚洲货币"
+  AFRICA:
+    name: "非洲"
+    description: "非洲货币"
+  OCEANIA:
+    name: "大洋洲"
+    description: "大洋洲货币"
+  DIGITAL:
+    name: "数字货币"
+    description: "加密货币和其他数字货币"

@@ -1,0 +1,211 @@
+# 车牌号生成器配置文件
+# License Plate Generator Configuration
+# 版本: 1.0
+# 最后更新: 2026-01-28
+# 说明: 支持中国及其他国家/地区的车牌号生成
+
+# 国家/地区配置
+countries:
+  CN:
+    name: "中国"
+    default_country: true
+    description: "中国大陆车牌号规则"
+    format: "省份简称(1) + 城市代码(1) + 车牌号码(5或6)"
+
+    # 省份配置
+    provinces:
+      - code: "京"
+        name: "北京"
+        weight: 10
+        # 城市代码列表（部分城市可能有限制）
+        cities: ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R"]
+      - code: "津"
+        name: "天津"
+        weight: 10
+        cities: ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T"]
+      - code: "沪"
+        name: "上海"
+        weight: 10
+        cities: ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S"]
+      - code: "渝"
+        name: "重庆"
+        weight: 10
+        cities: ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R"]
+      - code: "冀"
+        name: "河北"
+        weight: 8
+        cities: ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V"]
+      - code: "豫"
+        name: "河南"
+        weight: 8
+        cities: ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U"]
+      - code: "云"
+        name: "云南"
+        weight: 5
+        cities: ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S"]
+      - code: "辽"
+        name: "辽宁"
+        weight: 8
+        cities: ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V"]
+      - code: "黑"
+        name: "黑龙江"
+        weight: 6
+        cities: ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U"]
+      - code: "湘"
+        name: "湖南"
+        weight: 8
+        cities: ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V"]
+      - code: "皖"
+        name: "安徽"
+        weight: 7
+        cities: ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S"]
+      - code: "鲁"
+        name: "山东"
+        weight: 9
+        cities: ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V"]
+      - code: "新"
+        name: "新疆"
+        weight: 4
+        cities: ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T"]
+      - code: "苏"
+        name: "江苏"
+        weight: 9
+        cities: ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V"]
+      - code: "浙"
+        name: "浙江"
+        weight: 9
+        cities: ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U"]
+      - code: "赣"
+        name: "江西"
+        weight: 7
+        cities: ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S"]
+      - code: "鄂"
+        name: "湖北"
+        weight: 8
+        cities: ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U"]
+      - code: "桂"
+        name: "广西"
+        weight: 6
+        cities: ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T"]
+      - code: "甘"
+        name: "甘肃"
+        weight: 4
+        cities: ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S"]
+      - code: "晋"
+        name: "山西"
+        weight: 7
+        cities: ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S"]
+      - code: "蒙"
+        name: "内蒙古"
+        weight: 5
+        cities: ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S"]
+      - code: "陕"
+        name: "陕西"
+        weight: 7
+        cities: ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U"]
+      - code: "吉"
+        name: "吉林"
+        weight: 6
+        cities: ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S"]
+      - code: "闽"
+        name: "福建"
+        weight: 8
+        cities: ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U"]
+      - code: "贵"
+        name: "贵州"
+        weight: 5
+        cities: ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R"]
+      - code: "粤"
+        name: "广东"
+        weight: 10
+        cities: ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
+      - code: "青"
+        name: "青海"
+        weight: 3
+        cities: ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R"]
+      - code: "藏"
+        name: "西藏"
+        weight: 3
+        cities: ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q"]
+      - code: "川"
+        name: "四川"
+        weight: 8
+        cities: ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V"]
+      - code: "宁"
+        name: "宁夏"
+        weight: 3
+        cities: ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P"]
+      - code: "琼"
+        name: "海南"
+        weight: 4
+        cities: ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q"]
+      - code: "港"
+        name: "香港"
+        weight: 5
+        cities: ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K"]
+      - code: "澳"
+        name: "澳门"
+        weight: 4
+        cities: ["A", "B", "C", "D", "E", "F", "G", "H", "J"]
+      - code: "台"
+        name: "台湾"
+        weight: 5
+        cities: ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L"]
+
+  # 预留其他国家配置（示例）
+  US:
+    name: "美国"
+    default_country: false
+    description: "美国车牌号规则"
+    format: "STATE ### ###"
+    states:
+      - code: "CA"
+        name: "California"
+        weight: 10
+      - code: "TX"
+        name: "Texas"
+        weight: 10
+      - code: "NY"
+        name: "New York"
+        weight: 10
+
+# 全局配置
+settings:
+  # 字符集配置
+  characters:
+    # 车牌字符集（排除I和O，避免与数字混淆）
+    plate_chars: "ABCDEFGHJKLMNPQRSTUVWXYZ0123456789"
+    # 可选字符（包含I和O）
+    optional_chars: "IO"
+
+  # 新能源车配置
+  new_energy:
+    # 新能源车牌前缀
+    prefixes: ["D", "F"]
+    # 新能源车牌号码长度（不包含前缀）
+    number_length: 5
+
+  # 传统燃油车配置
+  traditional:
+    # 传统车牌号码长度
+    number_length: 5
+
+  # 城市代码字母全集（用于fallback）
+  city_codes: ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
+
+# 输出格式定义
+output_formats:
+  STANDARD:
+    name: "标准格式"
+    description: "省份简称+城市代码+号码"
+    example: "京A12345"
+
+  FULL:
+    name: "完整格式"
+    description: "包含国家代码"
+    example: "CN.京A12345"
+
+  JSON:
+    name: "JSON格式"
+    description: "结构化输出"
+    example: '{"country": "CN", "province": "京", "city": "A", "number": "12345", "type": "traditional"}'

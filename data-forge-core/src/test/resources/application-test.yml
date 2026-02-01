@@ -1,0 +1,28 @@
+spring:
+  main:
+    allow-bean-definition-overriding: true
+    lazy-initialization: true
+
+logging:
+  level:
+    "[com.dataforge]": DEBUG
+    "[org.springframework]": WARN
+    
+# 测试环境安全配置 - 允许临时目录访问
+dataforge:
+  security:
+    allowed-output-directories:
+      - "/tmp"
+      - "/var/tmp"
+      - "./output"
+      - "./target"
+      - "output"
+      - "target"
+      - "C:\\Users\\yount\\AppData\\Local\\Temp"
+      - "C:\\Users\\yount\\AppData\\Local\\Temp\\junit"
+      - "AppData"
+      - "Local"
+      - "Temp"
+      - "junit"
+    # 测试环境下放宽安全限制
+    allow-absolute-paths: true
