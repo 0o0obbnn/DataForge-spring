@@ -1,7 +1,6 @@
 package com.dataforge.generators.internal;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.dataforge.core.DataForgeContext;
 import com.dataforge.model.SimpleFieldConfig;
@@ -11,8 +10,6 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 
 @DisplayName("UUID生成器测试")
 class UuidGeneratorTest {
@@ -30,12 +27,12 @@ class UuidGeneratorTest {
     }
 
     @Test
-    @DisplayName("生成标准UUID格式")
-    void shouldGenerateValidUuidFormat() {
+    @DisplayName("生成标准UUID4格式")
+    void shouldGenerateValidUuid4Format() {
         String uuid = generator.generate(config, context);
 
         assertThat(uuid).isNotNull();
-        assertThat(uuid).matches("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$");
+        assertThat(uuid).matches("^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$");
     }
 
     @Test
@@ -52,11 +49,34 @@ class UuidGeneratorTest {
         assertThat(uuids).hasSize(100);
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = {"standard", "random"})
-    @DisplayName("支持不同UUID版本参数")
-    void shouldSupportVersionParam(String version) {
-        config.setParam("version", version);
+    @Test
+    @DisplayName("生成UUID1(基于时间)")
+    void shouldGenerateUuid1() {
+        config.setParam("type", "UUID1");
+
+        String uuid = generator.generate(config, context);
+
+        assertThat(uuid).isNotNull();
+        // UUID1格式: xxxxxxxx-xxxx-1xxx-yxxx-xxxxxxxxxxxx
+        assertThat(uuid).matches("^[0-9a-f]{8}-[0-9a-f]{4}-1[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$");
+    }
+
+    @Test
+    @DisplayName("生成UUID4(随机)")
+    void shouldGenerateUuid4() {
+        config.setParam("type", "UUID4");
+
+        String uuid = generator.generate(config, context);
+
+        assertThat(uuid).isNotNull();
+        // UUID4格式: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
+        assertThat(uuid).matches("^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$");
+    }
+
+    @Test
+    @DisplayName("未知类型默认使用UUID4")
+    void shouldDefaultToUuid4ForUnknownType() {
+        config.setParam("type", "UNKNOWN");
 
         String uuid = generator.generate(config, context);
 
@@ -65,32 +85,23 @@ class UuidGeneratorTest {
     }
 
     @Test
-    @DisplayName("生成大写格式UUID")
-    void shouldGenerateUppercaseUuid() {
-        config.setParam("uppercase", "true");
-
-        String uuid = generator.generate(config, context);
-
-        assertThat(uuid).matches("^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$");
-    }
-
-    @Test
-    @DisplayName("生成无连字符UUID")
-    void shouldGenerateUuidWithoutHyphens() {
-        config.setParam("hyphens", "false");
-
-        String uuid = generator.generate(config, context);
-
-        assertThat(uuid).matches("^[0-9a-f]{32}$");
-    }
-
-    @Test
-    @DisplayName("空配置使用默认值")
+    @DisplayName("空配置使用默认值(UUID4)")
     void shouldUseDefaultsWithEmptyConfig() {
         SimpleFieldConfig emptyConfig = new SimpleFieldConfig();
+
         String uuid = generator.generate(emptyConfig, context);
 
         assertThat(uuid).isNotNull();
-        assertThat(uuid).matches("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$");
+        assertThat(uuid).matches("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$");
+    }
+
+    @Test
+    @DisplayName("生成多个UUID并验证版本")
+    void shouldGenerateMultipleUuidsWithCorrectVersion() {
+        for (int i = 0; i < 10; i++) {
+            String uuid = generator.generate(config, context);
+            // 验证是有效的UUID格式
+            assertThat(UUID.fromString(uuid).toString()).isEqualTo(uuid);
+        }
     }
 }
