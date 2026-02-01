@@ -34,38 +34,40 @@ class EmailGeneratorTest {
         assertThat(email).matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = {"gmail.com", "qq.com", "163.com", "outlook.com", "hotmail.com"})
-    @DisplayName("生成指定域名邮箱")
-    void shouldGenerateEmailWithSpecificDomain(String domain) {
-        config.setParam("domain", domain);
+    @Test
+    @DisplayName("生成指定域名列表的邮箱")
+    void shouldGenerateEmailWithSpecificDomains() {
+        config.setParam("domains", "gmail.com,qq.com,163.com");
 
         String email = generator.generate(config, context);
 
         assertThat(email).isNotNull();
-        assertThat(email).endsWith("@" + domain);
+        // 验证邮箱格式正确
+        assertThat(email).matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+        // 验证是三个域名之一
+        assertThat(email.endsWith("@gmail.com") || email.endsWith("@qq.com") || email.endsWith("@163.com")).isTrue();
     }
 
     @Test
-    @DisplayName("生成QQ邮箱")
-    void shouldGenerateQQEmail() {
-        config.setParam("type", "QQ");
+    @DisplayName("生成个人类型邮箱")
+    void shouldGeneratePersonalEmail() {
+        config.setParam("type", "PERSONAL");
 
         String email = generator.generate(config, context);
 
         assertThat(email).isNotNull();
-        assertThat(email).matches("^\\d{5,11}@qq\\.com$");
+        assertThat(email).matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
     }
 
     @Test
-    @DisplayName("生成163邮箱")
-    void shouldGenerate163Email() {
-        config.setParam("type", "163");
+    @DisplayName("生成企业类型邮箱")
+    void shouldGenerateEnterpriseEmail() {
+        config.setParam("type", "ENTERPRISE");
 
         String email = generator.generate(config, context);
 
         assertThat(email).isNotNull();
-        assertThat(email).endsWith("@163.com");
+        assertThat(email).matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
     }
 
     @Test
@@ -88,13 +90,47 @@ class EmailGeneratorTest {
     }
 
     @Test
-    @DisplayName("生成企业邮箱")
-    void shouldGenerateEnterpriseEmail() {
-        config.setParam("domain", "company.com");
+    @DisplayName("使用姓名前缀生成邮箱")
+    void shouldGenerateEmailWithNamePrefix() {
+        config.setParam("prefix_name", "true");
 
         String email = generator.generate(config, context);
 
         assertThat(email).isNotNull();
-        assertThat(email).endsWith("@company.com");
+        assertThat(email).matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    @Test
+    @DisplayName("指定用户名长度范围")
+    void shouldGenerateEmailWithCustomUsernameLength() {
+        config.setParam("username_length", "8,15");
+
+        String email = generator.generate(config, context);
+
+        assertThat(email).isNotNull();
+        assertThat(email).matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    @Test
+    @DisplayName("生成无效邮箱")
+    void shouldGenerateInvalidEmail() {
+        config.setParam("valid", "false");
+
+        String email = generator.generate(config, context);
+
+        assertThat(email).isNotNull();
+        // 无效邮箱格式可能不符合标准
+        assertThat(email).isNotEmpty();
+    }
+
+    @Test
+    @DisplayName("默认生成有效邮箱")
+    void shouldDefaultToValidEmail() {
+        SimpleFieldConfig emptyConfig = new SimpleFieldConfig();
+
+        String email = generator.generate(emptyConfig, context);
+
+        assertThat(email).isNotNull();
+        assertThat(email).matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
     }
 }

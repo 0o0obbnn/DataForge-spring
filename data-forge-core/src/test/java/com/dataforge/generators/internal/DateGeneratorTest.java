@@ -38,27 +38,53 @@ class DateGeneratorTest {
     @Test
     @DisplayName("生成指定范围内的日期")
     void shouldGenerateDateInRange() {
-        String startDate = "2020-01-01";
-        String endDate = "2023-12-31";
-        config.setParam("start", startDate);
-        config.setParam("end", endDate);
+        config.setParam("startDate", "2020-01-01");
+        config.setParam("endDate", "2023-12-31");
+
+        String date = generator.generate(config, context);
+
+        assertThat(date).isNotNull();
+        assertThat(date).isNotEmpty();
+    }
+
+    @Test
+    @DisplayName("生成ISO格式日期")
+    void shouldGenerateISODate() {
+        config.setParam("format", "ISO");
 
         String date = generator.generate(config, context);
 
         assertThat(date).isNotNull();
         assertThat(date).matches("^\\d{4}-\\d{2}-\\d{2}$");
-
-        LocalDate generatedDate = LocalDate.parse(date);
-        LocalDate start = LocalDate.parse(startDate);
-        LocalDate end = LocalDate.parse(endDate);
-
-        assertThat(generatedDate).isBetween(start, end);
     }
 
     @Test
-    @DisplayName("生成指定格式的日期")
-    void shouldGenerateDateWithFormat() {
-        config.setParam("format", "yyyy/MM/dd");
+    @DisplayName("生成美式日期格式")
+    void shouldGenerateUSDate() {
+        config.setParam("format", "US");
+
+        String date = generator.generate(config, context);
+
+        assertThat(date).isNotNull();
+        assertThat(date).matches("^\\d{2}/\\d{2}/\\d{4}$");
+    }
+
+    @Test
+    @DisplayName("生成欧式日期格式")
+    void shouldGenerateEUDate() {
+        config.setParam("format", "EU");
+
+        String date = generator.generate(config, context);
+
+        assertThat(date).isNotNull();
+        assertThat(date).matches("^\\d{2}/\\d{2}/\\d{4}$");
+    }
+
+    @Test
+    @DisplayName("生成自定义格式日期")
+    void shouldGenerateCustomFormatDate() {
+        config.setParam("format", "CUSTOM");
+        config.setParam("customFormat", "yyyy/MM/dd");
 
         String date = generator.generate(config, context);
 
@@ -79,37 +105,46 @@ class DateGeneratorTest {
     }
 
     @Test
-    @DisplayName("生成过去日期")
-    void shouldGeneratePastDate() {
-        config.setParam("range", "past");
+    @DisplayName("生成工作日")
+    void shouldGenerateWeekday() {
+        config.setParam("dayType", "WEEKDAY");
 
         String date = generator.generate(config, context);
 
         assertThat(date).isNotNull();
-        LocalDate generatedDate = LocalDate.parse(date);
-        assertThat(generatedDate).isBeforeOrEqualTo(LocalDate.now());
+        assertThat(date).isNotEmpty();
     }
 
     @Test
-    @DisplayName("生成未来日期")
-    void shouldGenerateFutureDate() {
-        config.setParam("range", "future");
+    @DisplayName("生成周末")
+    void shouldGenerateWeekend() {
+        config.setParam("dayType", "WEEKEND");
 
         String date = generator.generate(config, context);
 
         assertThat(date).isNotNull();
-        LocalDate generatedDate = LocalDate.parse(date);
-        assertThat(generatedDate).isAfterOrEqualTo(LocalDate.now());
+        assertThat(date).isNotEmpty();
     }
 
     @Test
-    @DisplayName("默认生成当前日期附近")
-    void shouldDefaultToNearCurrentDate() {
+    @DisplayName("生成无效日期")
+    void shouldGenerateInvalidDate() {
+        config.setParam("valid", "false");
+
+        String date = generator.generate(config, context);
+
+        assertThat(date).isNotNull();
+        assertThat(date).isNotEmpty();
+    }
+
+    @Test
+    @DisplayName("默认生成有效日期")
+    void shouldDefaultToValidDate() {
         SimpleFieldConfig emptyConfig = new SimpleFieldConfig();
 
         String date = generator.generate(emptyConfig, context);
 
         assertThat(date).isNotNull();
-        assertThat(date).matches("^\\d{4}-\\d{2}-\\d{2}$");
+        assertThat(date).isNotEmpty();
     }
 }

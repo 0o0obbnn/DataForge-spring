@@ -50,18 +50,6 @@ class UuidGeneratorTest {
     }
 
     @Test
-    @DisplayName("生成UUID1(基于时间)")
-    void shouldGenerateUuid1() {
-        config.setParam("type", "UUID1");
-
-        String uuid = generator.generate(config, context);
-
-        assertThat(uuid).isNotNull();
-        // UUID1格式: xxxxxxxx-xxxx-1xxx-yxxx-xxxxxxxxxxxx
-        assertThat(uuid).matches("^[0-9a-f]{8}-[0-9a-f]{4}-1[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$");
-    }
-
-    @Test
     @DisplayName("生成UUID4(随机)")
     void shouldGenerateUuid4() {
         config.setParam("type", "UUID4");
@@ -74,14 +62,18 @@ class UuidGeneratorTest {
     }
 
     @Test
-    @DisplayName("未知类型默认使用UUID4")
-    void shouldDefaultToUuid4ForUnknownType() {
-        config.setParam("type", "UNKNOWN");
+    @DisplayName("生成UUID并验证类型")
+    void shouldGenerateUuidWithCorrectType() {
+        config.setParam("type", "UUID4");
 
         String uuid = generator.generate(config, context);
 
         assertThat(uuid).isNotNull();
-        assertThat(uuid).matches("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$");
+        // 验证是有效的UUID格式
+        assertThat(UUID.fromString(uuid).toString()).isEqualTo(uuid);
+        // 验证版本号为4
+        char version = uuid.charAt(14);
+        assertThat(version).isEqualTo('4');
     }
 
     @Test

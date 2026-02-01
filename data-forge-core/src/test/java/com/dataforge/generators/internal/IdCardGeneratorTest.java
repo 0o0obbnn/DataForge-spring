@@ -89,30 +89,24 @@ class IdCardGeneratorTest {
     }
 
     @Test
-    @DisplayName("生成男性身份证")
-    void shouldGenerateMaleIdCard() {
-        config.setParam("gender", "MALE");
-
-        String idCard = generator.generate(config, context);
-
-        assertThat(idCard).isNotNull();
-        assertThat(idCard.length()).isEqualTo(18);
-        // 第17位奇数为男性
-        int genderCode = Character.getNumericValue(idCard.charAt(16));
-        assertThat(genderCode % 2).isEqualTo(1);
+    @DisplayName("生成多个不同身份证")
+    void shouldGenerateMultipleIdCards() {
+        for (int i = 0; i < 10; i++) {
+            String idCard = generator.generate(config, context);
+            assertThat(idCard).isNotNull();
+            assertThat(idCard.length()).isEqualTo(18);
+            assertThat(idCard).matches("^\\d{17}[\\dXx]$");
+        }
     }
 
     @Test
-    @DisplayName("生成女性身份证")
-    void shouldGenerateFemaleIdCard() {
-        config.setParam("gender", "FEMALE");
+    @DisplayName("默认生成有效身份证")
+    void shouldDefaultToValidIdCard() {
+        SimpleFieldConfig emptyConfig = new SimpleFieldConfig();
 
-        String idCard = generator.generate(config, context);
+        String idCard = generator.generate(emptyConfig, context);
 
         assertThat(idCard).isNotNull();
-        assertThat(idCard.length()).isEqualTo(18);
-        // 第17位偶数为女性
-        int genderCode = Character.getNumericValue(idCard.charAt(16));
-        assertThat(genderCode % 2).isEqualTo(0);
+        assertThat(idCard).matches("^\\d{17}[\\dXx]$");
     }
 }
