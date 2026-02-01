@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -43,9 +44,11 @@ public class GenerateRequest {
 
   /** 字段配置列表 */
   @NotEmpty(message = "Fields configuration cannot be empty")
+  @Size(max = 100, message = "Fields list cannot exceed 100 items")
   @Valid
   @Schema(
-      description = "字段配置列表，定义每个字段的类型和参数。支持60+种数据生成器类型",
+      description =
+          "字段配置列表，定义每个字段的类型和参数。支持60+种数据生成器类型，最多支持100个字段",
       requiredMode = Schema.RequiredMode.REQUIRED)
   private List<FieldConfigWrapper> fields;
 

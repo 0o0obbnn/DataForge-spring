@@ -5,11 +5,15 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /** 配置文件加载器。 */
 @Component
 public class ConfigLoader {
+
+  private static final Logger logger = LoggerFactory.getLogger(ConfigLoader.class);
 
   private final ObjectMapper jsonMapper = new ObjectMapper();
   private final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
@@ -49,16 +53,36 @@ public class ConfigLoader {
 
   /** 合并命令行参数到配置。 */
   public ForgeConfig mergeWithCliArgs(ForgeConfig config, String[] args) {
-    // 简化实现，实际可以更复杂
+    if (args == null || args.length == 0) {
+      return config;
+    }
+
     for (int i = 0; i < args.length - 1; i++) {
       String arg = args[i];
       String value = args[i + 1];
 
-      switch (arg) {
-        case "-c", "--count" -> config.setCount(Integer.parseInt(value));
-        case "-t", "--threads" -> config.setThreads(Integer.parseInt(value));
-        case "--validate" -> config.setValidate(Boolean.parseBoolean(value));
-        case "--seed" -> config.setSeed(Long.parseLong(value));
+      try {
+        switch (arg) {
+          case "-c", "--count" -> {
+            int count =
+                CliArgumentParser.parseIntInRange("count", value, 1, 1_000_000_000);
+            config.setCount(count);
+          }
+          case "-t", "--threads" -> {
+            int threads = CliArgumentParser.parseIntInRange("threads", value, 1, 64);
+            config.setThreads(threads);
+          }
+          case "--validate" ->
+              config.setValidate(CliArgumentParser.parseBoolean("validate", value));
+          case "--seed" -> config.setSeed(CliArgumentParser.parseLong("seed", value));
+          default -> {
+            // 忽略未知参数，记录警告
+            logger.warn("Unknown CLI argument: {}, skipping", arg);
+          }
+        }
+      } catch (IllegalArgumentException e) {
+        logger.error("Failed to parse CLI argument: {} {}", arg, value, e);
+        throw e; // 重新抛出以终止程序
       }
     }
 
