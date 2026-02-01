@@ -14,6 +14,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
+import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -23,6 +24,22 @@ import org.springframework.stereotype.Component;
  *
  * <p>将生成的数据转换为SQL INSERT语句输出到文件或标准输出。 支持自定义表名、字符编码等配置。 采用流式写入，支持大数据量输出而不会导致内存溢出。
  *
+ * <p><b>数据库兼容性</b>:
+ * <ul>
+ *   <li>MySQL: ✅ 完全兼容（使用反引号转义）</li>
+ *   <li>MariaDB: ✅ 完全兼容（与MySQL相同）</li>
+ *   <li>PostgreSQL: ⚠️ 需使用双引号转义，当前实现不完全兼容</li>
+ *   <li>SQL Server: ⚠️ 需使用方括号转义，当前实现不完全兼容</li>
+ *   <li>Oracle: ⚠️ 不支持标识符转义，当前实现不完全兼容</li>
+ * </ul>
+ *
+ * <p><b>安全特性</b>:
+ * <ul>
+ *   <li>标识符白名单验证（仅允许字母、数字、下划线）</li>
+ *   <li>标识符长度限制（最大64字符，符合SQL标准）</li>
+ *   <li>SQL注入防护（值转义和标识符验证）</li>
+ * </ul>
+ *
  * @author DataForge Team
  * @since 1.0.0
  */
@@ -30,6 +47,24 @@ import org.springframework.stereotype.Component;
 public class SqlOutputStrategy implements OutputStrategy {
 
   private static final Logger logger = LoggerFactory.getLogger(SqlOutputStrategy.class);
+
+  /**
+   * SQL标识符白名单模式。
+   *
+   * <p>允许的格式：
+   * <ul>
+   *   <li>以字母或下划线开头</li>
+   *   <li>后续字符可以是字母、数字或下划线</li>
+   *   <li>符合标准SQL标识符规范</li>
+   * </ul>
+   *
+   * <p><b>注意</b>: 此实现使用MySQL风格的反引号转义，仅兼容MySQL/MariaDB数据库。
+   */
+  private static final Pattern IDENTIFIER_PATTERN =
+      Pattern.compile("^[a-zA-Z_][a-zA-Z0-9_]*$");
+
+  /** SQL标识符最大长度（符合SQL标准） */
+  private static final int MAX_IDENTIFIER_LENGTH = 64;
 
   /** 输出配置。 */
   private OutputConfig config;
@@ -310,15 +345,52 @@ public class SqlOutputStrategy implements OutputStrategy {
   /**
    * 转义SQL标识符（表名、列名）。
    *
+   * <p>使用白名单验证确保标识符符合标准SQL规范，防止SQL注入。 使用MySQL风格的反引号转义，仅适用于MySQL/MariaDB数据库。
+   *
+   * <p><b>验证规则</b>:
+   * <ul>
+   *   <li>必须以字母或下划线开头</li>
+   *   <li>只能包含字母、数字或下划线</li>
+   *   <li>长度不能超过64字符</li>
+   * </ul>
+   *
+   * <p><b>数据库兼容性</b>:
+   * <ul>
+   *   <li>MySQL/MariaDB: ✅ 完全兼容（反引号转义）</li>
+   *   <li>PostgreSQL: ⚠️ 需使用双引号转义</li>
+   *   <li>SQL Server: ⚠️ 需使用方括号转义</li>
+   *   <li>Oracle: ⚠️ 不支持标识符转义</li>
+   * </ul>
+   *
    * @param identifier 标识符
    * @return 转义后的标识符
+   * @throws OutputException 当标识符包含非法字符或超过最大长度时
    */
   private String escapeIdentifier(String identifier) {
     if (identifier == null || identifier.isEmpty()) {
       return identifier;
     }
 
-    // 简单的标识符转义，使用反引号
+    // 白名单验证
+    if (!IDENTIFIER_PATTERN.matcher(identifier).matches()) {
+      throw new OutputException(
+          String.format(
+              "Invalid SQL identifier: '%s'. "
+                  + "Identifiers must start with a letter or underscore, "
+                  + "and contain only letters, numbers, and underscores.",
+              identifier));
+    }
+
+    // 长度验证（标准SQL限制）
+    if (identifier.length() > MAX_IDENTIFIER_LENGTH) {
+      throw new OutputException(
+          String.format(
+              "SQL identifier too long: '%s' (%d characters). "
+                  + "Maximum length is %d characters.",
+              identifier, identifier.length(), MAX_IDENTIFIER_LENGTH));
+    }
+
+    // MySQL风格转义（反引号）
     return "`" + identifier.replace("`", "``") + "`";
   }
 
