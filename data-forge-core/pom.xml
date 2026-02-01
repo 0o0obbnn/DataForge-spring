@@ -139,7 +139,8 @@
                 <configuration>
                     <failOnViolation>false</failOnViolation>
                     <linkXRef>false</linkXRef>
-                    <skip>true</skip>
+                    <skip>false</skip>
+                    <printFailingErrors>true</printFailingErrors>
                 </configuration>
             </plugin>
             <plugin>
