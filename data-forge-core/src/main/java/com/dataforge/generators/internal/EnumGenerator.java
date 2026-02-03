@@ -76,13 +76,13 @@ public class EnumGenerator extends BaseGenerator implements DataGenerator<String
       // 获取枚举值列表
       String valuesStr = getStringParam(config, "values", null);
       if (valuesStr == null || valuesStr.trim().isEmpty()) {
-        logger.error("No values provided for enum generator");
+        logger.warn("No values provided for enum generator, returning default value");
         return "DEFAULT";
       }
 
       List<String> values = parseValues(valuesStr);
       if (values.isEmpty()) {
-        logger.error("Empty values list for enum generator");
+        logger.warn("Empty values list for enum generator, returning default value");
         return "DEFAULT";
       }
 

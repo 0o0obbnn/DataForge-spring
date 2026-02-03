@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -26,7 +25,11 @@ public class IdCardRegionService {
 
   private static final String ADMINISTRATIVE_DIVISIONS_PATH = "data/administrative-divisions.txt";
 
-  @Autowired private DataLoadingService dataLoadingService;
+  private final DataLoadingService dataLoadingService;
+
+  public IdCardRegionService(DataLoadingService dataLoadingService) {
+    this.dataLoadingService = dataLoadingService;
+  }
 
   private volatile Map<String, RegionInfo> regionCodes;
   private volatile List<String> allRegionCodes;

@@ -4,6 +4,7 @@ import com.dataforge.core.DataForgeContext;
 import com.dataforge.generators.spi.DataGenerator;
 import com.dataforge.model.FieldConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -68,7 +69,13 @@ public class PhoneGenerator extends BaseGenerator implements DataGenerator<Strin
   private volatile List<String> invalidPrefixes;
 
   private final Random random = new Random();
-  private final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
+  private final ObjectMapper yamlMapper;
+
+  {
+    // 配置 ObjectMapper 使用 SNAKE_CASE 命名策略，支持 YAML 配置文件中的 snake_case 字段名
+    yamlMapper = new ObjectMapper(new YAMLFactory());
+    yamlMapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
+  }
 
   @Override
   public String getType() {
@@ -315,7 +322,7 @@ public class PhoneGenerator extends BaseGenerator implements DataGenerator<Strin
         initializeFallbackConfig();
       }
     } catch (Exception e) {
-      logger.error("Failed to load phone config, using fallback data", e);
+      logger.warn("Failed to load phone config, using fallback data: {}", e.getMessage());
       initializeFallbackConfig();
     }
   }

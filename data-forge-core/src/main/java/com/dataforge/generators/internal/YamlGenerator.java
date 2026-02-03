@@ -6,6 +6,7 @@ import com.dataforge.model.FieldConfig;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,6 +75,8 @@ public class YamlGenerator extends BaseGenerator implements DataGenerator<String
       String valueTypesParam = getStringParam(config, "value_types", "ALL");
       boolean includeComments = getBooleanParam(config, "include_comments", false);
       boolean invalidYaml = getBooleanParam(config, "invalid_yaml", false);
+      boolean useContext = getBooleanParam(config, "use_context", false);
+      String customKey = getStringParam(config, "custom_key", null);
 
       // 限制参数范围
       depth = Math.max(1, Math.min(10, depth));
@@ -86,7 +89,7 @@ public class YamlGenerator extends BaseGenerator implements DataGenerator<String
       try {
         structureType = StructureType.valueOf(structure.toUpperCase());
       } catch (IllegalArgumentException e) {
-        logger.warn("Invalid structure type: {}, using SIMPLE", structure);
+        logger.debug("Invalid structure type: {}, using SIMPLE", structure);
       }
 
       StringBuilder yaml = new StringBuilder();
@@ -96,9 +99,21 @@ public class YamlGenerator extends BaseGenerator implements DataGenerator<String
         yaml.append("# Structure type: ").append(structureType.name()).append("\n\n");
       }
 
+      // 当 use_context 为 true 时，将 context 键值对写入 YAML 开头
+      if (useContext && context != null) {
+        Map<String, Object> all = context.getAll();
+        if (all != null && !all.isEmpty()) {
+          for (Map.Entry<String, Object> e : all.entrySet()) {
+            Object v = e.getValue();
+            yaml.append(e.getKey()).append(": ").append(formatValue(v != null ? v : "null")).append("\n");
+          }
+          yaml.append("\n");
+        }
+      }
+
       switch (structureType) {
         case SIMPLE:
-          generateSimpleYaml(yaml, keyCount, valueTypes, invalidYaml);
+          generateSimpleYaml(yaml, keyCount, valueTypes, invalidYaml, customKey);
           break;
         case NESTED:
           generateNestedYaml(yaml, depth, keyCount, valueTypes, invalidYaml);
@@ -140,7 +155,7 @@ public class YamlGenerator extends BaseGenerator implements DataGenerator<String
         try {
           valueTypes.add(ValueType.valueOf(type.trim().toUpperCase()));
         } catch (IllegalArgumentException e) {
-          logger.warn("Invalid value type: {}, skipping", type);
+          logger.debug("Invalid value type: {}, skipping", type);
         }
       }
     }
@@ -153,12 +168,24 @@ public class YamlGenerator extends BaseGenerator implements DataGenerator<String
     return valueTypes;
   }
 
-  /** 生成简单YAML结构 */
+  /** 生成简单YAML结构；当 valueTypes 含多种类型时，前 N 个 key 轮流使用各类型一次，保证混合类型输出。 */
   private void generateSimpleYaml(
-      StringBuilder yaml, int keyCount, Set<ValueType> valueTypes, boolean invalid) {
+      StringBuilder yaml,
+      int keyCount,
+      Set<ValueType> valueTypes,
+      boolean invalid,
+      String customKey) {
+    java.util.List<ValueType> typeList = new java.util.ArrayList<>(valueTypes);
+    int typeCount = typeList.size();
     for (int i = 0; i < keyCount; i++) {
-      String key = generateKey(i);
-      Object value = generateValue(valueTypes);
+      String key =
+          (i == 0 && customKey != null && !customKey.trim().isEmpty())
+              ? customKey.trim()
+              : generateKey(i);
+      Object value =
+          (typeCount > 0 && i < typeCount)
+              ? generateValueOfType(typeList.get(i))
+              : generateValue(valueTypes);
 
       if (invalid && i == keyCount - 1) {
         // 生成无效YAML - 缺少冒号
@@ -265,7 +292,11 @@ public class YamlGenerator extends BaseGenerator implements DataGenerator<String
   private Object generateValue(Set<ValueType> valueTypes) {
     ValueType[] types = valueTypes.toArray(new ValueType[0]);
     ValueType type = types[random.nextInt(types.length)];
+    return generateValueOfType(type);
+  }
 
+  /** 生成指定类型的值 */
+  private Object generateValueOfType(ValueType type) {
     switch (type) {
       case STRING:
         return generateRandomString();

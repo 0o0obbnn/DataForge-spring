@@ -27,7 +27,8 @@ public abstract class BaseApiTest {
 
   @Autowired protected WebApplicationContext webApplicationContext;
 
-  @MockBean protected RedisTemplate<String, Object> redisTemplate;
+  @MockBean(name = "redisTemplate")
+  protected RedisTemplate<String, Object> redisTemplate;
 
   @MockBean protected TokenBlacklistService tokenBlacklistService;
 

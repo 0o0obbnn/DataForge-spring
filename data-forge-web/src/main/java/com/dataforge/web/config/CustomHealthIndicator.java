@@ -6,6 +6,7 @@ import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
 /**
@@ -19,39 +20,67 @@ import org.springframework.stereotype.Component;
 @Component
 public class CustomHealthIndicator implements HealthIndicator {
 
-  @Autowired private GeneratorFactory generatorFactory;
+  private final GeneratorFactory generatorFactory;
+  private final RedisConnectionFactory redisConnectionFactory;
 
-  @Autowired(required = false)
-  private RedisConnectionFactory redisConnectionFactory;
+  public CustomHealthIndicator(
+      GeneratorFactory generatorFactory,
+      @Autowired(required = false) @Nullable RedisConnectionFactory redisConnectionFactory) {
+    this.generatorFactory = generatorFactory;
+    this.redisConnectionFactory = redisConnectionFactory;
+  }
 
   @Override
   public Health health() {
     Health.Builder builder = Health.up();
+    boolean hasIssues = false;
 
     // 检查生成器工厂
-    int generatorCount = generatorFactory.getGeneratorCount();
-    if (generatorCount == 0) {
-      builder.down().withDetail("generatorFactory", "No generators registered");
-    } else {
-      builder.withDetail("generatorFactory", "OK").withDetail("generatorCount", generatorCount);
+    try {
+      int generatorCount = generatorFactory.getGeneratorCount();
+      if (generatorCount == 0) {
+        builder.down().withDetail("generatorFactory", "No generators registered");
+        hasIssues = true;
+      } else {
+        builder.withDetail("generatorFactory", "OK").withDetail("generatorCount", generatorCount);
+      }
+    } catch (Exception e) {
+      builder.down().withDetail("generatorFactory", "Error: " + e.getMessage());
+      hasIssues = true;
     }
 
     // 检查Redis连接
     if (redisConnectionFactory != null) {
       try {
         RedisConnection connection = redisConnectionFactory.getConnection();
-        String pong = connection.ping();
-        connection.close();
-        if ("PONG".equalsIgnoreCase(pong)) {
-          builder.withDetail("redis", "UP");
-        } else {
-          builder.down().withDetail("redis", "Connection failed");
+        try {
+          String pong = connection.ping();
+          if ("PONG".equalsIgnoreCase(pong)) {
+            builder.withDetail("redis", "UP");
+          } else {
+            builder.down().withDetail("redis", "Connection failed");
+            hasIssues = true;
+          }
+        } finally {
+          try {
+            connection.close();
+          } catch (Exception closeEx) {
+            // Log but don't fail the health check for close errors
+          }
         }
       } catch (Exception e) {
         builder.down().withDetail("redis", "DOWN: " + e.getMessage());
+        hasIssues = true;
       }
     } else {
       builder.withDetail("redis", "Not configured");
+    }
+
+    // Only set DOWN if there are actual issues
+    if (hasIssues) {
+      builder.down();
+    } else {
+      builder.up();
     }
 
     return builder.build();

@@ -62,9 +62,7 @@ public final class CliArgumentParser {
       return Boolean.parseBoolean(value);
     } catch (Exception e) {
       throw new IllegalArgumentException(
-          String.format(
-              "Invalid %s value: '%s'. Must be 'true' or 'false'.", paramName, value),
-          e);
+          String.format("Invalid %s value: '%s'. Must be 'true' or 'false'.", paramName, value), e);
     }
   }
 
@@ -82,8 +80,7 @@ public final class CliArgumentParser {
     int parsed = parseInt(paramName, value);
     if (parsed < min || parsed > max) {
       throw new IllegalArgumentException(
-          String.format(
-              "%s must be between %,d and %,d, got: %,d", paramName, min, max, parsed));
+          String.format("%s must be between %,d and %,d, got: %,d", paramName, min, max, parsed));
     }
     return parsed;
   }
@@ -102,8 +99,7 @@ public final class CliArgumentParser {
     long parsed = parseLong(paramName, value);
     if (parsed < min || parsed > max) {
       throw new IllegalArgumentException(
-          String.format(
-              "%s must be between %,d and %,d, got: %,d", paramName, min, max, parsed));
+          String.format("%s must be between %,d and %,d, got: %,d", paramName, min, max, parsed));
     }
     return parsed;
   }

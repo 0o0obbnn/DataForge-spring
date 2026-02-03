@@ -113,6 +113,9 @@ public class BankCardGenerator extends BaseGenerator implements DataGenerator<St
       // 从参数中获取是否生成有效卡号
       boolean valid = getBooleanParam(config, "valid", true);
 
+      // 从参数中获取无效类型（当 valid=false 时）
+      String invalidType = getStringParam(config, "invalid_type", null);
+
       // 从参数中获取卡号长度
       String lengthStr = getStringParam(config, "length", null);
       Integer length = lengthStr != null ? Integer.parseInt(lengthStr) : null;
@@ -121,7 +124,7 @@ public class BankCardGenerator extends BaseGenerator implements DataGenerator<St
       boolean useWeight = getBooleanParam(config, "use_weight", true);
 
       if (!valid) {
-        return generateInvalidBankCard();
+        return generateInvalidBankCard(invalidType);
       }
 
       String cardNumber = generateValidBankCard(cardType, bankCode, issuer, length, useWeight);
@@ -349,9 +352,24 @@ public class BankCardGenerator extends BaseGenerator implements DataGenerator<St
   /**
    * 生成无效的银行卡号。
    *
+   * @param invalidType 无效类型（NON_NUMERIC / WRONG_LENGTH / WRONG_CHECKSUM / OTHER），为 null 时随机
    * @return 无效的银行卡号
    */
-  private String generateInvalidBankCard() {
+  private String generateInvalidBankCard(String invalidType) {
+    if (invalidType != null && !invalidType.trim().isEmpty()) {
+      switch (invalidType.trim().toUpperCase()) {
+        case "NON_NUMERIC":
+          return generateNonNumericCard();
+        case "WRONG_LENGTH":
+          return generateWrongLengthCard();
+        case "WRONG_CHECKSUM":
+          return generateWrongChecksumCard();
+        case "OTHER":
+          return generateOtherInvalidCard();
+        default:
+          break;
+      }
+    }
     int type = ThreadLocalRandom.current().nextInt(4);
 
     return switch (type) {
@@ -392,11 +410,23 @@ public class BankCardGenerator extends BaseGenerator implements DataGenerator<St
     // 先生成一个有效的卡号
     String validCard = generateValidBankCard("DEBIT", null, "ANY", 16, false);
 
-    // 修改最后一位校验位
-    StringBuilder invalidCard = new StringBuilder(validCard.substring(0, validCard.length() - 1));
+    // 修改中间的一位数字（倒数第3位），确保不会意外产生有效的校验和
+    // 因为改变中间数字会改变整个Luhn校验和
+    StringBuilder invalidCard = new StringBuilder(validCard);
+    int positionToChange = validCard.length() - 3; // 改变倒数第3位数字
+    int currentDigit = Character.getNumericValue(validCard.charAt(positionToChange));
+    int wrongDigit = (currentDigit + 1) % 10;
+    invalidCard.setCharAt(positionToChange, (char) ('0' + wrongDigit));
+
+    // 验证确实无效
+    if (!luhnValidator.isValid(invalidCard.toString())) {
+      return invalidCard.toString();
+    }
+
+    // 如果不幸还是有效，修改最后一位
     int lastDigit = Character.getNumericValue(validCard.charAt(validCard.length() - 1));
-    int wrongDigit = (lastDigit + 1) % 10;
-    invalidCard.append(wrongDigit);
+    int wrongLastDigit = (lastDigit + 1) % 10;
+    invalidCard.setCharAt(validCard.length() - 1, (char) ('0' + wrongLastDigit));
 
     return invalidCard.toString();
   }

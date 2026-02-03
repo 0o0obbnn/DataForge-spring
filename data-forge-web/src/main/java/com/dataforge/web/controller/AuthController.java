@@ -13,9 +13,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -38,11 +38,18 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Authentication", description = "认证相关API")
 public class AuthController {
 
-  @Autowired private AuthenticationManager authenticationManager;
+  private final AuthenticationManager authenticationManager;
+  private final JwtUtil jwtUtil;
+  private final TokenBlacklistService tokenBlacklistService;
 
-  @Autowired private JwtUtil jwtUtil;
-
-  @Autowired private TokenBlacklistService tokenBlacklistService;
+  public AuthController(
+      AuthenticationManager authenticationManager,
+      JwtUtil jwtUtil,
+      TokenBlacklistService tokenBlacklistService) {
+    this.authenticationManager = authenticationManager;
+    this.jwtUtil = jwtUtil;
+    this.tokenBlacklistService = tokenBlacklistService;
+  }
 
   /**
    * 构建成功的API响应
@@ -322,6 +329,7 @@ public class AuthController {
    * @return ResponseEntity<ApiResponse<Void>> 操作结果
    */
   @PostMapping("/logout-all")
+  @PreAuthorize("hasRole('ADMIN')")
   @Operation(
       summary = "退出所有设备登录（管理员）",
       description = "强制指定用户在所有设备上重新登录。需要管理员权限。此操作将清除该用户所有被撤销的Token黑名单。")

@@ -93,7 +93,10 @@ public class BooleanGenerator extends BaseGenerator implements DataGenerator<Str
       // 生成布尔值字符串
       String result = formatBoolean(value, format);
 
-      // 应用大小写风格
+      // 应用大小写风格（单字符格式YN和BINARY保持原样，其他格式应用转换）
+      if (format == BooleanFormat.YN || format == BooleanFormat.BINARY) {
+        return result;
+      }
       return applyCaseStyle(result, caseStyle);
 
     } catch (Exception e) {
@@ -146,6 +149,8 @@ public class BooleanGenerator extends BaseGenerator implements DataGenerator<Str
   private String applyCaseStyle(String text, CaseStyle caseStyle) {
     switch (caseStyle) {
       case LOWER:
+        // ON_OFF格式的默认值已经是首字母大写（On/Off），在默认情况下保持原样
+        // 但当明确指定LOWER时，应该转为小写
         return text.toLowerCase();
       case UPPER:
         return text.toUpperCase();

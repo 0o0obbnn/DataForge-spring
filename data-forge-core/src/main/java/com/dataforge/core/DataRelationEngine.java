@@ -144,9 +144,18 @@ public class DataRelationEngine {
       Map<String, Object> result = new LinkedHashMap<>(record);
 
       try {
-        // 解析地区代码
+        // 解析地区代码 - 支持模糊匹配
         String regionCode = matcher.group(1);
         RegionInfo region = REGION_MAPPING.get(regionCode);
+
+        // 如果精确匹配失败，尝试匹配更短的代码（省/市级）
+        if (region == null && regionCode.length() >= 4) {
+          region = REGION_MAPPING.get(regionCode.substring(0, 4) + "00");
+        }
+        if (region == null && regionCode.length() >= 2) {
+          region = REGION_MAPPING.get(regionCode.substring(0, 2) + "0000");
+        }
+
         if (region != null) {
           result.put("province", region.getProvince());
           result.put("city", region.getCity());
@@ -237,14 +246,15 @@ public class DataRelationEngine {
       Map<String, Object> result = new LinkedHashMap<>(record);
 
       try {
-        // 根据BIN码匹配银行
-        String bank = "未知银行";
-        for (Map.Entry<String, String> entry : BANK_BIN_MAPPING.entrySet()) {
-          if (cardNumber.startsWith(entry.getKey())) {
-            bank = entry.getValue();
-            break;
-          }
-        }
+        // 根据BIN码匹配银行 - 优先匹配更长的前缀
+        final String cardNumberFinal = cardNumber;
+        String bank =
+            BANK_BIN_MAPPING.entrySet().stream()
+                .filter(entry -> cardNumberFinal.startsWith(entry.getKey()))
+                .filter(entry -> entry.getKey().length() > 0)
+                .max((e1, e2) -> Integer.compare(e1.getKey().length(), e2.getKey().length()))
+                .map(Map.Entry::getValue)
+                .orElse("未知银行");
 
         result.put("bank_name", bank);
 

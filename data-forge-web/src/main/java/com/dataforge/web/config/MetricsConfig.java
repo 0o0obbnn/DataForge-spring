@@ -4,7 +4,6 @@ import com.dataforge.core.GeneratorFactory;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.util.concurrent.atomic.AtomicLong;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,9 +20,13 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnBean(MeterRegistry.class)
 public class MetricsConfig {
 
-  @Autowired private MeterRegistry meterRegistry;
+  private final MeterRegistry meterRegistry;
+  private final GeneratorFactory generatorFactory;
 
-  @Autowired private GeneratorFactory generatorFactory;
+  public MetricsConfig(MeterRegistry meterRegistry, GeneratorFactory generatorFactory) {
+    this.meterRegistry = meterRegistry;
+    this.generatorFactory = generatorFactory;
+  }
 
   /**
    * 注册生成器数量指标。

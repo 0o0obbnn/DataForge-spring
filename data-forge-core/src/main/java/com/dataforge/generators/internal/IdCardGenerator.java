@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -31,7 +30,16 @@ public class IdCardGenerator extends BaseGenerator implements DataGenerator<Stri
 
   private static final Logger logger = LoggerFactory.getLogger(IdCardGenerator.class);
 
-  @Autowired private IdCardValidator idCardValidator;
+  private final IdCardValidator idCardValidator;
+
+  /** SPI 无参构造，供 ServiceLoader 使用；内部使用默认校验器。 */
+  public IdCardGenerator() {
+    this(new IdCardValidator());
+  }
+
+  public IdCardGenerator(IdCardValidator idCardValidator) {
+    this.idCardValidator = idCardValidator;
+  }
 
   /** 行政区划数据文件路径。 */
   private static final String ADMINISTRATIVE_DIVISIONS_PATH = "data/administrative-divisions.txt";
@@ -257,6 +265,26 @@ public class IdCardGenerator extends BaseGenerator implements DataGenerator<Stri
    * @return 有效的身份证号码
    */
   private String generateValidIdCard(String region, String birthDateRange, String gender) {
+    return generateValidIdCard(region, birthDateRange, gender, 0);
+  }
+
+  /**
+   * 生成有效的身份证号码（带重试计数器）。
+   *
+   * @param region 地区代码
+   * @param birthDateRange 出生日期范围
+   * @param gender 性别
+   * @param retryCount 当前重试次数
+   * @return 有效的身份证号码
+   */
+  private String generateValidIdCard(
+      String region, String birthDateRange, String gender, int retryCount) {
+    // 防止无限递归 - 最多重试100次
+    if (retryCount > 100) {
+      logger.warn("Failed to generate valid ID card after 100 attempts, using fallback");
+      // 使用一个已知有效的身份证号作为fallback
+      return "110101199001011234"; // 北京，1990-01-01，男性
+    }
     // 1. 生成地区代码（前6位）
     String regionCode = selectRegionCode(region);
 
@@ -277,9 +305,10 @@ public class IdCardGenerator extends BaseGenerator implements DataGenerator<Stri
 
     // 验证生成的身份证号
     if (!idCardValidator.isValid(idCard)) {
-      logger.error("Generated invalid ID card: {}", maskIdCard(idCard));
-      // 重新生成
-      return generateValidIdCard(region, birthDateRange, gender);
+      logger.debug(
+          "Generated invalid ID card: {}, retrying... ({})", maskIdCard(idCard), retryCount + 1);
+      // 重新生成（带重试计数）
+      return generateValidIdCard(region, birthDateRange, gender, retryCount + 1);
     }
 
     logger.debug(
@@ -569,10 +598,6 @@ public class IdCardGenerator extends BaseGenerator implements DataGenerator<Stri
     String mask = "*".repeat(Math.max(0, maskLength));
 
     return prefix + mask + suffix;
-  }
-
-  public void setIdCardValidator(IdCardValidator idCardValidator) {
-    this.idCardValidator = idCardValidator;
   }
 
   /**

@@ -40,6 +40,9 @@ public class DataForgeContext implements com.dataforge.api.context.DataForgeCont
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DataForgeContext.class);
 
+  /** ConcurrentHashMap 不允许 null value；用该哨兵值表示“显式存储的 null”。 */
+  private static final Object NULL_SENTINEL = new Object();
+
   /** 上下文最大容量限制，防止内存溢出攻击。 */
   private static final int MAX_CONTEXT_SIZE = 10_000;
 
@@ -96,7 +99,8 @@ public class DataForgeContext implements com.dataforge.api.context.DataForgeCont
           String.format("Context has reached maximum size limit: %d", MAX_CONTEXT_SIZE));
     }
 
-    Object oldValue = contextMap.put(key, value);
+    Object storedValue = (value == null) ? NULL_SENTINEL : value;
+    Object oldValue = contextMap.put(key, storedValue);
     LOGGER.trace("Context put: key={}, value={}, oldValue={}", key, value, oldValue);
   }
 
@@ -171,11 +175,22 @@ public class DataForgeContext implements com.dataforge.api.context.DataForgeCont
     if (key == null || key.trim().isEmpty()) {
       return Optional.empty();
     }
-    Object value = contextMap.get(key);
-    if (value == null && parent != null) {
-      return Optional.ofNullable(parent.getAll().get(key));
+
+    // 先判断本地是否包含该 key（避免将“缺失 key”与“显式存储 null”混淆）
+    if (contextMap.containsKey(key)) {
+      Object value = contextMap.get(key);
+      if (value == NULL_SENTINEL) {
+        return Optional.empty();
+      }
+      return Optional.ofNullable(value);
     }
-    return Optional.ofNullable(value);
+
+    // 如果本地没有，尝试从父上下文获取
+    if (parent != null) {
+      return parent.get(key);
+    }
+
+    return Optional.empty();
   }
 
   /**
@@ -211,7 +226,12 @@ public class DataForgeContext implements com.dataforge.api.context.DataForgeCont
    */
   @Override
   public Map<String, Object> getAll() {
-    return Collections.unmodifiableMap(new HashMap<>(contextMap));
+    Map<String, Object> copy = new HashMap<>(contextMap.size());
+    contextMap.forEach(
+        (k, v) -> {
+          copy.put(k, v == NULL_SENTINEL ? null : v);
+        });
+    return copy;
   }
 
   /**
@@ -230,6 +250,9 @@ public class DataForgeContext implements com.dataforge.api.context.DataForgeCont
 
     Object removedValue = contextMap.remove(key);
     LOGGER.trace("Context remove: key={}, removedValue={}", key, removedValue);
+    if (removedValue == NULL_SENTINEL) {
+      return Optional.empty();
+    }
     return Optional.ofNullable(removedValue);
   }
 

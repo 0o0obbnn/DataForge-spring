@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletionException;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
@@ -275,6 +276,64 @@ public class GlobalExceptionHandler {
       response.setTimestamp(LocalDateTime.now());
 
       return new ResponseEntity<>(response, HttpStatus.TOO_MANY_REQUESTS);
+    } finally {
+      MDC.remove(ERROR_ID_MDC_KEY);
+    }
+  }
+
+  /**
+   * 处理 CompletableFuture.join() 抛出的 CompletionException，解包后由对应 handler 处理（如 404/500）。
+   *
+   * @param ex CompletionException
+   * @param request WebRequest
+   * @return 由 cause 对应的 handler 返回的响应
+   */
+  @ExceptionHandler(CompletionException.class)
+  public ResponseEntity<ApiResponse<Object>> handleCompletionException(
+      CompletionException ex, WebRequest request) {
+    Throwable cause = ex.getCause();
+    if (cause instanceof RuntimeException runtimeException) {
+      throw runtimeException;
+    }
+    if (cause instanceof Error error) {
+      throw error;
+    }
+    throw new RuntimeException(cause != null ? cause : ex);
+  }
+
+  /**
+   * 处理资源未找到异常。
+   *
+   * @param ex ResourceNotFoundException 资源未找到异常
+   * @param request WebRequest 请求信息
+   * @return ResponseEntity<ApiResponse<Object>> 404 Not Found响应
+   */
+  @ExceptionHandler(ResourceNotFoundException.class)
+  public ResponseEntity<ApiResponse<Object>> handleResourceNotFoundException(
+      ResourceNotFoundException ex, WebRequest request) {
+
+    String errorId = generateErrorId();
+    MDC.put(ERROR_ID_MDC_KEY, errorId);
+
+    try {
+      log.warn(
+          "[{}] Resource not found: {} | Path: {}",
+          errorId,
+          sanitizeMessage(ex.getMessage()),
+          request.getDescription(false));
+
+      Map<String, Object> context = new HashMap<>();
+      context.put("errorId", errorId);
+      context.put("errorType", ex.getClass().getSimpleName());
+      context.put("requestPath", request.getDescription(false).replace("uri=", ""));
+
+      ApiResponse<Object> response =
+          ApiResponse.error(
+              HttpStatus.NOT_FOUND.value(), sanitizeMessage(ex.getMessage()), context);
+
+      response.setTimestamp(LocalDateTime.now());
+
+      return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     } finally {
       MDC.remove(ERROR_ID_MDC_KEY);
     }

@@ -7,7 +7,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.dataforge.web.controller.AuthController;
+import com.dataforge.web.repository.UserRepository;
+import com.dataforge.web.security.CustomUserDetailsService;
 import com.dataforge.web.security.JwtUtil;
+import com.dataforge.web.security.LoginAttemptService;
 import com.dataforge.web.security.TokenBlacklistService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -40,7 +43,15 @@ class AuthControllerTest {
 
   @MockBean private TokenBlacklistService tokenBlacklistService;
 
-  @MockBean private org.springframework.data.redis.core.RedisTemplate<?, ?> redisTemplate;
+  @MockBean(name = "redisTemplate")
+  private org.springframework.data.redis.core.RedisTemplate<?, ?> redisTemplate;
+
+  // Security dependencies required by CustomUserDetailsService
+  @MockBean private UserRepository userRepository;
+
+  @MockBean private LoginAttemptService loginAttemptService;
+
+  @MockBean private CustomUserDetailsService customUserDetailsService;
 
   @MockBean private com.dataforge.service.DataForgeService dataForgeService;
 

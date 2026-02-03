@@ -69,8 +69,13 @@ public class DataLoadingService {
       String filePath, Function<String, T> parser, Supplier<List<T>> fallback) {
     List<T> data = loadData(filePath, parser);
     if (data.isEmpty()) {
-      logger.info("Using fallback data for: {}", filePath);
-      return fallback.get();
+      if (fallback != null) {
+        logger.info("Using fallback data for: {}", filePath);
+        List<T> fallbackData = fallback.get();
+        return fallbackData != null ? fallbackData : List.of();
+      }
+      logger.warn("No fallback provided for: {}, returning empty list", filePath);
+      return List.of();
     }
     return data;
   }

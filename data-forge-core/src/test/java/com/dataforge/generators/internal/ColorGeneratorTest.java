@@ -81,7 +81,8 @@ class ColorGeneratorTest {
   @Test
   @DisplayName("验证生成器类型")
   void shouldReturnCorrectType() {
-    assertThat(generator.getType()).isEqualTo("color");
+    assertThat(generator.getType()).isEqualTo("color2");
+    // Note: ColorGenerator uses type "color2" to avoid conflict with ColorValueGenerator
   }
 
   @Test

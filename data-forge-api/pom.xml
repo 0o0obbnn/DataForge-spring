@@ -60,6 +60,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
             <scope>test</scope>
@@ -84,6 +89,51 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+	            
+	            <!-- JaCoCo (generate exec data for aggregate report) -->
+	            <plugin>
+	                <groupId>org.jacoco</groupId>
+	                <artifactId>jacoco-maven-plugin</artifactId>
+	                <configuration>
+	                    <dataFile>target/jacoco.exec</dataFile>
+	                    <destFile>target/jacoco.exec</destFile>
+	                    <propertyName>jacoco.agent.argLine</propertyName>
+	                    <append>true</append>
+	                    <outputDirectory>target/jacoco-report</outputDirectory>
+	                    <outputEncoding>UTF-8</outputEncoding>
+	                </configuration>
+	                <executions>
+	                    <execution>
+	                        <id>jacoco-initialize</id>
+	                        <phase>process-test-classes</phase>
+	                        <goals>
+	                            <goal>prepare-agent</goal>
+	                        </goals>
+	                    </execution>
+	                    <execution>
+	                        <id>jacoco-report</id>
+	                        <phase>test</phase>
+	                        <goals>
+	                            <goal>report</goal>
+	                        </goals>
+	                    </execution>
+	                </executions>
+	            </plugin>
+            
+            <!-- SpotBugs static analysis -->
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>spotbugs-check</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

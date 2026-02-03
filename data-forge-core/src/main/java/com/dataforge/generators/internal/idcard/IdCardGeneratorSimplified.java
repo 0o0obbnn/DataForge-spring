@@ -6,7 +6,6 @@ import com.dataforge.generators.spi.DataGenerator;
 import com.dataforge.model.FieldConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -24,7 +23,11 @@ public class IdCardGeneratorSimplified extends BaseGenerator
 
   private static final Logger logger = LoggerFactory.getLogger(IdCardGeneratorSimplified.class);
 
-  @Autowired private IdCardRegionService regionService;
+  private final IdCardRegionService regionService;
+
+  public IdCardGeneratorSimplified(IdCardRegionService regionService) {
+    this.regionService = regionService;
+  }
 
   @Override
   public String getType() {

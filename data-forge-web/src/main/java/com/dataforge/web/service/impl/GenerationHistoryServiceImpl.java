@@ -1,12 +1,14 @@
 package com.dataforge.web.service.impl;
 
 import com.dataforge.web.entity.GenerationHistory;
+import com.dataforge.web.exception.ResourceNotFoundException;
 import com.dataforge.web.repository.GenerationHistoryRepository;
 import com.dataforge.web.service.GenerationHistoryService;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,7 +16,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class GenerationHistoryServiceImpl implements GenerationHistoryService {
 
-  @Autowired private GenerationHistoryRepository generationHistoryRepository;
+  private final GenerationHistoryRepository generationHistoryRepository;
+
+  public GenerationHistoryServiceImpl(GenerationHistoryRepository generationHistoryRepository) {
+    this.generationHistoryRepository = generationHistoryRepository;
+  }
 
   @Override
   public GenerationHistory createHistory(GenerationHistory history) {
@@ -41,12 +47,11 @@ public class GenerationHistoryServiceImpl implements GenerationHistoryService {
   @Override
   @Transactional(readOnly = true)
   public GenerationHistory getHistoryById(Long id) {
-    // orElseThrow() 确保不会返回 null
     return generationHistoryRepository
         .findById(id)
         .orElseThrow(
             () ->
-                new IllegalArgumentException("Generation history with id '" + id + "' not found"));
+                new ResourceNotFoundException("Generation history with id '" + id + "' not found"));
   }
 
   @Override
@@ -69,8 +74,15 @@ public class GenerationHistoryServiceImpl implements GenerationHistoryService {
 
   @Override
   @Transactional(readOnly = true)
+  public List<GenerationHistory> getRecentHistories(Pageable pageable) {
+    return generationHistoryRepository.findAllByOrderByCreatedAtDesc(pageable);
+  }
+
+  @Override
+  @Deprecated
+  @Transactional(readOnly = true)
   public List<GenerationHistory> getRecentHistories(int limit) {
-    return generationHistoryRepository.findTop10ByOrderByCreatedAtDesc();
+    return getRecentHistories(PageRequest.of(0, limit));
   }
 
   @Override

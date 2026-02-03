@@ -146,7 +146,7 @@ public class CacheManager {
       try {
         return loader.load(key);
       } catch (Exception e) {
-        logger.error("Failed to load data for key: {}", key, e);
+        logger.warn("Failed to load data for key: {} - {}", key, e.getMessage());
         return null;
       }
     }
@@ -158,7 +158,7 @@ public class CacheManager {
               try {
                 return loader.load(k);
               } catch (Exception e) {
-                logger.error("Failed to load value for key {}: {}", k, e.getMessage());
+                logger.warn("Failed to load value for key {}: {}", k, e.getMessage());
                 return null;
               }
             });

@@ -4,13 +4,14 @@ package com.dataforge.io;
  * SQL 方言枚举，定义不同数据库的标识符转义规则。
  *
  * <p>支持的数据库及其标识符转义规则：
+ *
  * <ul>
- *   <li>MySQL / MariaDB: 使用反引号 ` 标识符</li>
- *   <li>PostgreSQL: 使用双引号 " 标识符</li>
- *   <li>SQL Server: 使用方括号 [ ] 标识符</li>
- *   <li>Oracle: 不支持标识符转义，依赖白名单验证</li>
- *   <li>H2: 使用双引号 " 标识符</li>
- *   <li>SQLite: 使用双引号 " 标识符</li>
+ *   <li>MySQL / MariaDB: 使用反引号 ` 标识符
+ *   <li>PostgreSQL: 使用双引号 " 标识符
+ *   <li>SQL Server: 使用方括号 [ ] 标识符
+ *   <li>Oracle: 不支持标识符转义，依赖白名单验证
+ *   <li>H2: 使用双引号 " 标识符
+ *   <li>SQLite: 使用双引号 " 标识符
  * </ul>
  *
  * @author DataForge Team

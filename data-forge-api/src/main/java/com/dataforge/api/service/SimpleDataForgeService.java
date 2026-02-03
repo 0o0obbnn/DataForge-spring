@@ -32,7 +32,7 @@ public class SimpleDataForgeService implements DataForgeService {
    */
   @Deprecated
   public SimpleDataForgeService() {
-    this.generatorFactory = new SimpleGeneratorFactory();
+    this.generatorFactory = new com.dataforge.api.service.SimpleGeneratorFactory();
   }
 
   public SimpleDataForgeService(GeneratorFactory generatorFactory) {
@@ -46,6 +46,9 @@ public class SimpleDataForgeService implements DataForgeService {
 
   @Override
   public Object generate(FieldConfig config, DataForgeContext context) {
+    if (config == null) {
+      throw new IllegalArgumentException("config cannot be null");
+    }
     Optional<DataGenerator<?, ?>> generatorOpt = generatorFactory.getGenerator(config.getType());
     if (generatorOpt.isEmpty()) {
       throw new IllegalArgumentException("Unsupported generator type: " + config.getType());
@@ -56,8 +59,20 @@ public class SimpleDataForgeService implements DataForgeService {
     return generator.generate(config, context);
   }
 
+  private static final int MAX_BATCH_COUNT = 1_000_000;
+
   @Override
   public List<Map<String, Object>> generateBatch(List<FieldConfig> configs, int count) {
+    if (configs == null) {
+      throw new IllegalArgumentException("configs cannot be null");
+    }
+    if (count <= 0) {
+      return java.util.Collections.emptyList();
+    }
+    if (count > MAX_BATCH_COUNT) {
+      throw new IllegalArgumentException(
+          "count must not exceed " + MAX_BATCH_COUNT + ", got " + count);
+    }
     List<Map<String, Object>> results = new ArrayList<>(count);
 
     for (int i = 0; i < count; i++) {

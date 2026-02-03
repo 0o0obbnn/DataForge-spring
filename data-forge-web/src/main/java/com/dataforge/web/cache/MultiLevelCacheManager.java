@@ -21,8 +21,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class MultiLevelCacheManager {
 
-  @Autowired(required = false)
-  private RedisTemplate<String, Object> redisTemplate;
+  private final RedisTemplate<String, Object> redisTemplate;
 
   // 本地缓存实例
   private final Cache<String, Object> localCache;
@@ -36,8 +35,10 @@ public class MultiLevelCacheManager {
   // 本地缓存最大大小
   private static final int LOCAL_CACHE_MAX_SIZE = 1000;
 
-  /** 构造函数，初始化本地缓存。 */
-  public MultiLevelCacheManager() {
+  /** 构造函数，初始化本地缓存；Redis 可选，为 null 时仅使用本地缓存。 */
+  public MultiLevelCacheManager(
+      @Autowired(required = false) @Nullable RedisTemplate<String, Object> redisTemplate) {
+    this.redisTemplate = redisTemplate;
     this.localCache =
         Caffeine.newBuilder()
             .maximumSize(LOCAL_CACHE_MAX_SIZE)

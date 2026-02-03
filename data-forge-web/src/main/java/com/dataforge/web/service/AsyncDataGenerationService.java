@@ -8,27 +8,41 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.time.LocalDateTime;
 import java.util.concurrent.CompletableFuture;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AsyncDataGenerationService {
 
-  @Autowired private DataForgeService dataForgeService;
-
-  @Autowired private GenerationHistoryService generationHistoryService;
-
-  @Autowired private DataTemplateService dataTemplateService;
-
+  private final DataForgeService dataForgeService;
+  private final GenerationHistoryService generationHistoryService;
+  private final DataTemplateService dataTemplateService;
   private final ObjectMapper jsonMapper = new ObjectMapper();
   private final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
+
+  // 任务开始时间映射，用于正确计算耗时
+  private final ConcurrentMap<Long, Long> taskStartTimes = new ConcurrentHashMap<>();
+
+  public AsyncDataGenerationService(
+      DataForgeService dataForgeService,
+      GenerationHistoryService generationHistoryService,
+      DataTemplateService dataTemplateService) {
+    this.dataForgeService = dataForgeService;
+    this.generationHistoryService = generationHistoryService;
+    this.dataTemplateService = dataTemplateService;
+  }
 
   @Async
   public CompletableFuture<GenerationHistory> generateDataAsync(
       String templateName, Integer recordCount, String templateConfig) {
+    // 记录任务开始时间
+    long startTime = System.currentTimeMillis();
+
     GenerationHistory history = createInitialHistory(null, templateName, recordCount);
     GenerationHistory savedHistory = generationHistoryService.createHistory(history);
+    taskStartTimes.put(savedHistory.getId(), startTime);
 
     try {
       ForgeConfig config = parseConfigString(templateConfig);
@@ -40,15 +54,21 @@ public class AsyncDataGenerationService {
       updateHistoryAsFailed(savedHistory, e);
     }
 
-    return CompletableFuture.completedFuture(
-        generationHistoryService.updateHistory(savedHistory.getId(), savedHistory));
+    GenerationHistory result =
+        generationHistoryService.updateHistory(savedHistory.getId(), savedHistory);
+    taskStartTimes.remove(savedHistory.getId()); // 清理
+    return CompletableFuture.completedFuture(result);
   }
 
   @Async
   public CompletableFuture<GenerationHistory> generateDataByTemplateIdAsync(
       Long templateId, Integer recordCount) {
+    // 记录任务开始时间
+    long startTime = System.currentTimeMillis();
+
     GenerationHistory history = createInitialHistory(templateId, null, recordCount);
     GenerationHistory savedHistory = generationHistoryService.createHistory(history);
+    taskStartTimes.put(savedHistory.getId(), startTime);
 
     try {
       DataTemplate template = dataTemplateService.getTemplateById(templateId);
@@ -61,8 +81,10 @@ public class AsyncDataGenerationService {
       updateHistoryAsFailed(savedHistory, e);
     }
 
-    return CompletableFuture.completedFuture(
-        generationHistoryService.updateHistory(savedHistory.getId(), savedHistory));
+    GenerationHistory result =
+        generationHistoryService.updateHistory(savedHistory.getId(), savedHistory);
+    taskStartTimes.remove(savedHistory.getId()); // 清理
+    return CompletableFuture.completedFuture(result);
   }
 
   /**
@@ -89,9 +111,13 @@ public class AsyncDataGenerationService {
    * @param history 任务记录
    */
   private void updateHistoryAsCompleted(GenerationHistory history) {
-    long startTime = System.currentTimeMillis();
+    Long startTime = taskStartTimes.get(history.getId());
+    if (startTime == null) {
+      startTime = System.currentTimeMillis(); // 降级处理：使用当前时间
+    }
+
     long endTime = System.currentTimeMillis();
-    long duration = endTime - startTime;
+    long duration = endTime - startTime; // 正确计算耗时
 
     history.setStatus("COMPLETED");
     history.setDurationMs(duration);

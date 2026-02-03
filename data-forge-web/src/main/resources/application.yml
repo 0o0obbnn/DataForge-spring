@@ -62,10 +62,10 @@ server:
 logging:
   level:
     root: INFO
-    com.dataforge: DEBUG
-    org.springframework.web: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    "[com.dataforge]": DEBUG
+    "[org.springframework.web]": DEBUG
+    "[org.hibernate.SQL]": DEBUG
+    "[org.hibernate.type.descriptor.sql.BasicBinder]": TRACE
 
 # SpringDoc OpenAPI configuration
 springdoc:
@@ -75,7 +75,6 @@ springdoc:
     operations-sorter: alpha
   api-docs:
     path: /v3/api-docs
-    packages-to-scan: com.dataforge.web.controller
 
 # Actuator configuration
 management:
@@ -89,23 +88,31 @@ management:
       show-details: when-authorized
       probes:
         enabled: true
-  metrics:
-    export:
-      prometheus:
+  prometheus:
+    metrics:
+      export:
         enabled: true
+  metrics:
     tags:
       application: ${spring.application.name}
 
 # JWT configuration
-# 注意：生产环境应通过环境变量 JWT_SECRET 设置密钥，不要硬编码
+# 警告：生产环境必须通过环境变量 JWT_SECRET 设置强密钥
 app:
   jwt:
-    secret: ${JWT_SECRET:3a4b5c6d7e8f9g0h1i2j3k4l5m6n7o8p9q0r1s2t3u4v5w6x7y8z9a0b1c2d3e4f5g}
+    # 从环境变量读取密钥，必须设置强随机密钥（至少256位）
+    secret: ${JWT_SECRET:} # 必须通过环境变量设置
     expiration: ${JWT_EXPIRATION:3600000} # Access Token过期时间：1小时
     refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000} # Refresh Token过期时间：7天
+  security:
+    # 登录安全配置
+    max-login-attempts: ${MAX_LOGIN_ATTEMPTS:5} # 最大登录失败次数
+    lock-duration-minutes: ${LOCK_DURATION_MINUTES:30} # 账户锁定时间（分钟）
 
 # DataForge configuration
 dataforge:
+  tasks:
+    default-page-size: 10
   cache:
     enabled: true
     ttl: 300

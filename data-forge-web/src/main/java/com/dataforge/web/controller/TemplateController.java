@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +27,11 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Templates", description = "数据模板管理相关API，支持模板的创建、查询、更新和删除操作")
 public class TemplateController extends BaseController {
 
-  @Autowired private DataTemplateService dataTemplateService;
+  private final DataTemplateService dataTemplateService;
+
+  public TemplateController(DataTemplateService dataTemplateService) {
+    this.dataTemplateService = dataTemplateService;
+  }
 
   /**
    * 创建数据模板。

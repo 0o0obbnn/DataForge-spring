@@ -21,6 +21,13 @@ public class UuidGenerator extends BaseGenerator implements DataGenerator<String
 
   private static final Logger logger = LoggerFactory.getLogger(UuidGenerator.class);
 
+  // UUID格式常量
+  private static final int TIME_HEX_LENGTH = 12;
+  private static final int RANDOM_HEX_LENGTH = 16;
+  private static final int RANDOM_HEX_TOTAL_LENGTH = 19;
+  private static final int UUID1_VERSION = 1;
+  private static final String DEFAULT_UUID_TYPE = "UUID4";
+
   @Override
   public String getType() {
     return "uuid";
@@ -30,7 +37,7 @@ public class UuidGenerator extends BaseGenerator implements DataGenerator<String
   public String generate(FieldConfig config, DataForgeContext context) {
     try {
       // 从参数中获取UUID类型，默认为UUID4
-      String uuidType = getStringParam(config, "type", "UUID4");
+      String uuidType = getStringParam(config, "type", DEFAULT_UUID_TYPE);
 
       return switch (uuidType.toUpperCase()) {
         case "UUID1" -> generateUuid1();
@@ -81,32 +88,32 @@ public class UuidGenerator extends BaseGenerator implements DataGenerator<String
     String randomHex = Long.toHexString(Math.abs(randomPart));
 
     // 确保长度
-    while (timeHex.length() < 12) {
+    while (timeHex.length() < TIME_HEX_LENGTH) {
       timeHex = "0" + timeHex;
     }
-    while (randomHex.length() < 16) {
+    while (randomHex.length() < RANDOM_HEX_LENGTH) {
       randomHex = "0" + randomHex;
     }
 
     // 检查长度，确保不会越界
-    if (timeHex.length() < 12 || randomHex.length() < 19) {
+    if (timeHex.length() < TIME_HEX_LENGTH || randomHex.length() < RANDOM_HEX_TOTAL_LENGTH) {
       // 如果长度不足，使用UUID4作为后备方案
       logger.warn("Insufficient length for UUID1 generation, falling back to UUID4");
       return UUID.randomUUID().toString();
     }
 
-    // 格式化为UUID格式
+    // 格式化为UUID格式 (8-4-4-4-12)
     String uuid =
         timeHex.substring(0, 8)
             + "-"
-            + timeHex.substring(8, 12)
+            + timeHex.substring(8, TIME_HEX_LENGTH)
             + "-"
-            + "1"
+            + UUID1_VERSION
             + randomHex.substring(0, 3)
             + "-"
             + randomHex.substring(3, 7)
             + "-"
-            + randomHex.substring(7, 23); // 修正为正确的长度
+            + randomHex.substring(7, 23);
 
     return uuid;
   }

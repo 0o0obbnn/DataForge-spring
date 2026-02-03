@@ -92,10 +92,10 @@ public class ZodiacGenerator extends BaseGenerator implements DataGenerator<Stri
         new ZodiacInfo(ZodiacSign.TAURUS, "金牛座", "Taurus", "♉", "TAU", 4, 20, 5, 20));
     ZODIAC_INFO.put(
         ZodiacSign.GEMINI,
-        new ZodiacInfo(ZodiacSign.GEMINI, "双子座", "Gemini", "♊", "GEM", 5, 21, 6, 21));
+        new ZodiacInfo(ZodiacSign.GEMINI, "双子座", "Gemini", "♊", "GEM", 5, 21, 6, 20));
     ZODIAC_INFO.put(
         ZodiacSign.CANCER,
-        new ZodiacInfo(ZodiacSign.CANCER, "巨蟹座", "Cancer", "♋", "CAN", 6, 22, 7, 22));
+        new ZodiacInfo(ZodiacSign.CANCER, "巨蟹座", "Cancer", "♋", "CAN", 6, 21, 7, 22));
     ZODIAC_INFO.put(
         ZodiacSign.LEO, new ZodiacInfo(ZodiacSign.LEO, "狮子座", "Leo", "♌", "LEO", 7, 23, 8, 22));
     ZODIAC_INFO.put(
@@ -103,13 +103,13 @@ public class ZodiacGenerator extends BaseGenerator implements DataGenerator<Stri
         new ZodiacInfo(ZodiacSign.VIRGO, "处女座", "Virgo", "♍", "VIR", 8, 23, 9, 22));
     ZODIAC_INFO.put(
         ZodiacSign.LIBRA,
-        new ZodiacInfo(ZodiacSign.LIBRA, "天秤座", "Libra", "♎", "LIB", 9, 23, 10, 23));
+        new ZodiacInfo(ZodiacSign.LIBRA, "天秤座", "Libra", "♎", "LIB", 9, 23, 10, 22));
     ZODIAC_INFO.put(
         ZodiacSign.SCORPIO,
-        new ZodiacInfo(ZodiacSign.SCORPIO, "天蝎座", "Scorpio", "♏", "SCO", 10, 24, 11, 22));
+        new ZodiacInfo(ZodiacSign.SCORPIO, "天蝎座", "Scorpio", "♏", "SCO", 10, 23, 11, 21));
     ZODIAC_INFO.put(
         ZodiacSign.SAGITTARIUS,
-        new ZodiacInfo(ZodiacSign.SAGITTARIUS, "射手座", "Sagittarius", "♐", "SAG", 11, 23, 12, 21));
+        new ZodiacInfo(ZodiacSign.SAGITTARIUS, "射手座", "Sagittarius", "♐", "SAG", 11, 22, 12, 21));
     ZODIAC_INFO.put(
         ZodiacSign.CAPRICORN,
         new ZodiacInfo(ZodiacSign.CAPRICORN, "摩羯座", "Capricorn", "♑", "CAP", 12, 22, 1, 19));
@@ -139,8 +139,15 @@ public class ZodiacGenerator extends BaseGenerator implements DataGenerator<Stri
       boolean birthDateRelated =
           Boolean.parseBoolean(config.getParam("birth_date_related", String.class, "true"));
       String format = config.getParam("format", String.class, "CHINESE");
+      String birthDateFromConfig = config.getParam("birth_date", String.class, null);
+
+      // 将 config 中的 birth_date 写入 context 供 getZodiacFromBirthDate 使用
+      if (birthDateFromConfig != null && !birthDateFromConfig.isEmpty()) {
+        context.put("birth_date", birthDateFromConfig);
+      }
 
       ZodiacSign zodiacSign;
+      boolean fromBirthDate = birthDateRelated && birthDateFromConfig != null;
 
       // 如果启用出生日期关联，尝试从上下文获取出生日期
       if (birthDateRelated) {
@@ -150,7 +157,14 @@ public class ZodiacGenerator extends BaseGenerator implements DataGenerator<Stri
       }
 
       // 将星座信息存入上下文
+      ZodiacInfo info = ZODIAC_INFO.get(zodiacSign);
       context.put("zodiac_sign", zodiacSign.name());
+      context.put("zodiac_chinese", info.chineseName);
+      context.put("zodiac_english", info.englishName);
+      context.put("zodiac_symbol", info.symbol);
+      if (fromBirthDate && birthDateFromConfig != null) {
+        context.put("calculated_zodiac", zodiacSign.name());
+      }
 
       // 格式化输出
       String result = formatZodiac(zodiacSign, format);
@@ -265,7 +279,7 @@ public class ZodiacGenerator extends BaseGenerator implements DataGenerator<Stri
         return info.symbol;
 
       case "CODE":
-        return info.code;
+        return sign.name();
 
       default:
         logger.warn("Unknown zodiac format: {}. Using CHINESE format.", format);

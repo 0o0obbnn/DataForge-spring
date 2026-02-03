@@ -128,3 +128,21 @@ DebugAddressDetailTest.class
 DebugAddressTest.class
 debug-*.java
 parse_jacoco.py
+
+# Documentation files (excluding README)
+*.md
+!README.md
+
+# Serena memory files
+.serena/
+
+# Temporary and auxiliary files
+tmp/
+*.txt
+!LICENSE
+
+# IDE specific files
+.claude/
+
+# GitHub Actions temporary files
+.github/java-upgrade/

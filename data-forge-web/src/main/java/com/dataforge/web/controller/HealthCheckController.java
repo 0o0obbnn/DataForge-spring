@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -40,16 +39,24 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Health", description = "系统健康检查相关API")
 public class HealthCheckController {
 
-  @Autowired private GeneratorFactory generatorFactory;
-
-  @Autowired private CacheManager cacheManager;
-
-  @Autowired private MultiLevelCacheManager multiLevelCacheManager;
-
-  @Autowired private RedisTemplate<String, Object> redisTemplate;
+  private final GeneratorFactory generatorFactory;
+  private final CacheManager cacheManager;
+  private final MultiLevelCacheManager multiLevelCacheManager;
+  private final RedisTemplate<String, Object> redisTemplate;
 
   @Value("${spring.application.version:1.0.0}")
   private String version;
+
+  public HealthCheckController(
+      GeneratorFactory generatorFactory,
+      CacheManager cacheManager,
+      MultiLevelCacheManager multiLevelCacheManager,
+      RedisTemplate<String, Object> redisTemplate) {
+    this.generatorFactory = generatorFactory;
+    this.cacheManager = cacheManager;
+    this.multiLevelCacheManager = multiLevelCacheManager;
+    this.redisTemplate = redisTemplate;
+  }
 
   // JVM 管理 Bean
   private final MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();

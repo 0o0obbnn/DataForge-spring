@@ -70,9 +70,9 @@ class ConfigLoaderTest {
             "Should throw IllegalArgumentException for invalid count");
 
     assertTrue(
-        ex.getMessage().contains("Invalid count value"), "Error message should mention 'Invalid count value'");
-    assertTrue(
-        ex.getMessage().contains("abc"), "Error message should include the invalid value");
+        ex.getMessage().contains("Invalid count value"),
+        "Error message should mention 'Invalid count value'");
+    assertTrue(ex.getMessage().contains("abc"), "Error message should include the invalid value");
     assertTrue(
         ex.getCause() instanceof NumberFormatException, "Cause should be NumberFormatException");
   }

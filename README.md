@@ -202,9 +202,14 @@ mvn test
 # 运行单个测试类
 mvn test -Dtest=GeneratorFactoryTest
 
-# 生成覆盖率报告
-mvn verify
-# 报告位置: target/jacoco-report/index.html
+	# 生成覆盖率报告（聚合：api + core + cli + web）
+	# 推荐：只触发聚合模块，但会自动构建并运行其依赖模块的测试
+	mvn -pl data-forge-coverage -am test
+	# 报告位置（聚合）: target/jacoco-aggregate/index.html
+	# 报告位置（单模块示例）: data-forge-core/target/jacoco-report/index.html
+
+	# 如需执行覆盖率阈值校验（可能因阈值较高而失败）
+	mvn verify
 ```
 
 ### 代码质量检查
@@ -297,8 +302,8 @@ export REDIS_PASSWORD=your-redis-password
 
 ## 联系方式
 
-- 项目主页: [GitHub Repository](https://github.com/your-org/dataforge)
-- 问题反馈: [Issues](https://github.com/your-org/dataforge/issues)
+- 项目主页: [GitHub Repository](https://github.com/0o0obbnn/DataForge-spring)
+- 问题反馈: [Issues](https://github.com/0o0obbnn/DataForge-spring/issues)
 - 文档: [Documentation](docs/)
 
 ## 更新日志

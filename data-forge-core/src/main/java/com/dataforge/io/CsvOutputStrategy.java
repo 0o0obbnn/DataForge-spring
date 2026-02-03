@@ -2,10 +2,13 @@ package com.dataforge.io;
 
 import com.dataforge.config.OutputConfig;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -83,6 +86,12 @@ public class CsvOutputStrategy implements OutputStrategy {
 
   @Override
   public void initialize(OutputConfig config, List<String> fieldNames) throws OutputException {
+    // 验证字段名列表
+    if (fieldNames == null || fieldNames.isEmpty()) {
+      throw new OutputException("Field names cannot be null or empty");
+    }
+
+    BufferedWriter tempWriter = null;
     try {
       // 保存字段名顺序
       this.fieldNames = fieldNames;
@@ -97,11 +106,16 @@ public class CsvOutputStrategy implements OutputStrategy {
       Charset charset = Charset.forName(encoding);
 
       if (config.getFile() != null && !config.getFile().trim().isEmpty()) {
-        this.writer =
-            new BufferedWriter(new FileWriter(config.getFile(), charset, config.isAppend()));
+        // 验证并清理文件路径，防止目录遍历攻击
+        String safeFilePath = validateAndSanitizePath(config.getFile());
+
+        tempWriter = new BufferedWriter(new FileWriter(safeFilePath, charset, config.isAppend()));
+        this.writer = tempWriter;
+        tempWriter = null; // 防止finally中关闭
+
         log.info(
             "CSV output initialized - file: {}, delimiter: '{}', header: {}, encoding: {}",
-            config.getFile(),
+            safeFilePath,
             delimiter,
             includeHeader,
             encoding);
@@ -120,11 +134,95 @@ public class CsvOutputStrategy implements OutputStrategy {
 
     } catch (IOException e) {
       throw new OutputException("Failed to initialize CSV output: " + e.getMessage(), e);
+    } finally {
+      // 如果初始化失败，确保关闭临时writer
+      if (tempWriter != null) {
+        try {
+          tempWriter.close();
+        } catch (IOException e) {
+          // 忽略关闭异常
+        }
+      }
+    }
+  }
+
+  /**
+   * 验证并清理文件路径，防止目录遍历攻击。
+   *
+   * <p>安全措施：
+   *
+   * <ul>
+   *   <li>1. 将路径标准化，解析所有".."和"."
+   *   <li>2. 确保文件在允许的输出目录内
+   *   <li>3. 验证文件名不包含非法字符
+   * </ul>
+   *
+   * @param filePath 原始文件路径
+   * @return 安全的文件路径
+   * @throws OutputException 当路径验证失败时
+   */
+  private String validateAndSanitizePath(String filePath) throws OutputException {
+    if (filePath == null || filePath.trim().isEmpty()) {
+      throw new OutputException("文件路径不能为空");
+    }
+
+    try {
+      // 标准化路径，解析所有".."和"."
+      Path path = Paths.get(filePath).normalize();
+      File file = path.toFile();
+
+      // 获取规范化的绝对路径
+      String canonicalPath = file.getCanonicalPath();
+      File canonicalFile = new File(canonicalPath);
+
+      // 检查是否是系统临时目录（允许测试使用）
+      String tempDir = System.getProperty("java.io.tmpdir");
+      if (tempDir != null && canonicalPath.startsWith(new File(tempDir).getCanonicalPath())) {
+        // 确保父目录存在
+        File parentDir = canonicalFile.getParentFile();
+        if (parentDir != null && !parentDir.exists()) {
+          parentDir.mkdirs();
+        }
+        return canonicalPath;
+      }
+
+      // 定义允许的基础输出目录（默认为当前工作目录下的output文件夹）
+      String baseDir = System.getProperty("dataforge.output.dir", "output");
+      File baseDirFile = new File(baseDir).getCanonicalFile();
+
+      // 确保文件在允许的输出目录内
+      if (!canonicalFile.getAbsolutePath().startsWith(baseDirFile.getAbsolutePath())) {
+        // 如果路径不在基础目录内，将文件限制在基础目录下
+        String fileName = path.getFileName().toString();
+        // 验证文件名不包含路径分隔符
+        if (fileName.contains("/") || fileName.contains("\\") || fileName.contains("..")) {
+          throw new OutputException("非法文件名，包含路径分隔符: " + fileName);
+        }
+        canonicalFile = new File(baseDirFile, fileName);
+        canonicalPath = canonicalFile.getCanonicalPath();
+      }
+
+      // 确保父目录存在
+      File parentDir = canonicalFile.getParentFile();
+      if (parentDir != null && !parentDir.exists()) {
+        if (!parentDir.mkdirs()) {
+          throw new OutputException("无法创建父目录: " + parentDir.getAbsolutePath());
+        }
+      }
+
+      return canonicalPath;
+
+    } catch (IOException e) {
+      throw new OutputException("文件路径验证失败: " + filePath, e);
     }
   }
 
   @Override
   public void writeRecord(Map<String, Object> record) throws OutputException {
+    if (record == null) {
+      throw new OutputException("Cannot write null record");
+    }
+
     try {
       // 写入标题行（仅第一次）
       if (includeHeader && !headerWritten) {
@@ -230,5 +328,10 @@ public class CsvOutputStrategy implements OutputStrategy {
 
     char firstChar = value.charAt(0);
     return DANGEROUS_PREFIXES.contains(firstChar);
+  }
+
+  @Override
+  public long getWrittenRecordCount() {
+    return recordCount;
   }
 }

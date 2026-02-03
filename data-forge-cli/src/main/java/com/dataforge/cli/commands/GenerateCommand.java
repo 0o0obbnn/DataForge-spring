@@ -1,11 +1,14 @@
 package com.dataforge.cli.commands;
 
+import java.io.PrintWriter;
 import java.util.concurrent.Callable;
 
 import org.springframework.stereotype.Component;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.Spec;
+import picocli.CommandLine;
 
 /**
  * 数据生成命令 - CLI Stub实现
@@ -22,6 +25,9 @@ import picocli.CommandLine.Option;
     description = "Generate test data based on configuration.")
 public class GenerateCommand implements Callable<Integer> {
 
+    @Spec
+    private CommandLine.Model.CommandSpec spec;
+
     @Option(
         names = {"-c", "--config"},
         description = "Configuration file path (YAML/JSON)")
@@ -37,13 +43,41 @@ public class GenerateCommand implements Callable<Integer> {
         description = "Output file path")
     private String outputFile;
 
+    /**
+     * 获取配置文件路径（供测试与调用方断言解析结果）.
+     *
+     * @return 配置文件路径，未设置时为 null
+     */
+    public String getConfigFile() {
+        return configFile;
+    }
+
+    /**
+     * 获取生成数量（供测试与调用方断言解析结果）.
+     *
+     * @return 生成数量，默认 10
+     */
+    public int getCount() {
+        return count;
+    }
+
+    /**
+     * 获取输出文件路径（供测试与调用方断言解析结果）.
+     *
+     * @return 输出文件路径，未设置时为 null
+     */
+    public String getOutputFile() {
+        return outputFile;
+    }
+
     @Override
     public Integer call() throws Exception {
-        System.out.println("DataForge CLI - Generate Command");
-        System.out.println("Config: " + configFile);
-        System.out.println("Count: " + count);
-        System.out.println("Output: " + outputFile);
-        System.out.println("Note: This is a stub implementation.");
+        PrintWriter out = spec.commandLine().getOut();
+        out.println("DataForge CLI - Generate Command");
+        out.println("Config: " + configFile);
+        out.println("Count: " + count);
+        out.println("Output: " + outputFile);
+        out.println("Note: This is a stub implementation.");
         return 0;
     }
 }

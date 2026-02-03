@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 简单的DataForge上下文实现。
@@ -14,22 +15,29 @@ import java.util.Set;
  */
 public class SimpleDataForgeContext implements DataForgeContext {
 
+  // 用于在ConcurrentHashMap中表示null值的标记对象
+  private static final Object NULL_MARKER = new Object();
+  
   private final Map<String, Object> data;
   private final DataForgeContext parent;
 
   public SimpleDataForgeContext() {
-    this.data = new HashMap<>();
+    this.data = new ConcurrentHashMap<>();
     this.parent = null;
   }
 
   private SimpleDataForgeContext(DataForgeContext parent) {
-    this.data = new HashMap<>();
+    this.data = new ConcurrentHashMap<>();
     this.parent = parent;
   }
 
   @Override
   public <T> Optional<T> get(String key, Class<T> type) {
     Object value = data.get(key);
+    // 检查是否是null标记
+    if (value == NULL_MARKER) {
+      return Optional.empty();
+    }
     if (value == null && parent != null) {
       return parent.get(key, type);
     }
@@ -44,11 +52,15 @@ public class SimpleDataForgeContext implements DataForgeContext {
 
   @Override
   public void put(String key, Object value) {
-    data.put(key, value);
+    // ConcurrentHashMap不支持null值，使用标记对象代替
+    data.put(key, value == null ? NULL_MARKER : value);
   }
 
   @Override
   public boolean containsKey(String key) {
+    if (key == null) {
+      return false;
+    }
     return data.containsKey(key) || (parent != null && parent.containsKey(key));
   }
 
@@ -59,7 +71,16 @@ public class SimpleDataForgeContext implements DataForgeContext {
 
   @Override
   public Map<String, Object> getAll() {
-    return Collections.unmodifiableMap(new HashMap<>(data));
+    Map<String, Object> result = new HashMap<>();
+    for (Map.Entry<String, Object> entry : data.entrySet()) {
+      Object value = entry.getValue();
+      if (value == NULL_MARKER) {
+        result.put(entry.getKey(), null);
+      } else {
+        result.put(entry.getKey(), value);
+      }
+    }
+    return Collections.unmodifiableMap(result);
   }
 
   @Override
@@ -79,6 +100,10 @@ public class SimpleDataForgeContext implements DataForgeContext {
 
   @Override
   public Optional<Object> remove(String key) {
-    return Optional.ofNullable(data.remove(key));
+    Object removed = data.remove(key);
+    if (removed == NULL_MARKER) {
+      return Optional.empty();
+    }
+    return Optional.ofNullable(removed);
   }
 }

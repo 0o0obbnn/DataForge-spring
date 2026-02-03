@@ -8,7 +8,6 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -18,7 +17,11 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Component
 public class RateLimitAspect {
 
-  @Autowired private RedisTemplate<String, String> redisTemplate;
+  private final RedisTemplate<String, String> redisTemplate;
+
+  public RateLimitAspect(RedisTemplate<String, String> redisTemplate) {
+    this.redisTemplate = redisTemplate;
+  }
 
   // 定义切点，匹配带有@RateLimit注解的方法
   @Pointcut("@annotation(com.dataforge.web.security.RateLimit)")

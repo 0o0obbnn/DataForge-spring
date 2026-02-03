@@ -6,7 +6,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * 支持数据加载的生成器基类。
@@ -22,7 +21,11 @@ public abstract class BaseDataLoadingGenerator<T> extends BaseGenerator {
 
   private static final Logger logger = LoggerFactory.getLogger(BaseDataLoadingGenerator.class);
 
-  @Autowired protected DataLoadingService dataLoadingService;
+  protected final DataLoadingService dataLoadingService;
+
+  protected BaseDataLoadingGenerator(DataLoadingService dataLoadingService) {
+    this.dataLoadingService = dataLoadingService;
+  }
 
   /** 数据加载状态。 */
   protected volatile boolean dataLoaded = false;

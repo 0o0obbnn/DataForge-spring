@@ -45,7 +45,11 @@ public interface FieldConfig {
    */
   @SuppressWarnings("unchecked")
   default <T> T getParam(String key, Class<T> type, T defaultValue) {
-    Object value = getParams().get(key);
+    Map<String, Object> params = getParams();
+    if (params == null || !params.containsKey(key)) {
+      return defaultValue;
+    }
+    Object value = params.get(key);
     if (value == null) {
       return defaultValue;
     }

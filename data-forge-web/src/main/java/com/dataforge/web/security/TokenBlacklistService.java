@@ -1,9 +1,13 @@
 package com.dataforge.web.security;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+import javax.crypto.SecretKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -32,9 +36,21 @@ public class TokenBlacklistService {
   private static final String BLACKLIST_PREFIX = "token:blacklist:";
 
   private final RedisTemplate<String, String> redisTemplate;
+  private final JwtProperties jwtProperties;
 
-  public TokenBlacklistService(RedisTemplate<String, String> redisTemplate) {
+  public TokenBlacklistService(
+      RedisTemplate<String, String> redisTemplate, JwtProperties jwtProperties) {
     this.redisTemplate = redisTemplate;
+    this.jwtProperties = jwtProperties;
+  }
+
+  /**
+   * 获取签名密钥。
+   *
+   * @return HMAC-SHA密钥
+   */
+  private SecretKey getSignKey() {
+    return Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes());
   }
 
   /**
@@ -54,6 +70,13 @@ public class TokenBlacklistService {
       } else {
         logger.warn("Token already expired or invalid, not adding to blacklist");
       }
+    } catch (ExpiredJwtException e) {
+      // Token已过期，不需要加入黑名单
+      logger.debug("Token is already expired, not adding to blacklist");
+    } catch (JwtException e) {
+      // JWT格式错误
+      logger.error("Invalid JWT token format", e);
+      throw new SecurityException("Failed to invalidate token: Invalid token format", e);
     } catch (Exception e) {
       logger.error("Failed to add token to blacklist", e);
       throw new SecurityException("Failed to invalidate token", e);
@@ -72,6 +95,14 @@ public class TokenBlacklistService {
       String key = BLACKLIST_PREFIX + jti;
       Boolean exists = redisTemplate.hasKey(key);
       return Boolean.TRUE.equals(exists);
+    } catch (ExpiredJwtException e) {
+      // 已过期Token视为在黑名单中（不允许使用）
+      logger.debug("Token is expired, treating as blacklisted");
+      return true;
+    } catch (JwtException e) {
+      // JWT格式错误，保守处理视为在黑名单中
+      logger.error("Invalid JWT token format during blacklist check", e);
+      return true;
     } catch (Exception e) {
       logger.error("Failed to check token blacklist status", e);
       // 出现异常时保守处理，拒绝访问
@@ -84,10 +115,11 @@ public class TokenBlacklistService {
    *
    * @param token JWT Token
    * @return JTI字符串
-   * @throws Exception 如果Token解析失败
+   * @throws JwtException 如果Token解析失败
    */
-  private String extractJti(String token) throws Exception {
-    Claims claims = Jwts.parser().build().parseSignedClaims(token).getPayload();
+  private String extractJti(String token) throws JwtException {
+    Claims claims =
+        Jwts.parser().verifyWith(getSignKey()).build().parseSignedClaims(token).getPayload();
 
     // 如果Token没有JTI，使用主题+过期时间作为唯一标识
     String jti = claims.getId();
@@ -105,10 +137,11 @@ public class TokenBlacklistService {
    *
    * @param token JWT Token
    * @return 剩余有效期（毫秒），如果Token已过期返回null
-   * @throws Exception 如果Token解析失败
+   * @throws JwtException 如果Token解析失败
    */
-  private Long calculateRemainingTtl(String token) throws Exception {
-    Claims claims = Jwts.parser().build().parseSignedClaims(token).getPayload();
+  private Long calculateRemainingTtl(String token) throws JwtException {
+    Claims claims =
+        Jwts.parser().verifyWith(getSignKey()).build().parseSignedClaims(token).getPayload();
     Date expiration = claims.getExpiration();
     Date now = new Date();
 

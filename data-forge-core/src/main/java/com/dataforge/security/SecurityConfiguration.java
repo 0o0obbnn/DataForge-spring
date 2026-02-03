@@ -52,7 +52,7 @@ public class SecurityConfiguration {
   /** 最大线程数量限制。 */
   @Min(1)
   @Max(1000)
-  private int maxThreadCount = 64;
+  private int maxThreadCount = 128;
 
   /** 最大字段数量限制。 */
   @Min(1)

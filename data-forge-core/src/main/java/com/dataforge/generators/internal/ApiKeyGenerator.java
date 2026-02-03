@@ -71,14 +71,37 @@ public class ApiKeyGenerator extends BaseGenerator implements DataGenerator<Stri
   @Override
   public String generate(FieldConfig config, DataForgeContext context) {
     try {
-      // 获取参数
+      // 检查配置是否为null
+      if (config == null) {
+        logger.warn("Config is null, generating default API key");
+        return "sk_test_" + generateRandomString(32, ALPHANUMERIC_CHARS, false);
+      }
+
+      // 获取参数，添加参数校验
       String type = config.getParam("type", String.class, "CUSTOM");
-      int length = Integer.parseInt(config.getParam("length", String.class, "32"));
+      int length;
+      try {
+        length = Integer.parseInt(config.getParam("length", String.class, "32"));
+        if (length <= 0) {
+          logger.warn("Invalid length: {}, using default 32", length);
+          length = 32;
+        }
+      } catch (NumberFormatException e) {
+        logger.warn("Failed to parse length parameter, using default 32: {}", e.getMessage());
+        length = 32;
+      }
+
       String format = config.getParam("format", String.class, "ALPHANUMERIC");
       String prefix = config.getParam("prefix", String.class, null);
       boolean includeChecksum =
           Boolean.parseBoolean(config.getParam("include_checksum", String.class, "false"));
       boolean secure = Boolean.parseBoolean(config.getParam("secure", String.class, "true"));
+
+      // 校验 format 参数
+      if (!Arrays.asList("BASE64", "HEX", "ALPHANUMERIC").contains(format.toUpperCase())) {
+        logger.warn("Invalid format: {}, using default ALPHANUMERIC", format);
+        format = "ALPHANUMERIC";
+      }
 
       // 生成API密钥
       String apiKey = generateApiKey(type, length, format, prefix, includeChecksum, secure);
@@ -92,7 +115,7 @@ public class ApiKeyGenerator extends BaseGenerator implements DataGenerator<Stri
       return apiKey;
 
     } catch (Exception e) {
-      logger.error("Error generating API key", e);
+      logger.error("Error generating API key: {} - {}", e.getClass().getName(), e.getMessage(), e);
       return "sk_test_" + generateRandomString(32, ALPHANUMERIC_CHARS, false);
     }
   }
@@ -153,6 +176,10 @@ public class ApiKeyGenerator extends BaseGenerator implements DataGenerator<Stri
       default:
         // 随机选择一个通用前缀
         List<String> genericPrefixes = KEY_PREFIXES.get("GENERIC");
+        if (genericPrefixes == null || genericPrefixes.isEmpty()) {
+          logger.warn("Generic prefixes list is empty, using empty prefix");
+          return "";
+        }
         return genericPrefixes.get(random.nextInt(genericPrefixes.size()));
     }
   }
@@ -172,6 +199,11 @@ public class ApiKeyGenerator extends BaseGenerator implements DataGenerator<Stri
   }
 
   private String generateRandomString(int length, String charset, boolean secure) {
+    if (charset == null || charset.isEmpty()) {
+      logger.warn("Charset is null or empty, using ALPHANUMERIC");
+      charset = ALPHANUMERIC_CHARS;
+    }
+
     StringBuilder result = new StringBuilder();
     Random rng = secure ? secureRandom : random;
 

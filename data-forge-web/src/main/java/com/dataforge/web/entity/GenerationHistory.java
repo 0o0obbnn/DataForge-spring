@@ -32,7 +32,7 @@ public class GenerationHistory {
   @Column(name = "duration_ms")
   private Long durationMs;
 
-  @Column(name = "error_message")
+  @Column(name = "error_message", length = 2000)
   private String errorMessage;
 
   @Column(name = "created_at", nullable = false, updatable = false)

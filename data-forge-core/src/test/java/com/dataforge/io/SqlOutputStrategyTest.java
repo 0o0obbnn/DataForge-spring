@@ -27,9 +27,7 @@ class SqlOutputStrategyTest {
 
   @TempDir Path tempDir;
 
-  /**
-   * 测试 MySQL 标识符转义。
-   */
+  /** 测试 MySQL 标识符转义。 */
   @Test
   @DisplayName("MySQL 标识符转义应使用反引号")
   void testMySqlIdentifierEscaping() throws Exception {
@@ -58,14 +56,11 @@ class SqlOutputStrategyTest {
 
     String sqlOutput = Files.readString(outputFile.toPath());
     assertTrue(
-        sqlOutput.contains("`user_name`"),
-        "MySQL identifiers should be escaped with backticks");
+        sqlOutput.contains("`user_name`"), "MySQL identifiers should be escaped with backticks");
     assertTrue(sqlOutput.contains("`test_table`"), "Table name should be escaped");
   }
 
-  /**
-   * 测试 PostgreSQL 标识符转义。
-   */
+  /** 测试 PostgreSQL 标识符转义。 */
   @Test
   @DisplayName("PostgreSQL 标识符转义应使用双引号")
   void testPostgreSqlIdentifierEscaping() throws Exception {
@@ -99,9 +94,7 @@ class SqlOutputStrategyTest {
     assertTrue(sqlOutput.contains("\"test_table\""), "Table name should be escaped");
   }
 
-  /**
-   * 测试 SQL Server 标识符转义。
-   */
+  /** 测试 SQL Server 标识符转义。 */
   @Test
   @DisplayName("SQL Server 标识符转义应使用方括号")
   void testSqlServerIdentifierEscaping() throws Exception {
@@ -135,9 +128,7 @@ class SqlOutputStrategyTest {
     assertTrue(sqlOutput.contains("[test_table]"), "Table name should be escaped");
   }
 
-  /**
-   * 测试 Oracle 标识符转义（不转义，仅白名单验证）。
-   */
+  /** 测试 Oracle 标识符转义（不转义，仅白名单验证）。 */
   @Test
   @DisplayName("Oracle 标识符不应转义，通过白名单验证")
   void testOracleIdentifierEscaping() throws Exception {
@@ -173,9 +164,7 @@ class SqlOutputStrategyTest {
         "Oracle should not use quote characters");
   }
 
-  /**
-   * 测试 H2 数据库标识符转义。
-   */
+  /** 测试 H2 数据库标识符转义。 */
   @Test
   @DisplayName("H2 数据库标识符转义应使用双引号")
   void testH2IdentifierEscaping() throws Exception {
@@ -204,13 +193,10 @@ class SqlOutputStrategyTest {
 
     String sqlOutput = Files.readString(outputFile.toPath());
     assertTrue(
-        sqlOutput.contains("\"user_name\""),
-        "H2 identifiers should be escaped with double quotes");
+        sqlOutput.contains("\"user_name\""), "H2 identifiers should be escaped with double quotes");
   }
 
-  /**
-   * 测试 SQLite 数据库标识符转义。
-   */
+  /** 测试 SQLite 数据库标识符转义。 */
   @Test
   @DisplayName("SQLite 数据库标识符转义应使用双引号")
   void testSqliteIdentifierEscaping() throws Exception {
@@ -243,9 +229,7 @@ class SqlOutputStrategyTest {
         "SQLite identifiers should be escaped with double quotes");
   }
 
-  /**
-   * 测试无效标识符应抛出异常。
-   */
+  /** 测试无效标识符应抛出异常。 */
   @Test
   @DisplayName("无效标识符应抛出 OutputException")
   void testInvalidIdentifierShouldThrowException() {
@@ -272,9 +256,7 @@ class SqlOutputStrategyTest {
         "Invalid identifiers should throw OutputException when writing record");
   }
 
-  /**
-   * 测试标识符长度限制。
-   */
+  /** 测试标识符长度限制。 */
   @Test
   @DisplayName("超过长度限制的标识符应抛出异常")
   void testIdentifierLengthLimit() {
@@ -302,9 +284,7 @@ class SqlOutputStrategyTest {
         "Identifiers exceeding max length should throw OutputException when writing record");
   }
 
-  /**
-   * 测试值转义（包含特殊字符）。
-   */
+  /** 测试值转义（包含特殊字符）。 */
   @Test
   @DisplayName("字符串值中的单引号应被正确转义")
   void testStringEscaping() throws Exception {
@@ -335,9 +315,7 @@ class SqlOutputStrategyTest {
         "Single quotes in values should be escaped");
   }
 
-  /**
-   * 测试 NULL 值处理。
-   */
+  /** 测试 NULL 值处理。 */
   @Test
   @DisplayName("NULL 值应正确处理为 SQL NULL")
   void testNullValueHandling() throws Exception {
@@ -364,14 +342,10 @@ class SqlOutputStrategyTest {
     strategy.finish();
 
     String sqlOutput = Files.readString(outputFile.toPath());
-    assertTrue(
-        sqlOutput.contains("NULL"),
-        "NULL values should be represented as SQL NULL");
+    assertTrue(sqlOutput.contains("NULL"), "NULL values should be represented as SQL NULL");
   }
 
-  /**
-   * 测试日期时间格式化。
-   */
+  /** 测试日期时间格式化。 */
   @Test
   @DisplayName("日期时间值应正确格式化")
   void testDateTimeFormatting() throws Exception {
@@ -397,7 +371,6 @@ class SqlOutputStrategyTest {
 
     String sqlOutput = Files.readString(outputFile.toPath());
     assertTrue(
-        sqlOutput.contains("'") && sqlOutput.contains("'"),
-        "DateTime values should be quoted");
+        sqlOutput.contains("'") && sqlOutput.contains("'"), "DateTime values should be quoted");
   }
 }

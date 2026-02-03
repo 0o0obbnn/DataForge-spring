@@ -6,14 +6,19 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.springframework.stereotype.Component;
 
-/** JSON格式输出实现 */
+/**
+ * JSON格式输出实现。
+ *
+ * <p>使用AtomicBoolean确保firstRecord状态的线程安全。
+ */
 @Component
 public class JsonFormat implements OutputFormat {
 
   private final ObjectMapper objectMapper = new ObjectMapper();
-  private boolean firstRecord = true;
+  private final AtomicBoolean firstRecord = new AtomicBoolean(true);
 
   @Override
   public OutputConfig.Format getFormat() {
@@ -23,13 +28,13 @@ public class JsonFormat implements OutputFormat {
   @Override
   public void start(List<String> fieldNames, Appendable out) throws IOException {
     out.append("[");
-    firstRecord = true;
+    firstRecord.set(true);
   }
 
   @Override
   public void writeRecord(Map<String, Object> record, List<String> fieldNames, Appendable out)
       throws IOException {
-    if (!firstRecord) {
+    if (!firstRecord.get()) {
       out.append(",");
     }
 
@@ -42,7 +47,7 @@ public class JsonFormat implements OutputFormat {
     String json = objectMapper.writeValueAsString(orderedRecord);
     out.append(json);
 
-    firstRecord = false;
+    firstRecord.set(false);
   }
 
   @Override

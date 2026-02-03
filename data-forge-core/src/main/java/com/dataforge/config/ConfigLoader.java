@@ -64,16 +64,15 @@ public class ConfigLoader {
       try {
         switch (arg) {
           case "-c", "--count" -> {
-            int count =
-                CliArgumentParser.parseIntInRange("count", value, 1, 1_000_000_000);
+            int count = CliArgumentParser.parseIntInRange("count", value, 1, 1_000_000_000);
             config.setCount(count);
           }
           case "-t", "--threads" -> {
             int threads = CliArgumentParser.parseIntInRange("threads", value, 1, 64);
             config.setThreads(threads);
           }
-          case "--validate" ->
-              config.setValidate(CliArgumentParser.parseBoolean("validate", value));
+          case "--validate" -> config.setValidate(
+              CliArgumentParser.parseBoolean("validate", value));
           case "--seed" -> config.setSeed(CliArgumentParser.parseLong("seed", value));
           default -> {
             // 忽略未知参数，记录警告
@@ -81,7 +80,7 @@ public class ConfigLoader {
           }
         }
       } catch (IllegalArgumentException e) {
-        logger.error("Failed to parse CLI argument: {} {}", arg, value, e);
+        logger.warn("Failed to parse CLI argument: {} {} - {}", arg, value, e.getMessage());
         throw e; // 重新抛出以终止程序
       }
     }

@@ -29,17 +29,22 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 public class JwtProperties {
 
+  // JWT时间常量（毫秒）
+  private static final long ONE_SECOND = 1000;
+  private static final long ONE_HOUR = 3600000;
+  private static final long SEVEN_DAYS = 604800000;
+
   /** JWT签名密钥。 */
   @NotBlank(message = "JWT secret cannot be blank")
   private String secret;
 
   /** Access Token过期时间（毫秒），默认1小时。 */
-  @Min(value = 1000, message = "JWT expiration must be at least 1000ms")
-  private long expiration = 3600000;
+  @Min(value = ONE_SECOND, message = "JWT expiration must be at least 1000ms")
+  private long expiration = ONE_HOUR;
 
   /** Refresh Token过期时间（毫秒），默认7天。 */
-  @Min(value = 1000, message = "JWT refresh expiration must be at least 1000ms")
-  private long refreshExpiration = 604800000;
+  @Min(value = ONE_SECOND, message = "JWT refresh expiration must be at least 1000ms")
+  private long refreshExpiration = SEVEN_DAYS;
 
   /**
    * 获取JWT签名密钥。

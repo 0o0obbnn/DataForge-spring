@@ -257,17 +257,21 @@ public class UsernameGenerator extends BaseGenerator implements DataGenerator<St
 
       // 尝试基于姓名生成
       if (linkName && attempts <= 10) {
-        username =
+        String nameBasedUsername =
             generateNameBasedUsername(
                 minLength, maxLength, charSet, prefix, suffix, nameStyle, context);
-        if (username != null) {
+        if (nameBasedUsername != null) {
+          username = nameBasedUsername;
           if (!isBlacklisted(username, blacklist) && (!unique || !filter.mightContain(username))) {
             break;
           }
+          // 如果基于姓名的用户名被黑名单或重复，继续下一次尝试
+          continue;
         }
+        // 如果nameBasedUsername为null，继续尝试
       }
 
-      // 随机生成
+      // 随机生成（仅在姓名生成失败或超过尝试次数时）
       username = generateRandomUsername(minLength, maxLength, charSet, prefix, suffix, random);
 
     } while ((isBlacklisted(username, blacklist) || (unique && filter.mightContain(username)))
@@ -299,7 +303,14 @@ public class UsernameGenerator extends BaseGenerator implements DataGenerator<St
       String nameStyle,
       DataForgeContext context) {
 
+    // 先尝试用带类型检查的get方法
     String name = context.get(CONTEXT_NAME, String.class).orElse(null);
+
+    // 如果失败了，尝试用getValue方法（不带类型检查）
+    if (name == null) {
+      name = context.getValue(CONTEXT_NAME);
+    }
+
     if (name == null || name.trim().isEmpty()) {
       return null;
     }

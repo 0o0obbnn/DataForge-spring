@@ -36,7 +36,7 @@ public class BloomFilterUniquenessFilter implements UniquenessFilter {
 
   private static final Logger logger = LoggerFactory.getLogger(BloomFilterUniquenessFilter.class);
 
-  private final BloomFilter<String> bloomFilter;
+  private volatile BloomFilter<String> bloomFilter;
   private final long expectedCapacity;
   private final double falsePositiveProbability;
   private final AtomicLong elementCount;
@@ -120,11 +120,27 @@ public class BloomFilterUniquenessFilter implements UniquenessFilter {
   @Override
   public void clear() {
     // 布隆过滤器不支持清空，需要重新创建
-    logger.warn(
+    logger.debug(
         "BloomFilter does not support clear operation. "
-            + "Consider creating a new instance instead.");
+            + "Consider using reset() to create a new instance instead.");
     throw new UnsupportedOperationException(
         "BloomFilter does not support clear operation. Create a new instance instead.");
+  }
+
+  /**
+   * 重置过滤器（创建新的实例）。
+   *
+   * <p>由于布隆过滤器不支持清空操作，此方法创建一个新的过滤器实例来替换当前实例。
+   */
+  public void reset() {
+    // 重置元素计数
+    elementCount.set(0);
+
+    // 重新创建布隆过滤器
+    com.google.common.hash.Funnel<? super String> funnel = Funnels.stringFunnel(Charsets.UTF_8);
+    this.bloomFilter = BloomFilter.create(funnel, expectedCapacity, falsePositiveProbability);
+
+    logger.debug("BloomFilter reset successfully");
   }
 
   @Override

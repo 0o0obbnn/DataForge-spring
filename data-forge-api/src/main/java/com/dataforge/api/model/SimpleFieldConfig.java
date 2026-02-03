@@ -1,5 +1,6 @@
 package com.dataforge.api.model;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,7 +25,7 @@ public class SimpleFieldConfig implements FieldConfig {
   public SimpleFieldConfig(String name, String type, Map<String, Object> params) {
     this.name = name;
     this.type = type;
-    this.params = new HashMap<>(params);
+    this.params = params != null ? new HashMap<>(params) : new HashMap<>();
   }
 
   @Override
@@ -39,7 +40,7 @@ public class SimpleFieldConfig implements FieldConfig {
 
   @Override
   public Map<String, Object> getParams() {
-    return new HashMap<>(params);
+    return Collections.unmodifiableMap(new HashMap<>(params));
   }
 
   @Override

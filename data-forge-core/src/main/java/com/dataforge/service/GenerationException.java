@@ -16,6 +16,9 @@ public class GenerationException extends DataForgeException {
   /** 发生错误的记录索引。 */
   private final Integer recordIndex;
 
+  /** 错误码（用于更精确的错误分类）。 */
+  private final ErrorCode errorCode;
+
   /**
    * 构造函数。
    *
@@ -24,6 +27,39 @@ public class GenerationException extends DataForgeException {
   public GenerationException(String message) {
     super("GENERATION_ERROR", message, ErrorLevel.SYSTEM_ERROR);
     this.recordIndex = null;
+    this.errorCode = null;
+  }
+
+  /**
+   * 构造函数（带错误码）。
+   *
+   * @param message 异常消息
+   * @param errorCode 错误码
+   */
+  public GenerationException(String message, ErrorCode errorCode) {
+    super(
+        errorCode != null ? errorCode.name() : "GENERATION_ERROR",
+        message,
+        ErrorLevel.SYSTEM_ERROR);
+    this.recordIndex = null;
+    this.errorCode = errorCode;
+  }
+
+  /**
+   * 构造函数（带错误码和原因）。
+   *
+   * @param message 异常消息
+   * @param errorCode 错误码
+   * @param cause 原因异常
+   */
+  public GenerationException(String message, ErrorCode errorCode, Throwable cause) {
+    super(
+        errorCode != null ? errorCode.name() : "GENERATION_ERROR",
+        message,
+        ErrorLevel.SYSTEM_ERROR,
+        cause);
+    this.recordIndex = null;
+    this.errorCode = errorCode;
   }
 
   /**
@@ -35,6 +71,7 @@ public class GenerationException extends DataForgeException {
   public GenerationException(String message, Throwable cause) {
     super("GENERATION_ERROR", message, ErrorLevel.SYSTEM_ERROR, cause);
     this.recordIndex = null;
+    this.errorCode = null;
   }
 
   /**
@@ -49,6 +86,7 @@ public class GenerationException extends DataForgeException {
         String.format("记录 %d 生成失败: %s", recordIndex, message),
         ErrorLevel.SYSTEM_ERROR);
     this.recordIndex = recordIndex;
+    this.errorCode = null;
   }
 
   /**
@@ -64,6 +102,7 @@ public class GenerationException extends DataForgeException {
         String.format("记录 %d 的字段 %s 生成失败: %s", recordIndex, fieldName, message),
         ErrorLevel.SYSTEM_ERROR);
     this.recordIndex = recordIndex;
+    this.errorCode = null;
   }
 
   /**
@@ -80,6 +119,7 @@ public class GenerationException extends DataForgeException {
         ErrorLevel.SYSTEM_ERROR,
         cause);
     this.recordIndex = recordIndex;
+    this.errorCode = null;
   }
 
   /**
@@ -91,6 +131,7 @@ public class GenerationException extends DataForgeException {
   public GenerationException(String message, Throwable cause, boolean backpressure) {
     super("BACKPRESSURE_ERROR", message, ErrorLevel.SYSTEM_ERROR, cause);
     this.recordIndex = null;
+    this.errorCode = null;
   }
 
   /**
@@ -100,5 +141,23 @@ public class GenerationException extends DataForgeException {
    */
   public Integer getRecordIndex() {
     return recordIndex;
+  }
+
+  /**
+   * 获取错误码枚举。
+   *
+   * @return 错误码枚举，如果没有设置则返回null
+   */
+  public ErrorCode getErrorCodeEnum() {
+    return errorCode;
+  }
+
+  /**
+   * 获取错误代码数值。
+   *
+   * @return 错误代码数值，如果没有设置则返回-1
+   */
+  public int getErrorCodeValue() {
+    return errorCode != null ? errorCode.getCode() : -1;
   }
 }

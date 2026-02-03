@@ -10,7 +10,10 @@ import com.dataforge.core.GeneratorFactory;
 import com.dataforge.service.DataForgeService;
 import com.dataforge.web.cache.MultiLevelCacheManager;
 import com.dataforge.web.controller.HealthCheckController;
+import com.dataforge.web.repository.UserRepository;
+import com.dataforge.web.security.CustomUserDetailsService;
 import com.dataforge.web.security.JwtUtil;
+import com.dataforge.web.security.LoginAttemptService;
 import com.dataforge.web.security.TokenBlacklistService;
 import com.dataforge.web.service.AsyncDataGenerationService;
 import com.dataforge.web.service.DataTemplateService;
@@ -58,6 +61,13 @@ class HealthCheckControllerTest {
   @MockBean private JwtUtil jwtUtil;
 
   @MockBean private AuthenticationManager authenticationManager;
+
+  // Security dependencies required by CustomUserDetailsService
+  @MockBean private UserRepository userRepository;
+
+  @MockBean private LoginAttemptService loginAttemptService;
+
+  @MockBean private CustomUserDetailsService customUserDetailsService;
 
   @MockBean private DataForgeService dataForgeService;
 

@@ -60,6 +60,14 @@ graph TB
 
 ## 模块结构
 
+### data-forge-api 与 data-forge-core 双体系
+
+- **data-forge-api**：无 Spring、轻量 API 模块，提供 `DataForgeService`、`DataForgeContext`、`DataGenerator` 等接口及简单实现，供依赖方仅需契约时使用。
+- **data-forge-core**：完整实现 + SPI 模块，使用 `com.dataforge.generators.spi.DataGenerator` 与 `com.dataforge.core.DataForgeContext`，包含 60+ 生成器与输出策略；Web、CLI 均依赖并运行 core 实现。
+- **data-forge-coverage**：仅做多模块 JaCoCo 报告的聚合，不包含业务代码。
+
+模块依赖示意：`data-forge-api` ← `data-forge-core` ← `data-forge-web`、`data-forge-cli`；`data-forge-coverage` 聚合各模块覆盖率报告。
+
 ### data-forge-core
 
 核心模块，包含数据生成引擎和所有生成器。
@@ -107,6 +115,9 @@ com.dataforge.web
 ├── config/          # 配置类
 └── filter/          # 过滤器
 ```
+
+**Web 应用包扫描**:
+Web 应用入口类使用 `@ComponentScan(basePackages = {"com.dataforge"})`，会扫描 `com.dataforge` 下所有组件（含 `data-forge-web`、`data-forge-core` 等）。若需收紧扫描范围，可改为仅列出需要的包，例如 `com.dataforge.web`、`com.dataforge.core`、`com.dataforge.service` 等，并在本文档中同步更新说明。
 
 ### data-forge-cli
 

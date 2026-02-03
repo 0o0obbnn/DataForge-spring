@@ -1,18 +1,23 @@
 package com.dataforge.core;
 
+import com.dataforge.core.config.BatchProperties;
 import com.dataforge.generators.spi.DataGenerator;
 import com.dataforge.model.FieldConfig;
+import com.dataforge.service.ErrorCode;
+import com.dataforge.service.GenerationException;
+import jakarta.annotation.PreDestroy;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 /**
@@ -33,13 +38,20 @@ public class BatchGenerator {
   private static final Logger LOGGER = LoggerFactory.getLogger(BatchGenerator.class);
 
   private final GeneratorFactory generatorFactory;
-  private final ExecutorService executorService;
+  private final ThreadPoolTaskExecutor taskExecutor;
   private final DataRelationEngine relationEngine;
+  private final BatchProperties batchProperties;
 
   // 性能指标
-  private volatile long totalGenerated = 0;
+  private final AtomicLong totalGenerated = new AtomicLong(0);
   private volatile long startTime = 0;
   private volatile boolean isGenerating = false;
+
+  /**
+   * 输出回调可能不是线程安全的（例如测试里用 ArrayList.addAll / long[] 自增）。 这里统一串行化 outputConsumer
+   * 回调，避免多线程并发回调导致丢数据/计数不准。
+   */
+  private final Object outputConsumerLock = new Object();
 
   // 配置参数
   private int threadCount = 4;
@@ -47,10 +59,32 @@ public class BatchGenerator {
   private boolean enableProgressMonitoring = true;
   private int progressReportInterval = 5000;
 
-  public BatchGenerator(GeneratorFactory generatorFactory, DataRelationEngine relationEngine) {
+  public BatchGenerator(
+      GeneratorFactory generatorFactory,
+      DataRelationEngine relationEngine,
+      BatchProperties batchProperties) {
     this.generatorFactory = generatorFactory;
     this.relationEngine = relationEngine;
-    this.executorService = Executors.newFixedThreadPool(threadCount);
+    this.batchProperties = batchProperties;
+
+    // 从配置读取初始值
+    this.threadCount = batchProperties.getThreadCount();
+    this.batchSize = batchProperties.getBatchSize();
+
+    // 创建可配置的线程池
+    this.taskExecutor = createTaskExecutor();
+  }
+
+  /** 创建可动态配置的线程池 */
+  private ThreadPoolTaskExecutor createTaskExecutor() {
+    ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+    executor.setCorePoolSize(threadCount);
+    executor.setMaxPoolSize(threadCount * 2);
+    executor.setQueueCapacity(batchProperties != null ? batchProperties.getQueueCapacity() : 1000);
+    executor.setThreadNamePrefix("data-forge-");
+    executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+    executor.initialize();
+    return executor;
   }
 
   /**
@@ -71,7 +105,7 @@ public class BatchGenerator {
     try {
       isGenerating = true;
       startTime = System.currentTimeMillis();
-      totalGenerated = 0;
+      totalGenerated.set(0);
 
       LOGGER.info(
           "Starting batch generation: {} records, {} threads, batch size: {}",
@@ -95,7 +129,7 @@ public class BatchGenerator {
                 () -> {
                   generateForThread(schema, threadRecords, threadIndex, outputConsumer);
                 },
-                executorService);
+                taskExecutor.getThreadPoolExecutor());
 
         futures.add(future);
       }
@@ -106,17 +140,18 @@ public class BatchGenerator {
       long endTime = System.currentTimeMillis();
       long duration = endTime - startTime;
 
+      long generated = totalGenerated.get();
       GenerationStats stats =
           new GenerationStats(
-              totalGenerated,
+              generated,
               duration,
               threadCount,
               batchSize,
-              calculateThroughput(totalGenerated, duration));
+              calculateThroughput(generated, duration));
 
       LOGGER.info(
           "Batch generation completed: {} records in {} ms, throughput: {} records/sec",
-          totalGenerated,
+          generated,
           duration,
           stats.getThroughput());
 
@@ -155,15 +190,19 @@ public class BatchGenerator {
         batch.add(record);
 
         // 进度监控
-        if (enableProgressMonitoring && (totalGenerated + i + 1) % progressReportInterval == 0) {
+        long currentGenerated = totalGenerated.get();
+        if (enableProgressMonitoring && (currentGenerated + i + 1) % progressReportInterval == 0) {
           reportProgress();
         }
       }
 
       // 流式输出当前批次
       if (!batch.isEmpty()) {
-        outputConsumer.accept(new ArrayList<>(batch));
-        totalGenerated += batch.size();
+        List<Map<String, Object>> out = new ArrayList<>(batch);
+        synchronized (outputConsumerLock) {
+          outputConsumer.accept(out);
+          totalGenerated.addAndGet(out.size());
+        }
         processed += batch.size();
       }
     }
@@ -194,28 +233,56 @@ public class BatchGenerator {
       FieldDefinition fieldDef, Map<String, Object> partialRecord, DataForgeContext context) {
 
     DataGenerator<?, ?> rawGenerator = generatorFactory.getGenerator(fieldDef.getType());
+
+    if (rawGenerator == null) {
+      // 抛出明确的异常而不是返回默认值
+      throw new GenerationException(
+          String.format(
+              "未找到类型 '%s' 的数据生成器，字段名: '%s'。请检查类型是否正确或是否已注册生成器。",
+              fieldDef.getType(), fieldDef.getName()),
+          ErrorCode.GENERATOR_NOT_FOUND);
+    }
+
     @SuppressWarnings("unchecked")
     DataGenerator<Object, FieldConfig> generator =
         (DataGenerator<Object, FieldConfig>) rawGenerator;
-    if (generator == null) {
-      LOGGER.warn("No generator found for type: {}, using default string", fieldDef.getType());
-      return "DEFAULT_" + fieldDef.getName();
-    }
 
     try {
-      return generator.generate(fieldDef.getConfig(), context);
+      Object value = generator.generate(fieldDef.getConfig(), context);
+
+      // 验证生成结果不为null（警告但允许）
+      if (value == null) {
+        LOGGER.warn(
+            "Generator {} returned null for field {}, will use null value",
+            fieldDef.getType(),
+            fieldDef.getName());
+      }
+
+      return value;
+
+    } catch (GenerationException e) {
+      // 业务异常直接抛出
+      throw e;
     } catch (Exception e) {
-      LOGGER.error("Error generating value for field {}: {}", fieldDef.getName(), e.getMessage());
-      return null;
+      // 包装为业务异常
+      LOGGER.error(
+          "Error generating value for field {}: {}", fieldDef.getName(), e.getMessage(), e);
+      throw new GenerationException(
+          String.format(
+              "生成字段 '%s' (类型: %s) 时发生错误: %s",
+              fieldDef.getName(), fieldDef.getType(), e.getMessage()),
+          ErrorCode.GENERATION_FAILED,
+          e);
     }
   }
 
   /** 报告生成进度 */
   private void reportProgress() {
     long elapsed = System.currentTimeMillis() - startTime;
-    long throughput = calculateThroughput(totalGenerated, elapsed);
+    long generated = totalGenerated.get();
+    long throughput = calculateThroughput(generated, elapsed);
 
-    LOGGER.info("Progress: {} records generated, {} records/sec", totalGenerated, throughput);
+    LOGGER.info("Progress: {} records generated, {} records/sec", generated, throughput);
   }
 
   /** 计算吞吐量 */
@@ -226,9 +293,10 @@ public class BatchGenerator {
   /** 获取当前生成状态 */
   public GenerationStatus getStatus() {
     long elapsed = isGenerating ? System.currentTimeMillis() - startTime : 0;
-    long throughput = calculateThroughput(totalGenerated, elapsed);
+    long generated = totalGenerated.get();
+    long throughput = calculateThroughput(generated, elapsed);
 
-    return new GenerationStatus(isGenerating, totalGenerated, elapsed, throughput);
+    return new GenerationStatus(isGenerating, generated, elapsed, throughput);
   }
 
   // Getter/Setter 方法
@@ -236,7 +304,26 @@ public class BatchGenerator {
     if (threadCount < 1 || threadCount > 16) {
       throw new IllegalArgumentException("Thread count must be between 1 and 16");
     }
+
+    int oldCount = this.threadCount;
     this.threadCount = threadCount;
+
+    // 动态更新线程池配置
+    if (taskExecutor != null) {
+      taskExecutor.setCorePoolSize(threadCount);
+      taskExecutor.setMaxPoolSize(threadCount * 2);
+
+      LOGGER.info("线程池配置已更新: {} -> {}", oldCount, threadCount);
+    }
+  }
+
+  public int getThreadCount() {
+    return threadCount;
+  }
+
+  /** 获取线程池执行器（用于监控） */
+  public ThreadPoolTaskExecutor getTaskExecutor() {
+    return taskExecutor;
   }
 
   public void setBatchSize(int batchSize) {
@@ -256,15 +343,26 @@ public class BatchGenerator {
 
   /** 关闭批量生成器，释放资源 */
   public void shutdown() {
-    executorService.shutdown();
-    try {
-      if (!executorService.awaitTermination(60, TimeUnit.SECONDS)) {
-        executorService.shutdownNow();
+    LOGGER.info("关闭批量生成器线程池");
+    if (taskExecutor != null) {
+      taskExecutor.shutdown();
+      try {
+        if (!taskExecutor.getThreadPoolExecutor().awaitTermination(60, TimeUnit.SECONDS)) {
+          LOGGER.warn("线程池未在60秒内关闭，强制关闭");
+          // ThreadPoolTaskExecutor没有shutdownNow方法，直接关闭底层线程池
+          taskExecutor.getThreadPoolExecutor().shutdownNow();
+        }
+      } catch (InterruptedException e) {
+        taskExecutor.getThreadPoolExecutor().shutdownNow();
+        Thread.currentThread().interrupt();
       }
-    } catch (InterruptedException e) {
-      executorService.shutdownNow();
-      Thread.currentThread().interrupt();
     }
+  }
+
+  /** Spring容器销毁时自动调用 */
+  @PreDestroy
+  public void destroy() {
+    shutdown();
   }
 
   /** 数据模式定义 */

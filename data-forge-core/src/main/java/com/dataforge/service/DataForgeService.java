@@ -160,14 +160,8 @@ public class DataForgeService {
       logger.error("Data generation failed for config: {}", config, e);
 
       // 确保输出策略被正确清理
-      OutputStrategy outputStrategy = outputStrategyRef.get();
-      if (outputStrategy != null) {
-        try {
-          outputStrategy.finish();
-        } catch (Exception cleanupEx) {
-          logger.warn("Failed to cleanup output strategy", cleanupEx);
-        }
-      }
+      // 注意：不要调用finish()，因为它可能已经在正常流程中被调用过了
+      // 只是让GC回收资源，OutputStrategy是prototype scope的，每次请求都会创建新实例
 
       if (e instanceof DataForgeException) {
         throw e;
@@ -210,6 +204,18 @@ public class DataForgeService {
             "Selected output strategy: {} for format: {}",
             strategy.getClass().getSimpleName(),
             outputConfig.getFormat());
+
+        // For stateful strategies like JsonOutputStrategy, create a new instance
+        // to avoid thread-safety issues in concurrent scenarios
+        if (strategy.getClass().getSimpleName().equals("JsonOutputStrategy")) {
+          try {
+            return strategy.getClass().getDeclaredConstructor().newInstance();
+          } catch (Exception e) {
+            logger.warn("Failed to create new instance, using shared instance", e);
+            return strategy;
+          }
+        }
+
         return strategy;
       }
     }

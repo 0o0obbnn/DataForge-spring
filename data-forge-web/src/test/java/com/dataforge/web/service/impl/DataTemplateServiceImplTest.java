@@ -137,7 +137,7 @@ class DataTemplateServiceImplTest {
     // Then
     assertThat(result).isEqualTo(cachedTemplate);
     verify(dataTemplateRepository, never()).findById(any());
-    verify(cacheManager, never()).put(anyString(), any(), any());
+    verify(cacheManager, never()).put(anyString(), any(), anyLong());
   }
 
   @Test

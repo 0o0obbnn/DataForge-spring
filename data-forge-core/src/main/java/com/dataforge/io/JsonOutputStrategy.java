@@ -11,10 +11,12 @@ import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /** JSON输出策略（非文件场景） 使用 Jackson Streaming API 实现数组流式输出 */
 @Component
+@Scope("prototype")
 public class JsonOutputStrategy implements OutputStrategy {
 
   private static final Logger log = LoggerFactory.getLogger(JsonOutputStrategy.class);
@@ -88,10 +90,14 @@ public class JsonOutputStrategy implements OutputStrategy {
         generator.writeEndArray();
         generator.flush();
         generator.close();
-      }
-      if (writer != null) {
+        // generator.close() 会自动关闭底层writer，将其置空以避免重复关闭
+        writer = null;
+        generator = null; // 将generator也置空，防止重复调用
+      } else if (writer != null) {
+        // 如果generator未被初始化，单独关闭writer
         writer.flush();
         writer.close();
+        writer = null;
       }
       log.info("JSON output completed. Total records: {}", recordCount);
     } catch (IOException e) {

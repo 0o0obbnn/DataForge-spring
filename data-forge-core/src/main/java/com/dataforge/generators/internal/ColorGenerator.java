@@ -61,7 +61,7 @@ public class ColorGenerator extends BaseGenerator implements DataGenerator<Strin
 
   @Override
   public String getType() {
-    return "color";
+    return "color2";
   }
 
   @Override

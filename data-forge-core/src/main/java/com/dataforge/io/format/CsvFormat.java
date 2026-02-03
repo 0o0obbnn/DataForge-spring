@@ -6,12 +6,19 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Component;
 
-/** CSV格式输出实现 */
+/**
+ * CSV格式输出实现。
+ *
+ * <p>使用volatile确保配置字段的线程安全可见性。
+ */
 @Component
 public class CsvFormat implements OutputFormat {
 
-  private boolean safeMode = false;
-  private String delimiter = ",";
+  /** CSV默认分隔符 */
+  private static final String DEFAULT_DELIMITER = ",";
+
+  private volatile boolean safeMode = false;
+  private volatile String delimiter = DEFAULT_DELIMITER;
 
   @Override
   public OutputConfig.Format getFormat() {

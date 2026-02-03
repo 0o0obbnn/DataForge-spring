@@ -43,6 +43,19 @@ public class TestRedisConfiguration {
   }
 
   /**
+   * 提供 Mock 的 RedisConnectionFactory。
+   *
+   * <p>RedisConfig需要此Bean来创建RedisTemplate，所以必须mock它。
+   *
+   * @return Mock 的 RedisConnectionFactory
+   */
+  @Bean
+  @Primary
+  public org.springframework.data.redis.connection.RedisConnectionFactory redisConnectionFactory() {
+    return Mockito.mock(org.springframework.data.redis.connection.RedisConnectionFactory.class);
+  }
+
+  /**
    * 提供简单的 MeterRegistry 用于测试。
    *
    * @return SimpleMeterRegistry 实例

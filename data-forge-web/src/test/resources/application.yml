@@ -7,6 +7,7 @@ spring:
     exclude:
       - org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration
       - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
 
   # Database configuration for tests
   datasource:
@@ -55,7 +56,7 @@ dataforge:
     enabled: true
   security:
     max-record-count: 10000
-    max-thread-count: 4
+    max-thread-count: 128
     max-field-count: 100
     max-config-size-mb: 10
     enable-resource-monitoring: false

@@ -6,7 +6,6 @@ import com.dataforge.web.repository.DataTemplateRepository;
 import com.dataforge.web.service.DataTemplateService;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,9 +13,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class DataTemplateServiceImpl implements DataTemplateService {
 
-  @Autowired private DataTemplateRepository dataTemplateRepository;
+  private final DataTemplateRepository dataTemplateRepository;
+  private final MultiLevelCacheManager cacheManager;
 
-  @Autowired private MultiLevelCacheManager cacheManager;
+  public DataTemplateServiceImpl(
+      DataTemplateRepository dataTemplateRepository, MultiLevelCacheManager cacheManager) {
+    this.dataTemplateRepository = dataTemplateRepository;
+    this.cacheManager = cacheManager;
+  }
 
   // 缓存键前缀
   private static final String TEMPLATE_CACHE_PREFIX = "template:";

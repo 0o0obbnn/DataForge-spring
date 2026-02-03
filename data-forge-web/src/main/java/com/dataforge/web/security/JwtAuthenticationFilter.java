@@ -1,5 +1,6 @@
 package com.dataforge.web.security;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -7,7 +8,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,11 +30,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
-  @Autowired private JwtUtil jwtUtil;
+  private final JwtUtil jwtUtil;
+  private final UserDetailsService userDetailsService;
+  private final TokenBlacklistService tokenBlacklistService;
 
-  @Autowired private UserDetailsService userDetailsService;
-
-  @Autowired private TokenBlacklistService tokenBlacklistService;
+  public JwtAuthenticationFilter(
+      JwtUtil jwtUtil,
+      UserDetailsService userDetailsService,
+      TokenBlacklistService tokenBlacklistService) {
+    this.jwtUtil = jwtUtil;
+    this.userDetailsService = userDetailsService;
+    this.tokenBlacklistService = tokenBlacklistService;
+  }
 
   @Override
   protected void doFilterInternal(
@@ -51,10 +58,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     // 检查Authorization头格式是否正确（Bearer token）
     if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
       jwt = authorizationHeader.substring(7);
+
       try {
         username = jwtUtil.extractUsername(jwt);
+      } catch (ExpiredJwtException e) {
+        logger.debug("Token expired");
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token expired");
+        return;
       } catch (Exception e) {
         logger.warn("Failed to extract username from token: {}", e.getMessage());
+        // 对于其他异常（格式错误、签名错误等），继续过滤器链，不设置认证
       }
     }
 
@@ -65,13 +78,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (tokenBlacklistService.isBlacklisted(jwt)) {
           logger.warn("Token is blacklisted for user: {}", username);
           response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token has been revoked");
-          return;
-        }
-
-        // 检查Token是否过期
-        if (jwtUtil.isTokenExpired(jwt)) {
-          logger.debug("Token expired for user: {}", username);
-          response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token expired");
           return;
         }
 

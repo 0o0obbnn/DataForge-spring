@@ -121,12 +121,17 @@ public class EmailGenerator extends BaseGenerator implements DataGenerator<Strin
       // 延迟加载数据
       ensureDataLoaded(config);
 
-      // 从参数中获取域名列表
+      // 从参数中获取域名列表（支持 domain 单值或 domains 多值）
       String domainsParam = getStringParam(config, "domains", null);
+      if (domainsParam == null || domainsParam.trim().isEmpty()) {
+        String singleDomain = getStringParam(config, "domain", null);
+        domainsParam = singleDomain != null && !singleDomain.trim().isEmpty() ? singleDomain : null;
+      }
       List<String> domains = parseDomains(domainsParam);
 
-      // 从参数中获取用户名长度范围
-      String usernameLengthParam = getStringParam(config, "username_length", "6,12");
+      // 从参数中获取用户名长度范围（支持 username_length 或 usernameLength，支持单数字固定长度）
+      String usernameLengthParam =
+          getStringParam(config, "username_length", getStringParam(config, "usernameLength", "6,12"));
       int[] lengthRange = parseLengthRange(usernameLengthParam);
 
       // 从参数中获取是否使用姓名前缀
@@ -135,17 +140,20 @@ public class EmailGenerator extends BaseGenerator implements DataGenerator<Strin
       // 从参数中获取是否生成有效邮箱
       boolean valid = getBooleanParam(config, "valid", true);
 
-      // 从参数中获取邮箱类型
+      // 从参数中获取邮箱类型或格式（format=corporate 时按企业邮箱生成）
       String emailType = getStringParam(config, "type", "PERSONAL");
+      String formatParam = getStringParam(config, "format", null);
+      boolean corporateFormat =
+          "corporate".equalsIgnoreCase(formatParam) || "corporate".equalsIgnoreCase(emailType);
 
       if (!valid) {
         return generateInvalidEmail();
       }
 
-      return generateValidEmail(domains, lengthRange, prefixName, emailType, context);
+      return generateValidEmail(domains, lengthRange, prefixName, emailType, corporateFormat, context);
 
     } catch (Exception e) {
-      logger.error("Failed to generate email", e);
+      logger.error("Failed to generate email (domains/params may be invalid): {}", e.getMessage(), e);
       // 返回一个默认邮箱作为fallback
       return "user@example.com";
     }
@@ -218,7 +226,7 @@ public class EmailGenerator extends BaseGenerator implements DataGenerator<Strin
           domainsByType.keySet().size());
 
     } catch (Exception e) {
-      logger.error("Failed to load email domain data, using fallback", e);
+      logger.warn("Failed to load email domain data, using fallback: {}", e.getMessage());
       initializeFallbackData();
     }
   }
@@ -267,14 +275,34 @@ public class EmailGenerator extends BaseGenerator implements DataGenerator<Strin
       int[] lengthRange,
       boolean prefixName,
       String emailType,
+      boolean corporateFormat,
       DataForgeContext context) {
-    // 生成用户名
-    String username = generateUsername(lengthRange, prefixName, context);
+    // 生成用户名（企业格式为 firstname.lastname）
+    String username =
+        corporateFormat
+            ? generateCorporateUsername()
+            : generateUsername(lengthRange, prefixName, context);
 
     // 选择域名
-    String domain = selectDomain(domains, emailType);
+    String domain = selectDomain(domains, corporateFormat ? "CORPORATE" : emailType);
 
     return username + "@" + domain;
+  }
+
+  /** 生成企业邮箱用户名（小写 firstname.lastname 格式） */
+  private String generateCorporateUsername() {
+    ThreadLocalRandom random = ThreadLocalRandom.current();
+    int len1 = random.nextInt(4, 10);
+    int len2 = random.nextInt(4, 10);
+    StringBuilder sb = new StringBuilder(len1 + len2 + 1);
+    for (int i = 0; i < len1; i++) {
+      sb.append((char) ('a' + random.nextInt(26)));
+    }
+    sb.append('.');
+    for (int i = 0; i < len2; i++) {
+      sb.append((char) ('a' + random.nextInt(26)));
+    }
+    return sb.toString();
   }
 
   /**
@@ -408,6 +436,11 @@ public class EmailGenerator extends BaseGenerator implements DataGenerator<Strin
    * @return 域名
    */
   private String selectDomain(List<String> domains, String emailType) {
+    // 确保已加载数据
+    if (allDomains == null || allDomains.isEmpty()) {
+      initializeFallbackData();
+    }
+
     if (domains != null && !domains.isEmpty()) {
       return domains.get(ThreadLocalRandom.current().nextInt(domains.size()));
     }
@@ -416,6 +449,12 @@ public class EmailGenerator extends BaseGenerator implements DataGenerator<Strin
     List<String> candidateDomains = domainsByType.get(emailType.toUpperCase());
     if (candidateDomains == null || candidateDomains.isEmpty()) {
       candidateDomains = allDomains;
+    }
+
+    // 再次检查候选域名列表是否为空
+    if (candidateDomains == null || candidateDomains.isEmpty()) {
+      logger.warn("No domains available, using fallback domain");
+      return "example.com";
     }
 
     return candidateDomains.get(ThreadLocalRandom.current().nextInt(candidateDomains.size()));
@@ -509,8 +548,18 @@ public class EmailGenerator extends BaseGenerator implements DataGenerator<Strin
    * @return 长度范围数组 [min, max]
    */
   private int[] parseLengthRange(String lengthParam) {
+    if (lengthParam == null || lengthParam.trim().isEmpty()) {
+      return new int[] {6, 12};
+    }
+    String trimmed = lengthParam.trim();
     try {
-      String[] parts = lengthParam.split(",");
+      // 支持单数字固定长度，如 "10"、"1"、"64"
+      if (!trimmed.contains(",")) {
+        int fixed = Integer.parseInt(trimmed);
+        fixed = Math.max(1, Math.min(64, fixed));
+        return new int[] {fixed, fixed};
+      }
+      String[] parts = trimmed.split(",");
       if (parts.length == 2) {
         int min = Integer.parseInt(parts[0].trim());
         int max = Integer.parseInt(parts[1].trim());

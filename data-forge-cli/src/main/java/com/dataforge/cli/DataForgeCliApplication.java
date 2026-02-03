@@ -22,7 +22,7 @@ public class DataForgeCliApplication implements CommandLineRunner {
 
   public static void main(String[] args) {
     System.setProperty("spring.main.web-application-type", "none");
-    System.exit(SpringApplication.exit(SpringApplication.run(DataForgeCliApplication.class, args)));
+    SpringApplication.run(DataForgeCliApplication.class, args);
   }
 
   @Override
@@ -32,6 +32,9 @@ public class DataForgeCliApplication implements CommandLineRunner {
 
     cmd.setCommandName("dataforge");
     int exitCode = cmd.execute(args);
-    System.exit(exitCode);
+    
+    if (System.getProperty("test.mode") == null) {
+      System.exit(exitCode);
+    }
   }
 }

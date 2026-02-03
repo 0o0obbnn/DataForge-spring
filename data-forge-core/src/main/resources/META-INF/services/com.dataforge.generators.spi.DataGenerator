@@ -84,3 +84,4 @@ com.dataforge.generators.internal.ImageFileHeaderGenerator
 com.dataforge.generators.internal.DocumentGenerator
 com.dataforge.generators.internal.BoundaryValueGenerator
 com.dataforge.generators.internal.InvalidDataGenerator
+com.dataforge.generators.internal.StringGenerator

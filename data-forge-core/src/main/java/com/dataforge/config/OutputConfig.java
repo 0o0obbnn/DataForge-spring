@@ -52,6 +52,15 @@ public class OutputConfig {
     }
   }
 
+  /** 默认字符编码 */
+  public static final String DEFAULT_ENCODING = "UTF-8";
+
+  /** 默认CSV分隔符 */
+  public static final String DEFAULT_CSV_DELIMITER = ",";
+
+  /** 默认SQL表名 */
+  public static final String DEFAULT_SQL_TABLE_NAME = "test_data";
+
   /** 输出格式，默认为CONSOLE。 */
   private Format format = Format.CONSOLE;
 
@@ -62,10 +71,10 @@ public class OutputConfig {
   private boolean append = false;
 
   /** 字符编码，默认为UTF-8。 */
-  private String encoding = "UTF-8";
+  private String encoding = DEFAULT_ENCODING;
 
   /** CSV分隔符，默认为逗号。 */
-  private String csvDelimiter = ",";
+  private String csvDelimiter = DEFAULT_CSV_DELIMITER;
 
   /** CSV是否包含标题行，默认为true。 */
   private boolean csvIncludeHeader = true;
@@ -77,7 +86,7 @@ public class OutputConfig {
   private boolean jsonPrettyPrint = true;
 
   /** SQL表名，当format为SQL时使用。 */
-  private String sqlTableName = "test_data";
+  private String sqlTableName = DEFAULT_SQL_TABLE_NAME;
 
   /** SQL方言，当format为SQL时使用，默认为MySQL。 */
   private SqlDialect sqlDialect = SqlDialect.MYSQL;

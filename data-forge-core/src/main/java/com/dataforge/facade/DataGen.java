@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -43,7 +42,6 @@ public class DataGen {
   private DateTimeGen dateTimeGen;
 
   /** 构造函数（支持 Spring 依赖注入） */
-  @Autowired
   public DataGen(GeneratorFactory generatorFactory) {
     this.generatorFactory = generatorFactory;
     this.context = new DataForgeContext();
