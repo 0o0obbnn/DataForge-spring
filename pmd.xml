@@ -1,0 +1,120 @@
+<?xml version="1.0"?>
+<ruleset name="DataForge PMD Ruleset" xmlns="http://pmd.sourceforge.net/ruleset/2.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
+    <description>DataForge项目的PMD规则集，用于检测代码异味、重复代码和潜在问题</description>
+
+    <!-- 导入PMD内置规则集 -->
+    <rule ref="category/java/bestpractices.xml"/>
+    <rule ref="category/java/codesize.xml"/>
+    <rule ref="category/java/design.xml"/>
+    <rule ref="category/java/documentation.xml"/>
+    <rule ref="category/java/errorprone.xml"/>
+    <rule ref="category/java/naming.xml"/>
+    <rule ref="category/java/performance.xml"/>
+    <rule ref="category/java/security.xml"/>
+
+    <!-- 自定义规则配置 -->
+    
+    <!-- 代码大小规则 -->
+    <rule ref="category/java/codesize.xml/ExcessiveMethodLength">
+        <properties>
+            <property name="maximumMethodLength" value="50"/>
+        </properties>
+    </rule>
+    
+    <rule ref="category/java/codesize.xml/ExcessiveClassLength">
+        <properties>
+            <property name="maximumClassLength" value="500"/>
+        </properties>
+    </rule>
+    
+    <rule ref="category/java/codesize.xml/ExcessiveParameterList">
+        <properties>
+            <property name="maximumParameters" value="4"/>
+            <property name="ignoreOverriddenMethods" value="true"/>
+        </properties>
+    </rule>
+    
+    <rule ref="category/java/codesize.xml/NPathComplexity">
+        <properties>
+            <property name="reportLevel" value="200"/>
+        </properties>
+    </rule>
+    
+    <!-- 重复代码规则 -->
+    <rule ref="category/java/codesize.xml/DuplicateCode">
+        <properties>
+            <property name="minimum" value="5"/>
+        </properties>
+    </rule>
+    
+    <!-- 设计规则 -->
+    <rule ref="category/java/design.xml/GodClass">
+        <properties>
+            <property name="minimumTotalMetricValue" value="100"/>
+        </properties>
+    </rule>
+    
+    <rule ref="category/java/design.xml/LongParameterList">
+        <properties>
+            <property name="maximumParameters" value="4"/>
+        </properties>
+    </rule>
+    
+    <!-- 复杂度规则 -->
+    <rule ref="category/java/codesize.xml/CyclomaticComplexity">
+        <properties>
+            <property name="reportLevel" value="10"/>
+        </properties>
+    </rule>
+    
+    <!-- 性能规则 -->
+    <rule ref="category/java/performance.xml/AvoidInstantiatingObjectsInLoops"/>
+    <rule ref="category/java/performance.xml/UseStringBufferForStringAppends"/>
+    <rule ref="category/java/performance.xml/UnnecessaryWrapperObjectCreation"/>
+    
+    <!-- 错误倾向规则 -->
+    <rule ref="category/java/errorprone.xml/NullAssignment"/>
+    <rule ref="category/java/errorprone.xml/EmptyCatchBlock">
+        <properties>
+            <property name="allowCommentedBlocks" value="true"/>
+        </properties>
+    </rule>
+    
+    <!-- 命名规则 -->
+    <rule ref="category/java/naming.xml/MethodNamingConventions">
+        <properties>
+            <property name="regex" value="^[a-z][a-zA-Z0-9]*$"/>
+        </properties>
+    </rule>
+    
+    <rule ref="category/java/naming.xml/ClassNamingConventions">
+        <properties>
+            <property name="regex" value="^[A-Z][a-zA-Z0-9]*$"/>
+        </properties>
+    </rule>
+    
+    <rule ref="category/java/naming.xml/VariableNamingConventions">
+        <properties>
+            <property name="regex" value="^[a-z][a-zA-Z0-9]*$"/>
+        </properties>
+    </rule>
+    
+    <!-- 最佳实践规则 -->
+    <rule ref="category/java/bestpractices.xml/AvoidUsingHardCodedIP"/>
+    <rule ref="category/java/bestpractices.xml/CloseResource"/>
+    <rule ref="category/java/bestpractices.xml/UnusedLocalVariable"/>
+    <rule ref="category/java/bestpractices.xml/UnusedPrivateField"/>
+    <rule ref="category/java/bestpractices.xml/UnusedPrivateMethod"/>
+    
+    <!-- 文档规则 -->
+    <rule ref="category/java/documentation.xml/MissingJavadocMethod">
+        <properties>
+            <property name="allowMissingPropertyJavadoc" value="true"/>
+        </properties>
+    </rule>
+    
+    <!-- 安全规则 -->
+    <rule ref="category/java/security.xml/InsecureCryptoUsage"/>
+    <rule ref="category/java/security.xml/SqlInjection"/>
+    <rule ref="category/java/security.xml/WeakEncryption"/>
+</ruleset>

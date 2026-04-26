@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.dataforge</groupId>
+        <artifactId>data-forge</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>data-forge-coverage</artifactId>
+    <packaging>pom</packaging>
+
+    <name>DataForge Coverage</name>
+    <description>Aggregated JaCoCo report module (api + core + cli + web)</description>
+
+    <!-- report-aggregate only includes projects this project depends on -->
+    <dependencies>
+        <dependency>
+            <groupId>com.dataforge</groupId>
+            <artifactId>data-forge-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.dataforge</groupId>
+            <artifactId>data-forge-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.dataforge</groupId>
+            <artifactId>data-forge-cli</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.dataforge</groupId>
+            <artifactId>data-forge-web</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <outputEncoding>UTF-8</outputEncoding>
+                    <outputDirectory>${project.parent.basedir}/target/jacoco-aggregate</outputDirectory>
+                </configuration>
+                <executions>
+                    <!-- Run during `mvn test` on this module (after other modules' tests in reactor) -->
+                    <execution>
+                        <id>jacoco-report-aggregate</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report-aggregate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

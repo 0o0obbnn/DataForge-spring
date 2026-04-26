@@ -1,0 +1,884 @@
+openapi: 3.1.0
+info:
+  title: DataForge API Documentation
+  description: |
+    DataForge是一个高性能、灵活且高度可配置的测试数据生成工具。
+    
+    本文档描述了DataForge CLI的命令行接口规范，包括所有可用的命令、参数、配置选项和使用示例。
+    
+    ## 核心功能
+    
+    - **数据生成**：根据配置生成大规模测试数据
+    - **多格式输出**：支持CSV、JSON、XML、SQL、TSV等多种格式
+    - **并发处理**：支持多线程并发生成，提升性能
+    - **字段关联**：支持字段间的数据关联和依赖
+    - **数据验证**：内置数据验证和安全检查机制
+    - **可扩展性**：支持自定义数据生成器
+    
+    ## 技术栈
+    
+    - Spring Boot 3.2.1
+    - Java 21
+    - Picocli 4.7.5
+    - Jackson (JSON/YAML处理)
+    
+    ## 架构设计
+    
+    DataForge采用模块化架构设计：
+    - **data-forge-core**：核心数据生成引擎
+    - **data-forge-cli**：命令行接口层
+    - **generators**：90+种数据生成器
+    - **io**：多种输出策略实现
+  version: 1.0.0
+  contact:
+    name: DataForge Team
+    email: support@dataforge.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+
+servers:
+  - url: http://localhost:8080
+    description: 本地开发服务器
+  - url: https://api.dataforge.com
+    description: 生产服务器
+
+tags:
+  - name: Data Generation
+    description: 数据生成相关操作
+  - name: Configuration
+    description: 配置管理相关操作
+  - name: Output
+    description: 输出管理相关操作
+  - name: Validation
+    description: 数据验证相关操作
+
+paths:
+  /api/v1/generate:
+    post:
+      tags:
+        - Data Generation
+      summary: 生成测试数据
+      description: |
+        根据提供的配置生成测试数据。支持多种数据类型、输出格式和并发模式。
+        
+        ## 使用场景
+        
+        - 单元测试数据准备
+        - 性能测试数据生成
+        - 数据库填充
+        - API测试数据创建
+        - 压力测试数据准备
+        
+        ## 限制说明
+        
+        - 单次请求最多生成1,000,000条记录
+        - 并发线程数不超过16个
+        - 字段数量不超过100个
+        - 单条记录大小不超过10MB
+      operationId: generateData
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgeConfig'
+            examples:
+              basic:
+                summary: 基础配置示例
+                value:
+                  count: 100
+                  output:
+                    format: csv
+                    file: output/test.csv
+                  fields:
+                    - name: id
+                      type: uuid
+                    - name: name
+                      type: name
+                      params:
+                        type: CN
+                        gender: ANY
+                    - name: email
+                      type: email
+                    - name: age
+                      type: age
+                      params:
+                        min: 18
+                        max: 65
+              advanced:
+                summary: 高级配置示例
+                value:
+                  count: 10000
+                  threads: 4
+                  validate: true
+                  seed: 123456
+                  output:
+                    format: json
+                    file: output/large-data.json
+                    jsonPrettyPrint: true
+                  fields:
+                    - name: userId
+                      type: uuid
+                      params:
+                        type: UUID4
+                    - name: username
+                      type: username
+                      params:
+                        minLength: 6
+                        maxLength: 20
+                    - name: email
+                      type: email
+                    - name: phone
+                      type: phone
+                      params:
+                        type: CN_MOBILE
+                    - name: idCard
+                      type: idcard
+                      params:
+                        type: CN_ID_CARD_18
+                    - name: address
+                      type: address
+                      params:
+                        type: FULL_ADDRESS
+                    - name: birthDate
+                      type: date
+                      params:
+                        format: yyyy-MM-dd
+                        min: 1980-01-01
+                        max: 2005-12-31
+                    - name: salary
+                      type: decimal
+                      params:
+                        min: 5000.00
+                        max: 50000.00
+                        precision: 2
+          application/yaml:
+            schema:
+              $ref: '#/components/schemas/ForgeConfig'
+      responses:
+        '200':
+          description: 数据生成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenerationResponse'
+              examples:
+                success:
+                  summary: 成功响应示例
+                  value:
+                    success: true
+                    message: "Data generation completed successfully"
+                    data:
+                      totalRecords: 100
+                      durationMs: 1523
+                      throughput: 65.7
+                      outputFile: "output/test.csv"
+                      errors: 0
+        '400':
+          description: 请求参数错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidConfig:
+                  summary: 无效配置
+                  value:
+                    success: false
+                    errorCode: "INVALID_CONFIG"
+                    message: "Configuration validation failed"
+                    details:
+                      - field: "fields[0].type"
+                        message: "Invalid field type: unknown_type"
+                        availableTypes: ["uuid", "name", "email", "phone", "idcard", "address", "date", "decimal"]
+                missingFields:
+                  summary: 缺少必填字段
+                  value:
+                    success: false
+                    errorCode: "MISSING_REQUIRED_FIELD"
+                    message: "Required field 'fields' is missing"
+                    details:
+                      - field: "fields"
+                        message: "Fields configuration cannot be null"
+        '401':
+          description: 未授权
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: 请求过于频繁
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                rateLimit:
+                  summary: 速率限制
+                  value:
+                    success: false
+                    errorCode: "RATE_LIMIT_EXCEEDED"
+                    message: "Too many requests. Please try again later."
+                    retryAfter: 60
+        '500':
+          description: 服务器内部错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - ApiKeyAuth: []
+        - BearerAuth: []
+
+  /api/v1/config/validate:
+    post:
+      tags:
+        - Configuration
+      summary: 验证配置
+      description: |
+        验证数据生成配置的有效性，但不实际生成数据。
+        
+        此接口用于在生成数据前检查配置是否正确，包括：
+        - 字段类型是否支持
+        - 参数是否有效
+        - 输出配置是否正确
+        - 业务逻辑是否合理
+      operationId: validateConfig
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgeConfig'
+      responses:
+        '200':
+          description: 配置验证成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResponse'
+              examples:
+                valid:
+                  summary: 配置有效
+                  value:
+                    valid: true
+                    message: "Configuration is valid"
+                    warnings:
+                      - code: "PERFORMANCE_WARNING"
+                        message: "Large record count may impact performance"
+                        recommendation: "Consider using batch generation or increasing thread count"
+                invalid:
+                  summary: 配置无效
+                  value:
+                    valid: false
+                    message: "Configuration validation failed"
+                    errors:
+                      - field: "fields[1].type"
+                        code: "UNSUPPORTED_TYPE"
+                        message: "Field type 'invalid_type' is not supported"
+                        availableTypes: ["uuid", "name", "email", "phone", "idcard", "address", "date", "decimal"]
+                      - field: "output.file"
+                        code: "INVALID_PATH"
+                        message: "Output file path is invalid"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /api/v1/generators/types:
+    get:
+      tags:
+        - Configuration
+      summary: 获取支持的生成器类型
+      description: |
+        获取所有可用的数据生成器类型及其配置参数。
+        
+        返回的列表包括：
+        - 生成器类型标识符
+        - 生成器描述
+        - 支持的参数
+        - 参数类型和默认值
+        - 使用示例
+      operationId: getGeneratorTypes
+      parameters:
+        - name: category
+          in: query
+          description: 按类别筛选生成器类型
+          schema:
+            type: string
+            enum: [identity, contact, location, datetime, numeric, text, security, file, network, other]
+        - name: search
+          in: query
+          description: 搜索生成器类型（支持模糊匹配）
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功获取生成器类型列表
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/GeneratorTypeInfo'
+              examples:
+                all:
+                  summary: 所有生成器类型
+                  value:
+                    success: true
+                    data:
+                      - type: uuid
+                        category: identity
+                        description: Generate UUID (Universally Unique Identifier)
+                        params:
+                          - name: type
+                            type: string
+                            enum: [UUID4, UUID3, UUID5]
+                            default: UUID4
+                            description: UUID version
+                        example:
+                          type: uuid
+                          params:
+                            type: UUID4
+                      - type: name
+                        category: contact
+                        description: Generate person names
+                        params:
+                          - name: type
+                            type: string
+                            enum: [CN, EN, JP, KR]
+                            default: CN
+                            description: Name locale
+                          - name: gender
+                            type: string
+                            enum: [MALE, FEMALE, ANY]
+                            default: ANY
+                            description: Gender preference
+                        example:
+                          type: name
+                          params:
+                            type: CN
+                            gender: ANY
+                      - type: email
+                        category: contact
+                        description: Generate email addresses
+                        params:
+                          - name: domain
+                            type: string
+                            description: Custom email domain
+                        example:
+                          type: email
+                          params:
+                            domain: example.com
+                filtered:
+                  summary: 按类别筛选
+                  value:
+                    success: true
+                    data:
+                      - type: uuid
+                        category: identity
+                        description: Generate UUID
+                        params: []
+                      - type: idcard
+                        category: identity
+                        description: Generate ID card numbers
+                        params:
+                          - name: type
+                            type: string
+                            enum: [CN_ID_CARD_18, CN_ID_CARD_15, US_SSN]
+                            default: CN_ID_CARD_18
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v1/output/formats:
+    get:
+      tags:
+        - Output
+      summary: 获取支持的输出格式
+      description: 获取所有支持的输出格式及其配置选项
+      operationId: getOutputFormats
+      responses:
+        '200':
+          description: 成功获取输出格式列表
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OutputFormatInfo'
+              examples:
+                success:
+                  value:
+                    success: true
+                    data:
+                      - format: csv
+                        description: Comma-Separated Values format
+                        mimeType: text/csv
+                        fileExtension: csv
+                        params:
+                          - name: csvDelimiter
+                            type: string
+                            default: ","
+                            description: CSV delimiter character
+                          - name: csvIncludeHeader
+                            type: boolean
+                            default: true
+                            description: Include header row
+                          - name: csvSafeMode
+                            type: boolean
+                            default: false
+                            description: Enable safe mode to prevent formula injection
+                      - format: json
+                        description: JavaScript Object Notation format
+                        mimeType: application/json
+                        fileExtension: json
+                        params:
+                          - name: jsonPrettyPrint
+                            type: boolean
+                            default: true
+                            description: Format JSON output with indentation
+                      - format: xml
+                        description: Extensible Markup Language format
+                        mimeType: application/xml
+                        fileExtension: xml
+                        params: []
+                      - format: sql
+                        description: SQL INSERT statements
+                        mimeType: text/plain
+                        fileExtension: sql
+                        params:
+                          - name: sqlTableName
+                            type: string
+                            default: test_data
+                            description: Target table name
+                      - format: tsv
+                        description: Tab-Separated Values format
+                        mimeType: text/tab-separated-values
+                        fileExtension: tsv
+                        params:
+                          - name: csvIncludeHeader
+                            type: boolean
+                            default: true
+                            description: Include header row
+                      - format: console
+                        description: Output to console
+                        mimeType: text/plain
+                        fileExtension: null
+                        params: []
+
+  /api/v1/health:
+    get:
+      tags:
+        - System
+      summary: 健康检查
+      description: 检查服务健康状态
+      operationId: healthCheck
+      responses:
+        '200':
+          description: 服务正常
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [healthy, unhealthy]
+                  version:
+                    type: string
+                  uptime:
+                    type: integer
+                    description: Uptime in seconds
+                  components:
+                    type: object
+                    additionalProperties:
+                      type: object
+                      properties:
+                        status:
+                          type: string
+                        message:
+                          type: string
+              example:
+                status: healthy
+                version: 1.0.0
+                uptime: 3600
+                components:
+                  generatorFactory:
+                    status: healthy
+                    message: "90 generators loaded"
+                  outputStrategies:
+                    status: healthy
+                    message: "6 output strategies available"
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API密钥认证
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT令牌认证
+
+  schemas:
+    ForgeConfig:
+      type: object
+      required:
+        - count
+        - output
+        - fields
+      properties:
+        count:
+          type: integer
+          minimum: 1
+          maximum: 1000000
+          default: 10
+          description: 要生成的记录数量
+          example: 100
+        output:
+          $ref: '#/components/schemas/OutputConfig'
+        fields:
+          type: array
+          minItems: 1
+          maxItems: 100
+          description: 字段配置列表
+          items:
+            $ref: '#/components/schemas/FieldConfigWrapper'
+        validate:
+          type: boolean
+          default: true
+          description: 是否启用数据验证
+        threads:
+          type: integer
+          minimum: 1
+          maximum: 16
+          default: 1
+          description: 并发线程数
+        seed:
+          type: integer
+          format: int64
+          description: 随机种子，用于可重现的数据生成
+          example: 123456
+
+    OutputConfig:
+      type: object
+      required:
+        - format
+      properties:
+        format:
+          type: string
+          enum: [console, csv, json, xml, tsv, sql]
+          default: console
+          description: 输出格式
+        file:
+          type: string
+          description: 输出文件路径（format不为console时必需）
+          example: output/test.csv
+        append:
+          type: boolean
+          default: false
+          description: 是否追加到文件末尾
+        encoding:
+          type: string
+          default: UTF-8
+          description: 字符编码
+          example: UTF-8
+        csvDelimiter:
+          type: string
+          default: ","
+          description: CSV分隔符
+          example: ","
+        csvIncludeHeader:
+          type: boolean
+          default: true
+          description: CSV是否包含标题行
+        csvSafeMode:
+          type: boolean
+          default: false
+          description: CSV安全模式，防止公式注入
+        jsonPrettyPrint:
+          type: boolean
+          default: true
+          description: JSON是否格式化输出
+        sqlTableName:
+          type: string
+          default: test_data
+          description: SQL表名
+          example: users
+        mimeType:
+          type: string
+          description: MIME类型
+
+    FieldConfigWrapper:
+      type: object
+      required:
+        - name
+        - type
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: 字段名称
+          example: username
+        type:
+          type: string
+          description: 数据类型标识符
+          example: name
+        description:
+          type: string
+          description: 字段描述
+          example: User's full name
+        required:
+          type: boolean
+          default: true
+          description: 是否为必填字段
+        params:
+          type: object
+          additionalProperties: true
+          description: 生成器特定的配置参数
+          example:
+            type: CN
+            gender: ANY
+
+    GenerationResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Data generation completed successfully"
+        data:
+          type: object
+          properties:
+            totalRecords:
+              type: integer
+              description: 生成的记录总数
+              example: 100
+            durationMs:
+              type: integer
+              description: 生成耗时（毫秒）
+              example: 1523
+            throughput:
+              type: number
+              format: float
+              description: 吞吐量（记录/秒）
+              example: 65.7
+            outputFile:
+              type: string
+              description: 输出文件路径
+              example: "output/test.csv"
+            errors:
+              type: integer
+              description: 错误数量
+              example: 0
+
+    ValidationResponse:
+      type: object
+      properties:
+        valid:
+          type: boolean
+          description: 配置是否有效
+        message:
+          type: string
+          description: 验证结果消息
+        warnings:
+          type: array
+          description: 警告信息列表
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+              message:
+                type: string
+              recommendation:
+                type: string
+        errors:
+          type: array
+          description: 错误信息列表
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              code:
+                type: string
+              message:
+                type: string
+              availableTypes:
+                type: array
+                items:
+                  type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        errorCode:
+          type: string
+          description: 错误代码
+          example: "INVALID_CONFIG"
+        message:
+          type: string
+          description: 错误消息
+          example: "Configuration validation failed"
+        details:
+          type: array
+          description: 详细错误信息
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              message:
+                type: string
+        timestamp:
+          type: string
+          format: date-time
+          description: 错误发生时间
+        path:
+          type: string
+          description: 请求路径
+
+    GeneratorTypeInfo:
+      type: object
+      properties:
+        type:
+          type: string
+          description: 生成器类型标识符
+          example: uuid
+        category:
+          type: string
+          description: 生成器类别
+          enum: [identity, contact, location, datetime, numeric, text, security, file, network, other]
+        description:
+          type: string
+          description: 生成器描述
+        params:
+          type: array
+          description: 支持的参数列表
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              type:
+                type: string
+              enum:
+                type: array
+                items:
+                  type: string
+              default:
+                description: 默认值
+              description:
+                type: string
+        example:
+          type: object
+          description: 使用示例
+
+    OutputFormatInfo:
+      type: object
+      properties:
+        format:
+          type: string
+          description: 格式标识符
+        description:
+          type: string
+          description: 格式描述
+        mimeType:
+          type: string
+          description: MIME类型
+        fileExtension:
+          type: string
+          description: 文件扩展名
+          nullable: true
+        params:
+          type: array
+          description: 支持的参数列表
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              type:
+                type: string
+              default:
+                description: 默认值
+              description:
+                type: string
+
+  responses:
+    BadRequest:
+      description: 请求参数错误
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            errorCode: "BAD_REQUEST"
+            message: "Invalid request parameters"
+            timestamp: "2024-01-15T10:30:00Z"
+            path: "/api/v1/generate"
+
+    Unauthorized:
+      description: 未授权
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            errorCode: "UNAUTHORIZED"
+            message: "Authentication required"
+            timestamp: "2024-01-15T10:30:00Z"
+            path: "/api/v1/generate"
+
+    RateLimitExceeded:
+      description: 请求过于频繁
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            errorCode: "RATE_LIMIT_EXCEEDED"
+            message: "Too many requests. Please try again later."
+            retryAfter: 60
+            timestamp: "2024-01-15T10:30:00Z"
+            path: "/api/v1/generate"
+
+    InternalServerError:
+      description: 服务器内部错误
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            errorCode: "INTERNAL_SERVER_ERROR"
+            message: "An unexpected error occurred"
+            timestamp: "2024-01-15T10:30:00Z"
+            path: "/api/v1/generate"
+
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []

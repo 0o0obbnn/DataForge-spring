@@ -1,0 +1,226 @@
+{
+  "name": "网络设备类生成器测试",
+  "description": "测试新实现的网络设备类生成器功能",
+  "version": "1.0.0",
+  "fields": [
+    {
+      "name": "device_id_uuid",
+      "type": "device_id",
+      "description": "UUID格式设备ID",
+      "config": {
+        "type": "UUID",
+        "format": "PLAIN"
+      }
+    },
+    {
+      "name": "device_id_imei",
+      "type": "device_id",
+      "description": "IMEI设备ID",
+      "config": {
+        "type": "IMEI",
+        "valid": true
+      }
+    },
+    {
+      "name": "device_id_imsi",
+      "type": "device_id",
+      "description": "IMSI设备ID",
+      "config": {
+        "type": "IMSI",
+        "mcc": "460",
+        "valid": true
+      }
+    },
+    {
+      "name": "device_id_custom",
+      "type": "device_id",
+      "description": "自定义格式设备ID",
+      "config": {
+        "type": "CUSTOM",
+        "length": 20,
+        "format": "HYPHEN"
+      }
+    },
+    {
+      "name": "user_agent_chrome",
+      "type": "user_agent",
+      "description": "Chrome浏览器User-Agent",
+      "config": {
+        "browser": "CHROME",
+        "os": "WINDOWS",
+        "device": "DESKTOP",
+        "version": true,
+        "realistic": true
+      }
+    },
+    {
+      "name": "user_agent_mobile",
+      "type": "user_agent",
+      "description": "移动端User-Agent",
+      "config": {
+        "browser": "RANDOM",
+        "os": "ANDROID",
+        "device": "MOBILE",
+        "version": true,
+        "realistic": true
+      }
+    },
+    {
+      "name": "user_agent_random",
+      "type": "user_agent",
+      "description": "随机User-Agent",
+      "config": {
+        "browser": "RANDOM",
+        "os": "RANDOM",
+        "device": "RANDOM",
+        "version": true,
+        "realistic": true
+      }
+    },
+    {
+      "name": "geolocation_decimal",
+      "type": "geolocation",
+      "description": "小数格式地理坐标",
+      "config": {
+        "format": "DECIMAL",
+        "region": "CHINA",
+        "precision": 6,
+        "include_altitude": false
+      }
+    },
+    {
+      "name": "geolocation_dms",
+      "type": "geolocation",
+      "description": "度分秒格式地理坐标",
+      "config": {
+        "format": "DMS",
+        "latitude_min": 39.0,
+        "latitude_max": 41.0,
+        "longitude_min": 115.0,
+        "longitude_max": 118.0,
+        "precision": 2,
+        "include_altitude": true
+      }
+    },
+    {
+      "name": "geolocation_json",
+      "type": "geolocation",
+      "description": "JSON格式地理坐标",
+      "config": {
+        "format": "JSON",
+        "center_lat": "39.908722",
+        "center_lon": "116.397499",
+        "radius_km": "50",
+        "precision": 4,
+        "include_altitude": true
+      }
+    },
+    {
+      "name": "geolocation_wkt",
+      "type": "geolocation",
+      "description": "WKT格式地理坐标",
+      "config": {
+        "format": "WKT",
+        "region": "USA",
+        "precision": 5,
+        "include_altitude": false
+      }
+    },
+    {
+      "name": "timezone_iana",
+      "type": "timezone",
+      "description": "IANA时区标识符",
+      "config": {
+        "format": "IANA",
+        "region": "ASIA",
+        "include_dst": true
+      }
+    },
+    {
+      "name": "timezone_offset",
+      "type": "timezone",
+      "description": "UTC偏移量",
+      "config": {
+        "format": "OFFSET",
+        "offset_min": -12,
+        "offset_max": 14,
+        "include_dst": false
+      }
+    },
+    {
+      "name": "timezone_display",
+      "type": "timezone",
+      "description": "时区显示名称",
+      "config": {
+        "format": "DISPLAY_NAME",
+        "region": "EUROPE",
+        "locale": "en",
+        "style": "FULL"
+      }
+    },
+    {
+      "name": "timezone_abbreviation",
+      "type": "timezone",
+      "description": "时区缩写",
+      "config": {
+        "format": "ABBREVIATION",
+        "region": "AMERICA",
+        "locale": "en"
+      }
+    },
+    {
+      "name": "cookie_header",
+      "type": "cookie",
+      "description": "HTTP头格式Cookie",
+      "config": {
+        "format": "HEADER",
+        "name": "sessionid",
+        "value_type": "UUID",
+        "domain": "example.com",
+        "path": "/",
+        "expires_days": "7",
+        "secure": true,
+        "http_only": true,
+        "same_site": "LAX"
+      }
+    },
+    {
+      "name": "cookie_json",
+      "type": "cookie",
+      "description": "JSON格式Cookie",
+      "config": {
+        "format": "JSON",
+        "value_type": "TOKEN",
+        "max_age": "3600",
+        "secure": false,
+        "http_only": false,
+        "same_site": "STRICT"
+      }
+    },
+    {
+      "name": "cookie_simple",
+      "type": "cookie",
+      "description": "简单格式Cookie",
+      "config": {
+        "format": "SIMPLE",
+        "name": "user_pref",
+        "value_type": "JSON",
+        "session": true
+      }
+    },
+    {
+      "name": "cookie_random",
+      "type": "cookie",
+      "description": "随机Cookie",
+      "config": {
+        "format": "HEADER",
+        "value_type": "STRING",
+        "value_length": 64,
+        "expires_days": "30",
+        "secure": true,
+        "http_only": true,
+        "same_site": "NONE"
+      }
+    }
+  ]
+}

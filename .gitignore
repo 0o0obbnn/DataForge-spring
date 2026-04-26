@@ -1,0 +1,148 @@
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# Node.js & NPM
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+lerna-debug.log*
+
+# Vite
+dist
+dist-ssr
+*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage
+*.lcov
+
+# ESLint cache
+.eslintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+
+# DataForge specific
+output/
+*.class
+maven-output.txt
+
+# Quality tools
+.qoder/
+.windsurf/
+.lingma/
+.kiro/
+.amazonq/
+.claude/
+
+# Eclipse IDE
+.settings/
+.project
+.classpath
+.factorypath
+
+# AI Tools
+.crush/
+.genkit/
+.github/java-upgrade/
+
+# Temporary scripts
+FixImports.java
+FixImports.class
+
+# Test files
+DebugAddress.class
+DebugAddressDetailTest.class
+DebugAddressTest.class
+debug-*.java
+parse_jacoco.py
+
+# Documentation files (excluding README)
+*.md
+!README.md
+
+# Serena memory files
+.serena/
+
+# Temporary and auxiliary files
+tmp/
+*.txt
+!LICENSE
+
+# IDE specific files
+.claude/
+
+# GitHub Actions temporary files
+.github/java-upgrade/

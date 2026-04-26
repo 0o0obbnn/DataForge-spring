@@ -1,0 +1,153 @@
+# User-Agent生成器配置文件
+# 支持多种浏览器、操作系统和设备类型的User-Agent生成
+
+# 浏览器配置
+browsers:
+  # Chrome浏览器
+  chrome:
+    name: "Chrome"
+    templates:
+      - "Mozilla/5.0 ({os}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{version} Safari/537.36"
+      - "Mozilla/5.0 ({os}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{version} Mobile Safari/537.36"
+    versions:
+      min: 90
+      max: 120
+      step: 1
+    weight: 50
+    description: "Google Chrome浏览器"
+
+  # Firefox浏览器
+  firefox:
+    name: "Firefox"
+    templates:
+      - "Mozilla/5.0 ({os}; rv:{version}) Gecko/20100101 Firefox/{version}"
+      - "Mozilla/5.0 (Mobile; rv:{version}) Gecko/{version} Firefox/{version}"
+    versions:
+      min: 80
+      max: 115
+      step: 1
+    weight: 25
+    description: "Mozilla Firefox浏览器"
+
+  # Safari浏览器
+  safari:
+    name: "Safari"
+    templates:
+      - "Mozilla/5.0 ({os}) AppleWebKit/{webkit_version} (KHTML, like Gecko) Version/{version} Safari/{webkit_version}"
+      - "Mozilla/5.0 ({os}) AppleWebKit/{webkit_version} (KHTML, like Gecko) Version/{version} Mobile/15E148 Safari/{webkit_version}"
+    versions:
+      min: 14
+      max: 17
+      step: 1
+    weight: 15
+    description: "Apple Safari浏览器"
+
+  # Edge浏览器
+  edge:
+    name: "Edge"
+    templates:
+      - "Mozilla/5.0 ({os}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{chrome_version} Safari/537.36 Edg/{version}"
+      - "Mozilla/5.0 ({os}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{chrome_version} Safari/537.36 EdgA/{version}"
+    versions:
+      min: 90
+      max: 120
+      step: 1
+    weight: 10
+    description: "Microsoft Edge浏览器"
+
+# 操作系统配置
+operating_systems:
+  # Windows操作系统
+  windows:
+    name: "Windows"
+    strings:
+      - "Windows NT 10.0; Win64; x64"
+      - "Windows NT 10.0; WOW64"
+      - "Windows NT 6.3; Win64; x64"
+      - "Windows NT 6.1; Win64; x64"
+      - "Windows NT 6.1; WOW64"
+      - "Windows NT 6.0; Win64; x64"
+    weight: 50
+    description: "Windows桌面操作系统"
+
+  # macOS操作系统
+  macos:
+    name: "macOS"
+    strings:
+      - "Macintosh; Intel Mac OS X 10_15_7"
+      - "Macintosh; Intel Mac OS X 10_14_6"
+      - "Macintosh; Intel Mac OS X 10_13_6"
+      - "Macintosh; Intel Mac OS X 11_2_3"
+      - "Macintosh; Intel Mac OS X 12_1"
+    weight: 30
+    description: "Apple macOS操作系统"
+
+  # Linux操作系统
+  linux:
+    name: "Linux"
+    strings:
+      - "X11; Linux x86_64"
+      - "X11; Ubuntu; Linux x86_64"
+      - "X11; Linux i686"
+      - "X11; CrOS x86_64"
+      - "X11; Fedora; Linux x86_64"
+    weight: 15
+    description: "Linux桌面操作系统"
+
+  # Android操作系统
+  android:
+    name: "Android"
+    strings:
+      - "Linux; Android 13; SM-G991B"
+      - "Linux; Android 10; SM-A505F"
+      - "Linux; Android 9; SM-G960F"
+      - "Linux; Android 12; Pixel 6"
+      - "Linux; Android 11; OnePlus 9"
+      - "Linux; Android 14; SM-S918B"
+    weight: 4
+    description: "Android移动操作系统"
+
+  # iOS操作系统
+  ios:
+    name: "iOS"
+    strings:
+      - "iPhone; CPU iPhone OS 15_0 like Mac OS X"
+      - "iPhone; CPU iPhone OS 14_7_1 like Mac OS X"
+      - "iPad; CPU OS 15_0 like Mac OS X"
+      - "iPhone; CPU iPhone OS 13_7 like Mac OS X"
+    weight: 1
+    description: "Apple iOS移动操作系统"
+
+# 设备类型配置
+devices:
+  # 桌面设备
+  desktop:
+    name: "桌面设备"
+    weight: 70
+    description: "台式机、笔记本电脑等桌面设备"
+
+  # 移动设备
+  mobile:
+    name: "移动设备"
+    weight: 25
+    description: "智能手机、平板手机等移动设备"
+
+  # 平板设备
+  tablet:
+    name: "平板设备"
+    weight: 5
+    description: "iPad、Android平板等平板设备"
+
+# WebKit版本配置（用于Safari）
+webkit_versions:
+  min: 605
+  max: 606
+  step: 1
+  description: "Safari使用的WebKit版本范围"
+
+# Chrome版本配置（用于Edge）
+chrome_versions:
+  min: 90
+  max: 120
+  step: 1
+  description: "Edge使用的Chrome版本范围"

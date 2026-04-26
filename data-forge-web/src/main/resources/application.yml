@@ -1,0 +1,130 @@
+spring:
+  application:
+    name: data-forge-web
+
+  # Database configuration
+  # 注意：生产环境应通过环境变量设置数据库连接信息，不要硬编码密码
+  datasource:
+    url: ${DATASOURCE_URL:jdbc:h2:mem:dataforge}
+    username: ${DATASOURCE_USERNAME:sa}
+    password: ${DATASOURCE_PASSWORD:password}
+    driver-class-name: ${DATASOURCE_DRIVER:org.h2.Driver}
+
+  # JPA/Hibernate configuration
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: ${HIBERNATE_DIALECT:org.hibernate.dialect.H2Dialect}
+        '[format_sql]': true
+
+  # Flyway configuration
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    validate-on-migrate: true
+    locations: classpath:db/migration
+    out-of-order: false
+    table: flyway_schema_history
+
+  # H2 Console configuration
+  # 警告：生产环境必须禁用 H2 控制台，防止未授权的数据库访问
+  h2:
+    console:
+      enabled: false  # 生产环境禁用；如需本地调试可通过 -Dspring.h2.console.enabled=true 临时开启
+      path: /h2-console
+      settings:
+        web-allow-others: false
+
+  # Cache configuration
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=1000,expireAfterAccess=300s
+
+  # Redis configuration (Spring Boot 3.x)
+  # 注意：生产环境应通过环境变量设置，不要硬编码密码
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: ${REDIS_DATABASE:0}
+
+# Server configuration
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+# Logging configuration
+# 生产环境日志策略：避免泄露 SQL 参数值及业务数据
+logging:
+  level:
+    root: INFO
+    "[com.dataforge]": INFO          # 生产环境 INFO；调试时可通过环境变量覆盖为 DEBUG
+    "[org.springframework.web]": WARN
+    "[org.hibernate.SQL]": WARN       # 如需 SQL 调试请在非生产环境单独开启
+    # 已移除 BasicBinder:TRACE —— 该配置会将 SQL 参数值（含密码哈希等敏感数据）打印到日志
+
+# SpringDoc OpenAPI configuration
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+
+# Actuator configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+      probes:
+        enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+# JWT configuration
+# 警告：生产环境必须通过环境变量 JWT_SECRET 设置强密钥
+app:
+  jwt:
+    # 从环境变量读取密钥，必须设置强随机密钥（至少256位）
+    secret: ${JWT_SECRET:} # 必须通过环境变量设置
+    expiration: ${JWT_EXPIRATION:3600000} # Access Token过期时间：1小时
+    refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000} # Refresh Token过期时间：7天
+  security:
+    # 登录安全配置
+    max-login-attempts: ${MAX_LOGIN_ATTEMPTS:5} # 最大登录失败次数
+    lock-duration-minutes: ${LOCK_DURATION_MINUTES:30} # 账户锁定时间（分钟）
+
+# DataForge configuration
+dataforge:
+  tasks:
+    default-page-size: 10
+  cache:
+    enabled: true
+    ttl: 300
+  performance:
+    enabled: true
+  security:
+    max-record-count: 1000000
+    max-thread-count: 32
+    max-field-count: 500
+    max-config-size-mb: 50
+    enable-resource-monitoring: true
+    memory-warning-threshold: 80
+    memory-error-threshold: 90

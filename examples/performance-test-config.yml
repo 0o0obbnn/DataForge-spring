@@ -1,0 +1,156 @@
+# DataForge 性能测试配置示例
+# 用于验证大数据量生成能力
+
+# ============================================
+# 测试场景1: 小数据量测试（1万条）
+# 预期时间: < 1秒
+# 内存需求: < 100MB
+# ============================================
+small_dataset:
+  count: 10000
+  threads: 4
+  validate: false
+  
+  output:
+    format: csv
+    file: "output/performance_test_10k.csv"
+    encoding: "UTF-8"
+    
+  fields:
+    - name: "id"
+      type: "uuid"
+    - name: "name"
+      type: "name"
+      params:
+        type: "CN"
+    - name: "email"
+      type: "email"
+    - name: "phone"
+      type: "phone"
+    - name: "created_at"
+      type: "timestamp"
+
+---
+
+# ============================================
+# 测试场景2: 中等数据量测试（100万条）
+# 预期时间: 1-2分钟
+# 内存需求: 1-2GB
+# ============================================
+medium_dataset:
+  count: 1000000
+  threads: 16
+  validate: false
+  
+  output:
+    format: csv
+    file: "output/performance_test_1m.csv"
+    encoding: "UTF-8"
+    
+  fields:
+    - name: "id"
+      type: "uuid"
+    - name: "user_id"
+      type: "sequence"
+      params:
+        sequence_type: "ARITHMETIC"
+        start_value: 1
+        step: 1
+    - name: "username"
+      type: "username"
+      params:
+        unique: true
+        length: "6,16"
+    - name: "name"
+      type: "name"
+      params:
+        type: "CN"
+    - name: "email"
+      type: "email"
+    - name: "phone"
+      type: "phone"
+    - name: "age"
+      type: "random_number"
+      params:
+        min: 18
+        max: 65
+    - name: "created_at"
+      type: "timestamp"
+
+---
+
+# ============================================
+# 测试场景3: 大数据量测试（1000万条）
+# 预期时间: 10-20分钟
+# 内存需求: 4-8GB
+# JVM参数: -Xms4g -Xmx8g -XX:+UseG1GC
+# ============================================
+large_dataset:
+  count: 10000000
+  threads: 64
+  validate: false
+  
+  output:
+    format: csv
+    file: "output/performance_test_10m.csv"
+    encoding: "UTF-8"
+    
+  fields:
+    - name: "id"
+      type: "uuid"
+    - name: "user_id"
+      type: "sequence"
+      params:
+        sequence_type: "ARITHMETIC"
+        start_value: 1
+        step: 1
+    - name: "name"
+      type: "name"
+      params:
+        type: "CN"
+    - name: "email"
+      type: "email"
+    - name: "phone"
+      type: "phone"
+    - name: "created_at"
+      type: "timestamp"
+
+---
+
+# ============================================
+# 测试场景4: 超大数据量测试（1亿条）
+# 预期时间: 1-2小时
+# 内存需求: 16-32GB
+# JVM参数: -Xms32g -Xmx64g -XX:+UseG1GC -XX:MaxGCPauseMillis=200
+# 硬件要求: 32核+ CPU, 64GB+ RAM, NVMe SSD
+# ============================================
+xlarge_dataset:
+  count: 100000000
+  threads: 128
+  validate: false
+  
+  output:
+    format: csv
+    file: "output/performance_test_100m.csv"
+    encoding: "UTF-8"
+    
+  fields:
+    - name: "id"
+      type: "uuid"
+    - name: "user_id"
+      type: "sequence"
+      params:
+        sequence_type: "ARITHMETIC"
+        start_value: 1
+        step: 1
+    - name: "name"
+      type: "name"
+      params:
+        type: "CN"
+    - name: "email"
+      type: "email"
+    - name: "phone"
+      type: "phone"
+    - name: "created_at"
+      type: "timestamp"
+

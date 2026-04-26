@@ -1,0 +1,332 @@
+# 固话号码生成器配置文件
+# Landline Generator Configuration
+# 版本: 1.0
+# 最后更新: 2026-01-28
+# 说明: 支持生成中国、美国、英国、日本等国家的固话号码
+
+countries:
+  CN:
+    name: "中国"
+    country_code: "+86"
+    separator: "-"
+    description: "中国大陆固话号码规则"
+    number_lengths: [7, 8]
+
+    # 主要城市区号
+    area_codes:
+      "010":
+        name: "北京"
+        weight: 10
+      "02121":
+        name: "上海"
+        weight: 10
+      "022":
+        name: "天津"
+        weight: 10
+      "023":
+        name: "重庆"
+        weight: 10
+      "024":
+        name: "沈阳"
+        weight: 8
+      "025":
+        name: "南京"
+        weight: 8
+      "027":
+        name: "武汉"
+        weight: 8
+      "028":
+        name: "成都"
+        weight: 8
+      "029":
+        name: "西安"
+        weight: 8
+      "0311":
+        name: "石家庄"
+        weight: 7
+      "0351":
+        name: "太原"
+        weight: 7
+      "0371":
+        name: "郑州"
+        weight: 7
+      "0431":
+        name: "长春"
+        weight: 7
+      "0451":
+        name: "哈尔滨"
+        weight: 7
+      "0471":
+        name: "呼和浩特"
+        weight: 6
+      "0531":
+        name: "济南"
+        weight: 7
+      "0551":
+        name: "合肥"
+        weight: 7
+      "0571":
+        name: "杭州"
+        weight: 8
+      "0591":
+        name: "福州"
+        weight: 7
+      "0731":
+        name: "长沙"
+        weight: 7
+      "0755":
+        name: "深圳"
+        weight: 10
+      "0771":
+        name: "南宁"
+        weight: 6
+      "0791":
+        name: "南昌"
+        weight: 7
+      "0851":
+        name: "贵阳"
+        weight: 6
+      "0871":
+        name: "昆明"
+        weight: 6
+      "0891":
+        name: "拉萨"
+        weight: 5
+      "0931":
+        name: "兰州"
+        weight: 6
+      "0951":
+        name: "银川"
+        weight: 5
+      "0971":
+        name: "西宁"
+        weight: 5
+      "0991":
+        name: "乌鲁木齐"
+        weight: 5
+      "0411":
+        name: "大连"
+        weight: 7
+      "0512":
+        name: "苏州"
+        weight: 7
+      "0532":
+        name: "青岛"
+        weight: 7
+      "0574":
+        name: "宁波"
+        weight: 7
+      "0592":
+        name: "厦门"
+        weight: 7
+      "0769":
+        name: "东莞"
+        weight: 7
+      "020":
+        name: "广州"
+        weight: 10
+
+  US:
+    name: "美国"
+    country_code: "+1"
+    separator: "-"
+    description: "美国固话号码规则"
+    number_lengths: [7]
+
+    # 主要城市区号
+    area_codes:
+      "212":
+        name: "New York"
+        weight: 10
+      "213":
+        name: "Los Angeles"
+        weight: 10
+      "312":
+        name: "Chicago"
+        weight: 8
+      "415":
+        name: "San Francisco"
+        weight: 8
+      "617":
+        name: "Boston"
+        weight: 7
+      "202":
+        name: "Washington DC"
+        weight: 9
+      "305":
+        name: "Miami"
+        weight: 7
+      "713":
+        name: "Houston"
+        weight: 8
+      "214":
+        name: "Dallas"
+        weight: 7
+      "404":
+        name: "Atlanta"
+        weight: 7
+      "206":
+        name: "Seattle"
+        weight: 7
+      "303":
+        name: "Denver"
+        weight: 6
+      "602":
+        name: "Phoenix"
+        weight: 6
+      "702":
+        name: "Las Vegas"
+        weight: 6
+      "410":
+        name: "Baltimore"
+        weight: 6
+      "215":
+        name: "Philadelphia"
+        weight: 8
+      "412":
+        name: "Pittsburgh"
+        weight: 6
+      "313":
+        name: "Detroit"
+        weight: 7
+
+  UK:
+    name: "英国"
+    country_code: "+44"
+    separator: " "
+    description: "英国固话号码规则"
+    number_lengths: [6, 7]
+
+    # 主要城市区号
+    area_codes:
+      "20":
+        name: "London"
+        weight: 10
+      "121":
+        name: "Birmingham"
+        weight: 7
+      "131":
+        name: "Edinburgh"
+        weight: 7
+      "141":
+        name: "Glasgow"
+        weight: 7
+      "151":
+        name: "Liverpool"
+        weight: 6
+      "161":
+        name: "Manchester"
+        weight: 8
+      "113":
+        name: "Leeds"
+        weight: 6
+      "114":
+        name: "Sheffield"
+        weight: 6
+      "115":
+        name: "Nottingham"
+        weight: 6
+      "117":
+        name: "Bristol"
+        weight: 6
+
+  JP:
+    name: "日本"
+    country_code: "+81"
+    separator: "-"
+    description: "日本固话号码。注意：日本号码不使用传统区号+号码格式"
+    number_lengths: [9, 10]
+
+    # 主要地区代码（日本号码格式略有不同）
+    area_codes:
+      "3":
+        name: "Tokyo"
+        weight: 10
+      "6":
+        name: "Osaka"
+        weight: 8
+      "52":
+        name: "Nagoya"
+        weight: 6
+      "92":
+        name: "Fukuoka"
+        weight: 6
+      "11":
+        name: "Sapporo"
+        weight: 5
+      "22":
+        name: "Sendai"
+        weight: 5
+      "75":
+        name: "Kyoto"
+        weight: 6
+      "78":
+        name: "Fukuoka Area"
+        weight: 5
+      "81":
+        name: "Kumamoto"
+        weight: 4
+
+  KR:
+    name: "韩国"
+    country_code: "+82"
+    separator: "-"
+    description: "韩国固话号码规则"
+    number_lengths: [7, 8]
+
+    # 主要城市区号
+    area_codes:
+      "2":
+        name: "Seoul"
+        weight: 10
+      "51":
+        name: "Busan"
+        weight: 7
+      "53":
+        name: "Daegu"
+        weight: 6
+      "62":
+        name: "Gwangju"
+        weight: 5
+      "54":
+        name: "Incheon"
+        weight: 6
+      "31":
+        name: "Daejeon"
+        weight: 5
+
+# 全局配置
+settings:
+  # 默认国家
+  default_country: "CN"
+
+  # 默认输出格式
+  default_format: "STANDARD"
+
+  # 默认是否包含分机号
+  default_include_extension: false
+
+  # 默认分机号长度
+  default_extension_length: 3
+
+# 输出格式定义
+output_formats:
+  STANDARD:
+    name: "标准格式"
+    description: "区号-号码"
+    example: "010-12345678"
+
+  INTERNATIONAL:
+    name: "国际格式"
+    description: "+国家码-区号-号码"
+    example: "+86-010-12345678"
+
+  COMPACT:
+    name: "紧凑格式"
+    description: "区号号码（无分隔符）"
+    example: "01012345678"
+
+  PARENTHESES:
+    name: "括号格式"
+    description: "(区号) 号码"
+    example: "(010) 12345678"

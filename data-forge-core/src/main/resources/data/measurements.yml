@@ -1,0 +1,614 @@
+# 度量单位生成器配置文件
+# 支持多种度量类别、单位制、单位转换等功能
+
+# 度量类别配置
+categories:
+  # 长度单位
+  LENGTH:
+    name: "长度"
+    description: "长度度量单位"
+    units:
+      - name: "毫米"
+        symbol: "mm"
+        system: "METRIC"
+        to_base: 0.001
+        base_unit: "m"
+        min_realistic: 0.1
+        max_realistic: 1000
+        weight: 10
+      - name: "厘米"
+        symbol: "cm"
+        system: "METRIC"
+        to_base: 0.01
+        base_unit: "m"
+        min_realistic: 1
+        max_realistic: 100
+        weight: 15
+      - name: "米"
+        symbol: "m"
+        system: "METRIC"
+        to_base: 1.0
+        base_unit: "m"
+        min_realistic: 0.1
+        max_realistic: 1000
+        weight: 20
+      - name: "千米"
+        symbol: "km"
+        system: "METRIC"
+        to_base: 1000.0
+        base_unit: "m"
+        min_realistic: 0.1
+        max_realistic: 10000
+        weight: 10
+      - name: "英寸"
+        symbol: "in"
+        system: "IMPERIAL"
+        to_base: 0.0254
+        base_unit: "m"
+        min_realistic: 0.1
+        max_realistic: 100
+        weight: 10
+      - name: "英尺"
+        symbol: "ft"
+        system: "IMPERIAL"
+        to_base: 0.3048
+        base_unit: "m"
+        min_realistic: 0.1
+        max_realistic: 1000
+        weight: 10
+      - name: "码"
+        symbol: "yd"
+        system: "IMPERIAL"
+        to_base: 0.9144
+        base_unit: "m"
+        min_realistic: 0.1
+        max_realistic: 1000
+        weight: 10
+      - name: "英里"
+        symbol: "mi"
+        system: "IMPERIAL"
+        to_base: 1609.34
+        base_unit: "m"
+        min_realistic: 0.1
+        max_realistic: 1000
+        weight: 10
+
+  # 重量单位
+  WEIGHT:
+    name: "重量"
+    description: "重量度量单位"
+    units:
+      - name: "毫克"
+        symbol: "mg"
+        system: "METRIC"
+        to_base: 0.000001
+        base_unit: "kg"
+        min_realistic: 1
+        max_realistic: 1000
+        weight: 5
+      - name: "克"
+        symbol: "g"
+        system: "METRIC"
+        to_base: 0.001
+        base_unit: "kg"
+        min_realistic: 1
+        max_realistic: 1000
+        weight: 15
+      - name: "千克"
+        symbol: "kg"
+        system: "METRIC"
+        to_base: 1.0
+        base_unit: "kg"
+        min_realistic: 0.1
+        max_realistic: 1000
+        weight: 20
+      - name: "吨"
+        symbol: "t"
+        system: "METRIC"
+        to_base: 1000.0
+        base_unit: "kg"
+        min_realistic: 0.1
+        max_realistic: 100
+        weight: 10
+      - name: "盎司"
+        symbol: "oz"
+        system: "IMPERIAL"
+        to_base: 0.0283495
+        base_unit: "kg"
+        min_realistic: 1
+        max_realistic: 100
+        weight: 10
+      - name: "磅"
+        symbol: "lb"
+        system: "IMPERIAL"
+        to_base: 0.453592
+        base_unit: "kg"
+        min_realistic: 0.1
+        max_realistic: 1000
+        weight: 15
+      - name: "英石"
+        symbol: "st"
+        system: "IMPERIAL"
+        to_base: 6.35029
+        base_unit: "kg"
+        min_realistic: 1
+        max_realistic: 50
+        weight: 5
+
+  # 体积单位
+  VOLUME:
+    name: "体积"
+    description: "体积度量单位"
+    units:
+      - name: "毫升"
+        symbol: "mL"
+        system: "METRIC"
+        to_base: 0.001
+        base_unit: "L"
+        min_realistic: 1
+        max_realistic: 1000
+        weight: 15
+      - name: "升"
+        symbol: "L"
+        system: "METRIC"
+        to_base: 1.0
+        base_unit: "L"
+        min_realistic: 0.1
+        max_realistic: 1000
+        weight: 20
+      - name: "立方米"
+        symbol: "m³"
+        system: "METRIC"
+        to_base: 1000.0
+        base_unit: "L"
+        min_realistic: 0.001
+        max_realistic: 100
+        weight: 10
+      - name: "加仑"
+        symbol: "gal"
+        system: "IMPERIAL"
+        to_base: 4.54609
+        base_unit: "L"
+        min_realistic: 0.1
+        max_realistic: 100
+        weight: 10
+      - name: "品脱"
+        symbol: "pt"
+        system: "IMPERIAL"
+        to_base: 0.568261
+        base_unit: "L"
+        min_realistic: 0.1
+        max_realistic: 100
+        weight: 10
+      - name: "流体盎司"
+        symbol: "fl oz"
+        system: "IMPERIAL"
+        to_base: 0.0284131
+        base_unit: "L"
+        min_realistic: 1
+        max_realistic: 100
+        weight: 10
+
+  # 温度单位
+  TEMPERATURE:
+    name: "温度"
+    description: "温度度量单位"
+    units:
+      - name: "摄氏度"
+        symbol: "°C"
+        system: "METRIC"
+        to_base: 1.0
+        base_unit: "°C"
+        min_realistic: -50
+        max_realistic: 100
+        weight: 50
+      - name: "华氏度"
+        symbol: "°F"
+        system: "IMPERIAL"
+        to_base: 1.8
+        base_unit: "°C"
+        min_realistic: -58
+        max_realistic: 212
+        weight: 30
+      - name: "开尔文"
+        symbol: "K"
+        system: "SI"
+        to_base: 1.0
+        base_unit: "K"
+        min_realistic: 223
+        max_realistic: 373
+        weight: 20
+
+  # 速度单位
+  SPEED:
+    name: "速度"
+    description: "速度度量单位"
+    units:
+      - name: "米/秒"
+        symbol: "m/s"
+        system: "METRIC"
+        to_base: 1.0
+        base_unit: "m/s"
+        min_realistic: 0.1
+        max_realistic: 100
+        weight: 20
+      - name: "千米/小时"
+        symbol: "km/h"
+        system: "METRIC"
+        to_base: 0.277778
+        base_unit: "m/s"
+        min_realistic: 1
+        max_realistic: 200
+        weight: 20
+      - name: "英里/小时"
+        symbol: "mph"
+        system: "IMPERIAL"
+        to_base: 0.44704
+        base_unit: "m/s"
+        min_realistic: 1
+        max_realistic: 200
+        weight: 15
+      - name: "节"
+        symbol: "kn"
+        system: "NAUTICAL"
+        to_base: 0.514444
+        base_unit: "m/s"
+        min_realistic: 1
+        max_realistic: 100
+        weight: 10
+      - name: "马赫"
+        symbol: "Mach"
+        system: "AVIATION"
+        to_base: 343.0
+        base_unit: "m/s"
+        min_realistic: 0.1
+        max_realistic: 10
+        weight: 5
+
+  # 压力单位
+  PRESSURE:
+    name: "压力"
+    description: "压力度量单位"
+    units:
+      - name: "帕斯卡"
+        symbol: "Pa"
+        system: "SI"
+        to_base: 1.0
+        base_unit: "Pa"
+        min_realistic: 1
+        max_realistic: 1000000
+        weight: 20
+      - name: "千帕"
+        symbol: "kPa"
+        system: "METRIC"
+        to_base: 1000.0
+        base_unit: "Pa"
+        min_realistic: 1
+        max_realistic: 1000
+        weight: 15
+      - name: "巴"
+        symbol: "bar"
+        system: "METRIC"
+        to_base: 100000.0
+        base_unit: "Pa"
+        min_realistic: 0.1
+        max_realistic: 100
+        weight: 15
+      - name: "磅力每平方英寸"
+        symbol: "psi"
+        system: "IMPERIAL"
+        to_base: 6894.76
+        base_unit: "Pa"
+        min_realistic: 1
+        max_realistic: 1000
+        weight: 15
+      - name: "标准大气压"
+        symbol: "atm"
+        system: "SI"
+        to_base: 101325.0
+        base_unit: "Pa"
+        min_realistic: 0.1
+        max_realistic: 100
+        weight: 10
+      - name: "毫米汞柱"
+        symbol: "mmHg"
+        system: "METRIC"
+        to_base: 133.322
+        base_unit: "Pa"
+        min_realistic: 1
+        max_realistic: 1000
+        weight: 10
+
+  # 能量单位
+  ENERGY:
+    name: "能量"
+    description: "能量度量单位"
+    units:
+      - name: "焦耳"
+        symbol: "J"
+        system: "SI"
+        to_base: 1.0
+        base_unit: "J"
+        min_realistic: 0.1
+        max_realistic: 1000000
+        weight: 20
+      - name: "千焦"
+        symbol: "kJ"
+        system: "METRIC"
+        to_base: 1000.0
+        base_unit: "J"
+        min_realistic: 0.1
+        max_realistic: 1000
+        weight: 15
+      - name: "卡路里"
+        symbol: "cal"
+        system: "METRIC"
+        to_base: 4.184
+        base_unit: "J"
+        min_realistic: 1
+        max_realistic: 10000
+        weight: 15
+      - name: "千卡"
+        symbol: "kcal"
+        system: "METRIC"
+        to_base: 4184.0
+        base_unit: "J"
+        min_realistic: 0.1
+        max_realistic: 10000
+        weight: 15
+      - name: "英热单位"
+        symbol: "BTU"
+        system: "IMPERIAL"
+        to_base: 1055.06
+        base_unit: "J"
+        min_realistic: 1
+        max_realistic: 100000
+        weight: 10
+      - name: "千瓦时"
+        symbol: "kWh"
+        system: "METRIC"
+        to_base: 3600000.0
+        base_unit: "J"
+        min_realistic: 0.1
+        max_realistic: 1000
+        weight: 10
+
+  # 功率单位
+  POWER:
+    name: "功率"
+    description: "功率度量单位"
+    units:
+      - name: "瓦特"
+        symbol: "W"
+        system: "SI"
+        to_base: 1.0
+        base_unit: "W"
+        min_realistic: 0.1
+        max_realistic: 100000
+        weight: 20
+      - name: "千瓦"
+        symbol: "kW"
+        system: "METRIC"
+        to_base: 1000.0
+        base_unit: "W"
+        min_realistic: 0.1
+        max_realistic: 10000
+        weight: 15
+      - name: "兆瓦"
+        symbol: "MW"
+        system: "METRIC"
+        to_base: 1000000.0
+        base_unit: "W"
+        min_realistic: 0.1
+        max_realistic: 1000
+        weight: 10
+      - name: "马力"
+        symbol: "hp"
+        system: "IMPERIAL"
+        to_base: 745.7
+        base_unit: "W"
+        min_realistic: 1
+        max_realistic: 10000
+        weight: 15
+
+  # 面积单位
+  AREA:
+    name: "面积"
+    description: "面积度量单位"
+    units:
+      - name: "平方毫米"
+        symbol: "mm²"
+        system: "METRIC"
+        to_base: 0.000001
+        base_unit: "m²"
+        min_realistic: 1
+        max_realistic: 1000000
+        weight: 10
+      - name: "平方厘米"
+        symbol: "cm²"
+        system: "METRIC"
+        to_base: 0.0001
+        base_unit: "m²"
+        min_realistic: 1
+        max_realistic: 100000
+        weight: 15
+      - name: "平方米"
+        symbol: "m²"
+        system: "METRIC"
+        to_base: 1.0
+        base_unit: "m²"
+        min_realistic: 0.1
+        max_realistic: 10000
+        weight: 20
+      - name: "平方千米"
+        symbol: "km²"
+        system: "METRIC"
+        to_base: 1000000.0
+        base_unit: "m²"
+        min_realistic: 0.01
+        max_realistic: 1000
+        weight: 10
+      - name: "平方英寸"
+        symbol: "in²"
+        system: "IMPERIAL"
+        to_base: 0.00064516
+        base_unit: "m²"
+        min_realistic: 1
+        max_realistic: 100000
+        weight: 10
+      - name: "平方英尺"
+        symbol: "ft²"
+        system: "IMPERIAL"
+        to_base: 0.092903
+        base_unit: "m²"
+        min_realistic: 1
+        max_realistic: 100000
+        weight: 10
+      - name: "英亩"
+        symbol: "ac"
+        system: "IMPERIAL"
+        to_base: 4046.86
+        base_unit: "m²"
+        min_realistic: 0.01
+        max_realistic: 10000
+        weight: 10
+
+  # 时间单位
+  TIME:
+    name: "时间"
+    description: "时间度量单位"
+    units:
+      - name: "毫秒"
+        symbol: "ms"
+        system: "METRIC"
+        to_base: 0.001
+        base_unit: "s"
+        min_realistic: 1
+        max_realistic: 1000
+        weight: 15
+      - name: "秒"
+        symbol: "s"
+        system: "SI"
+        to_base: 1.0
+        base_unit: "s"
+        min_realistic: 0.1
+        max_realistic: 10000
+        weight: 20
+      - name: "分"
+        symbol: "min"
+        system: "METRIC"
+        to_base: 60.0
+        base_unit: "s"
+        min_realistic: 1
+        max_realistic: 1000
+        weight: 15
+      - name: "小时"
+        symbol: "h"
+        system: "METRIC"
+        to_base: 3600.0
+        base_unit: "s"
+        min_realistic: 0.1
+        max_realistic: 1000
+        weight: 15
+      - name: "天"
+        symbol: "d"
+        system: "METRIC"
+        to_base: 86400.0
+        base_unit: "s"
+        min_realistic: 1
+        max_realistic: 1000
+        weight: 10
+      - name: "周"
+        symbol: "wk"
+        system: "METRIC"
+        to_base: 604800.0
+        base_unit: "s"
+        min_realistic: 1
+        max_realistic: 100
+        weight: 5
+
+  # 频率单位
+  FREQUENCY:
+    name: "频率"
+    description: "频率度量单位"
+    units:
+      - name: "赫兹"
+        symbol: "Hz"
+        system: "SI"
+        to_base: 1.0
+        base_unit: "Hz"
+        min_realistic: 0.1
+        max_realistic: 1000000
+        weight: 20
+      - name: "千赫"
+        symbol: "kHz"
+        system: "METRIC"
+        to_base: 1000.0
+        base_unit: "Hz"
+        min_realistic: 0.1
+        max_realistic: 100000
+        weight: 15
+      - name: "兆赫"
+        symbol: "MHz"
+        system: "METRIC"
+        to_base: 1000000.0
+        base_unit: "Hz"
+        min_realistic: 0.1
+        max_realistic: 10000
+        weight: 15
+      - name: "吉赫"
+        symbol: "GHz"
+        system: "METRIC"
+        to_base: 1000000000.0
+        base_unit: "Hz"
+        min_realistic: 0.1
+        max_realistic: 1000
+        weight: 10
+
+# 输出格式定义
+output_formats:
+  VALUE_UNIT:
+    name: "数值 单位"
+    description: "数值和单位，如：100.50 kg"
+    example: "100.50 kg"
+
+  UNIT_VALUE:
+    name: "单位 数值"
+    description: "单位和数值，如：kg 100.50"
+    example: "kg 100.50"
+
+  JSON:
+    name: "JSON格式"
+    description: "JSON格式输出"
+    example: '{"value": 100.50, "unit": "kg", "symbol": "kg"}'
+
+  VERBOSE:
+    name: "详细格式"
+    description: "包含所有信息的详细格式"
+    example: "100.50 千克 (kg) - 重量 - 公制"
+
+# 单位制定义
+unit_systems:
+  METRIC:
+    name: "公制"
+    description: "国际公制单位制"
+
+  IMPERIAL:
+    name: "英制"
+    description: "英制单位制"
+
+  US:
+    name: "美制"
+    description: "美制单位制"
+
+  SI:
+    name: "国际单位制"
+    description: "国际单位制（SI）"
+
+  NAUTICAL:
+    name: "航海"
+    description: "航海单位制"
+
+  AVIATION:
+    name: "航空"
+    description: "航空单位制"
