@@ -150,12 +150,14 @@ class LoginAttemptServiceTest {
     @Test
     @DisplayName("Redis中存在锁定时应返回true")
     void shouldReturnTrueWhenLockedInRedis() {
+      User user = createUser(TEST_USERNAME, 0, false);
       when(redisTemplate.hasKey("account:lock:" + TEST_USERNAME)).thenReturn(true);
+      when(userRepository.findByUsername(TEST_USERNAME)).thenReturn(Optional.of(user));
 
       boolean isLocked = loginAttemptService.isAccountLocked(TEST_USERNAME);
 
       assertThat(isLocked).isTrue();
-      verify(userRepository, never()).findByUsername(anyString());
+      verify(userRepository).findByUsername(TEST_USERNAME);
     }
 
     @Test
