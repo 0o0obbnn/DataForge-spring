@@ -162,6 +162,7 @@ public class ZodiacGenerator extends BaseGenerator implements DataGenerator<Stri
       context.put("zodiac_chinese", info.chineseName);
       context.put("zodiac_english", info.englishName);
       context.put("zodiac_symbol", info.symbol);
+      context.put("zodiac_code", info.code);
       if (fromBirthDate && birthDateFromConfig != null) {
         context.put("calculated_zodiac", zodiacSign.name());
       }

@@ -4,6 +4,7 @@ import com.dataforge.web.model.ApiResponse;
 import com.dataforge.web.model.JwtResponse;
 import com.dataforge.web.model.RefreshTokenRequest;
 import com.dataforge.web.security.JwtUtil;
+import com.dataforge.web.security.LoginAttemptService;
 import com.dataforge.web.security.TokenBlacklistService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -41,14 +42,17 @@ public class AuthController {
   private final AuthenticationManager authenticationManager;
   private final JwtUtil jwtUtil;
   private final TokenBlacklistService tokenBlacklistService;
+  private final LoginAttemptService loginAttemptService;
 
   public AuthController(
       AuthenticationManager authenticationManager,
       JwtUtil jwtUtil,
-      TokenBlacklistService tokenBlacklistService) {
+      TokenBlacklistService tokenBlacklistService,
+      LoginAttemptService loginAttemptService) {
     this.authenticationManager = authenticationManager;
     this.jwtUtil = jwtUtil;
     this.tokenBlacklistService = tokenBlacklistService;
+    this.loginAttemptService = loginAttemptService;
   }
 
   /**
@@ -170,23 +174,29 @@ public class AuthController {
         content = @Content(schema = @Schema(implementation = ApiResponse.class)))
   })
   public ResponseEntity<ApiResponse<JwtResponse>> login(@RequestBody LoginRequest loginRequest) {
+    String username = loginRequest.getUsername();
     try {
       Authentication authentication =
           authenticationManager.authenticate(
               new UsernamePasswordAuthenticationToken(
-                  loginRequest.getUsername(), loginRequest.getPassword()));
+                  username, loginRequest.getPassword()));
 
-      String username = authentication.getName();
+      String authenticatedUsername = authentication.getName();
+      loginAttemptService.recordSuccessAttempt(authenticatedUsername);
 
       // 生成Access Token和Refresh Token
-      String accessToken = jwtUtil.generateToken(username);
-      String refreshToken = jwtUtil.generateRefreshToken(username);
+      String accessToken = jwtUtil.generateToken(authenticatedUsername);
+      String refreshToken = jwtUtil.generateRefreshToken(authenticatedUsername);
 
       JwtResponse jwtResponse =
-          JwtResponse.of(accessToken, refreshToken, username, jwtUtil.getAccessTokenExpiration());
+          JwtResponse.of(
+              accessToken, refreshToken, authenticatedUsername, jwtUtil.getAccessTokenExpiration());
 
       return ResponseEntity.ok(buildSuccessResponse(jwtResponse, "Login successful"));
     } catch (AuthenticationException e) {
+      if (username != null && !username.isBlank()) {
+        loginAttemptService.recordFailedAttempt(username);
+      }
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
           .body(buildErrorResponse("Invalid username or password", HttpStatus.UNAUTHORIZED));
     } catch (Exception e) {

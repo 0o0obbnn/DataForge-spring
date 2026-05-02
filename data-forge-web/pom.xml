@@ -68,10 +68,6 @@
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-mysql</artifactId>
-        </dependency>
 
         <!-- H2 Database for testing -->
         <dependency>
@@ -81,11 +77,10 @@
             <scope>runtime</scope>
         </dependency>
         
-        <!-- MySQL Driver for production -->
+        <!-- PostgreSQL Driver for production (Supabase) -->
         <dependency>
-            <groupId>com.mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
-            <version>8.3.0</version>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
         

@@ -47,7 +47,6 @@ public class BloomFilterUniquenessFilter implements UniquenessFilter {
    * @param expectedCapacity 预期容量
    * @param falsePositiveProbability 误判率（0.0-1.0）
    */
-  @SuppressWarnings("null")
   public BloomFilterUniquenessFilter(long expectedCapacity, double falsePositiveProbability) {
     if (expectedCapacity <= 0) {
       throw new IllegalArgumentException("Expected capacity must be positive");

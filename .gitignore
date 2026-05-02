@@ -147,3 +147,14 @@ tmp/
 
 # GitHub Actions temporary files
 .github/java-upgrade/
+.omx/
+
+# Local workspace/tooling artifacts
+.claude-plugin/
+config.json
+events.jsonl
+views.json
+labels/
+sessions/
+sources/
+statuses/
