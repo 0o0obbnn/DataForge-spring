@@ -6,15 +6,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 import picocli.CommandLine;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.io.PrintStream;
-import java.nio.file.Path;
 
 @DisplayName("GenerateCommand 测试")
 class GenerateCommandTest {

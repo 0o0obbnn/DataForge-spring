@@ -43,10 +43,10 @@ INSERT INTO users (
     CURRENT_TIMESTAMP,
     0
 )
-ON DUPLICATE KEY UPDATE
-    password = VALUES(password),
-    role = VALUES(role),
-    enabled = VALUES(enabled),
+ON CONFLICT (username) DO UPDATE SET
+    password = EXCLUDED.password,
+    role = EXCLUDED.role,
+    enabled = EXCLUDED.enabled,
     updated_at = CURRENT_TIMESTAMP;
 
 -- 插入默认普通用户（密码: user123，使用BCrypt加密）
@@ -77,8 +77,8 @@ INSERT INTO users (
     CURRENT_TIMESTAMP,
     0
 )
-ON DUPLICATE KEY UPDATE
-    password = VALUES(password),
-    role = VALUES(role),
-    enabled = VALUES(enabled),
+ON CONFLICT (username) DO UPDATE SET
+    password = EXCLUDED.password,
+    role = EXCLUDED.role,
+    enabled = EXCLUDED.enabled,
     updated_at = CURRENT_TIMESTAMP;
