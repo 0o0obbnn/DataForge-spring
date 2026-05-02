@@ -199,7 +199,8 @@ public class TemplateController extends BaseController {
         content = @Content(schema = @Schema(implementation = ApiResponse.class)))
   })
   public ResponseEntity<ApiResponse<DataTemplate>> getTemplateById(
-      @Parameter(description = "模板ID", required = true, example = "1") @PathVariable Long id) {
+      @Parameter(description = "模板ID", required = true, example = "1") @PathVariable("id")
+          Long id) {
     try {
       DataTemplate template = dataTemplateService.getTemplateById(id);
       return buildSuccessResponse(template, "Template retrieved successfully");
@@ -234,7 +235,7 @@ public class TemplateController extends BaseController {
   })
   public ResponseEntity<ApiResponse<DataTemplate>> getTemplateByName(
       @Parameter(description = "模板名称", required = true, example = "user-data-template")
-          @PathVariable
+          @PathVariable("name")
           String name) {
     try {
       DataTemplate template = dataTemplateService.getTemplateByName(name);
@@ -270,7 +271,7 @@ public class TemplateController extends BaseController {
         content = @Content(schema = @Schema(implementation = ApiResponse.class)))
   })
   public ResponseEntity<ApiResponse<DataTemplate>> updateTemplate(
-      @Parameter(description = "模板ID", required = true, example = "1") @PathVariable Long id,
+      @Parameter(description = "模板ID", required = true, example = "1") @PathVariable("id") Long id,
       @Parameter(description = "更新的模板数据", required = true) @RequestBody @Valid
           DataTemplate template) {
     try {
@@ -306,7 +307,8 @@ public class TemplateController extends BaseController {
         content = @Content(schema = @Schema(implementation = ApiResponse.class)))
   })
   public ResponseEntity<ApiResponse<Void>> deleteTemplate(
-      @Parameter(description = "模板ID", required = true, example = "1") @PathVariable Long id) {
+      @Parameter(description = "模板ID", required = true, example = "1") @PathVariable("id")
+          Long id) {
     try {
       dataTemplateService.deleteTemplate(id);
       return buildSuccessResponse(null, "Template deleted successfully");
@@ -341,7 +343,7 @@ public class TemplateController extends BaseController {
   })
   public ResponseEntity<ApiResponse<Void>> deleteTemplateByName(
       @Parameter(description = "模板名称", required = true, example = "user-data-template")
-          @PathVariable
+          @PathVariable("name")
           String name) {
     try {
       dataTemplateService.deleteTemplateByName(name);

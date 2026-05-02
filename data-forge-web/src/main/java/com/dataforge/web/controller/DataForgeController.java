@@ -296,7 +296,8 @@ public class DataForgeController extends BaseController {
         content = @Content(schema = @Schema(implementation = ApiResponse.class)))
   })
   public ResponseEntity<ApiResponse<Long>> generateDataByTemplateIdAsync(
-      @Parameter(description = "模板ID，必须是已存在的模板", required = true, example = "1") @PathVariable
+      @Parameter(description = "模板ID，必须是已存在的模板", required = true, example = "1")
+          @PathVariable("templateId")
           Long templateId,
       @Parameter(description = "数据生成请求，主要使用其中的记录数量参数", required = true) @RequestBody @Validated
           GenerateRequest request) {
@@ -336,7 +337,8 @@ public class DataForgeController extends BaseController {
         content = @Content(schema = @Schema(implementation = ApiResponse.class)))
   })
   public ResponseEntity<ApiResponse<GenerationHistory>> getTaskStatus(
-      @Parameter(description = "任务ID，由异步生成接口返回", required = true, example = "1") @PathVariable
+      @Parameter(description = "任务ID，由异步生成接口返回", required = true, example = "1")
+          @PathVariable("taskId")
           Long taskId) {
     GenerationHistory history = generationHistoryService.getHistoryById(taskId);
     return buildSuccessResponse(history, "Task status retrieved successfully");
