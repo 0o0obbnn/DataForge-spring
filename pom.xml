@@ -36,7 +36,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <picocli.version>4.7.5</picocli.version>
-        <dependency-check.skip>true</dependency-check.skip>
     </properties>
 
     <dependencyManagement>
@@ -75,7 +74,6 @@
                         <source>${java.version}</source>
                         <target>${java.version}</target>
                         <encoding>${project.build.sourceEncoding}</encoding>
-                        <parameters>true</parameters>
                         <!-- 禁用增量编译，避免测试类编译不稳定问题 -->
                         <useIncrementalCompilation>false</useIncrementalCompilation>
                     </configuration>
@@ -92,9 +90,9 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-checkstyle-plugin</artifactId>
-                    <version>3.6.0</version>
+                    <version>3.3.0</version>
                     <configuration>
-                        <configLocation>${maven.multiModuleProjectDirectory}/checkstyle.xml</configLocation>
+                        <configLocation>${project.basedir}/checkstyle.xml</configLocation>
                         <consoleOutput>true</consoleOutput>
                         <failsOnError>false</failsOnError>
                         <failOnViolation>false</failOnViolation>
@@ -125,6 +123,7 @@
                         <threshold>Low</threshold>
                         <xmlOutput>true</xmlOutput>
                         <failOnError>false</failOnError>
+                        <excludeFilterFile>${project.basedir}/../spotbugs-exclude.xml</excludeFilterFile>
                     </configuration>
                 </plugin>
             </plugins>
@@ -135,6 +134,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
+
                 <executions>
                     <execution>
                         <id>checkstyle-check</id>

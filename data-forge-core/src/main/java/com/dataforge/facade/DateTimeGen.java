@@ -26,7 +26,7 @@ public class DateTimeGen {
 
   /** 生成日期（指定格式） */
   public String date(String format) {
-    return gen.generate("date", Map.of("format", "CUSTOM", "customFormat", format));
+    return gen.generate("date", Map.of("format", format));
   }
 
   /** 生成时间 */

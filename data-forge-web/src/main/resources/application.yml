@@ -5,10 +5,12 @@ spring:
   # Database configuration
   # 注意：生产环境应通过环境变量设置数据库连接信息，不要硬编码密码
   datasource:
-    url: ${DATASOURCE_URL:jdbc:h2:mem:dataforge}
-    username: ${DATASOURCE_USERNAME:sa}
-    password: ${DATASOURCE_PASSWORD:password}
-    driver-class-name: ${DATASOURCE_DRIVER:org.h2.Driver}
+    # Supabase (PostgreSQL) example:
+    # jdbc:postgresql://<host>:5432/postgres?sslmode=require
+    url: ${DATASOURCE_URL:jdbc:postgresql://db.mxhjldkcgxniggkbbiye.supabase.co:5432/postgres?sslmode=require}
+    username: ${DATASOURCE_USERNAME:postgres}
+    password: ${DATASOURCE_PASSWORD:}
+    driver-class-name: ${DATASOURCE_DRIVER:org.postgresql.Driver}
 
   # JPA/Hibernate configuration
   jpa:
@@ -17,7 +19,7 @@ spring:
     show-sql: true
     properties:
       hibernate:
-        dialect: ${HIBERNATE_DIALECT:org.hibernate.dialect.H2Dialect}
+        dialect: ${HIBERNATE_DIALECT:org.hibernate.dialect.PostgreSQLDialect}
         '[format_sql]': true
 
   # Flyway configuration
@@ -30,10 +32,10 @@ spring:
     table: flyway_schema_history
 
   # H2 Console configuration
-  # 警告：生产环境必须禁用 H2 控制台，防止未授权的数据库访问
+  # 注意：当前默认数据库为 PostgreSQL；如需切换到 H2 调试，请在环境变量中覆盖 DATASOURCE_URL/DRIVER/DIALECT
   h2:
     console:
-      enabled: false  # 生产环境禁用；如需本地调试可通过 -Dspring.h2.console.enabled=true 临时开启
+      enabled: false
       path: /h2-console
       settings:
         web-allow-others: false
@@ -60,14 +62,13 @@ server:
     context-path: /
 
 # Logging configuration
-# 生产环境日志策略：避免泄露 SQL 参数值及业务数据
 logging:
   level:
     root: INFO
-    "[com.dataforge]": INFO          # 生产环境 INFO；调试时可通过环境变量覆盖为 DEBUG
-    "[org.springframework.web]": WARN
-    "[org.hibernate.SQL]": WARN       # 如需 SQL 调试请在非生产环境单独开启
-    # 已移除 BasicBinder:TRACE —— 该配置会将 SQL 参数值（含密码哈希等敏感数据）打印到日志
+    "[com.dataforge]": DEBUG
+    "[org.springframework.web]": DEBUG
+    "[org.hibernate.SQL]": DEBUG
+    "[org.hibernate.type.descriptor.sql.BasicBinder]": TRACE
 
 # SpringDoc OpenAPI configuration
 springdoc:

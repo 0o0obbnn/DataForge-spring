@@ -92,7 +92,7 @@ class DataGenTest {
 
       assertThat(bankCard).isNotNull();
       assertThat(bankCard).isNotEmpty();
-      assertThat(bankCard).matches("\\d{15,19}");
+      assertThat(bankCard).matches("\\d{16,19}");
     }
 
     @Test

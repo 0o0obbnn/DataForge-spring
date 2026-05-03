@@ -82,7 +82,8 @@ public class SecurityConfig {
                     .permitAll()
                     .requestMatchers("/swagger-ui/**", "/v3/api-docs/**")
                     .permitAll()
-                    // H2 控制台已在 application.yml 中禁用，此处不再开放路由
+                    .requestMatchers("/h2-console/**")
+                    .permitAll()
                     .requestMatchers("/api/v1/auth/**")
                     .permitAll()
                     .anyRequest()
@@ -101,15 +102,7 @@ public class SecurityConfig {
                     .contentSecurityPolicy(
                         csp ->
                             csp.policyDirectives(
-                                // 移除 unsafe-inline/unsafe-eval：防止 XSS 攻击者注入内联脚本
-                                // 如前端需内联样式，请改用 nonce 机制（nonce-{随机值}）
-                                "default-src 'self'; "
-                                    + "script-src 'self'; "
-                                    + "style-src 'self'; "
-                                    + "img-src 'self' data: https:; "
-                                    + "font-src 'self' data:; "
-                                    + "connect-src 'self'; "
-                                    + "frame-ancestors 'none';"))
+                                "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:;"))
                     .referrerPolicy(
                         referrer ->
                             referrer.policy(

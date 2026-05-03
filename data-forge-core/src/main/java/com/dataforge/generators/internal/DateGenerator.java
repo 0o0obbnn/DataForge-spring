@@ -218,7 +218,8 @@ public class DateGenerator extends BaseGenerator implements DataGenerator<String
     try {
       DateTimeFormatter formatter;
 
-      switch (format.toUpperCase()) {
+      String upperFormat = format.toUpperCase();
+      switch (upperFormat) {
         case "ISO":
           formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
           break;
@@ -241,10 +242,7 @@ public class DateGenerator extends BaseGenerator implements DataGenerator<String
           formatter = DateTimeFormatter.ofPattern(customFormat);
           break;
         default:
-          // 随机选择一种格式
-          String randomFormat =
-              DATE_FORMATS[ThreadLocalRandom.current().nextInt(DATE_FORMATS.length)];
-          formatter = DateTimeFormatter.ofPattern(randomFormat);
+          formatter = DateTimeFormatter.ofPattern(format);
           break;
       }
 

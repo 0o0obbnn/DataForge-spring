@@ -70,9 +70,34 @@ data-forge/
 ├── data-forge-core/      # 核心模块（生成引擎 + 60+ 生成器）
 ├── data-forge-cli/       # 命令行接口
 ├── data-forge-web/       # Web API 服务
-├── data-forge-frontend/  # Vue 3 前端（开发中）
+├── data-forge-frontend/  # 前端控制台（React/Vite，开发中）
 ├── docs/                 # 文档
 └── examples/             # 配置示例
+```
+
+## 前端控制台（React）
+
+当前前端控制台实现位于主仓目录 `data-forge-frontend/`。
+
+### 环境变量
+
+参考示例文件：`data-forge-frontend/.env.example`
+
+- `VITE_API_BASE_URL`: 后端 API 基地址（例如 `http://localhost:8080`；也可留空使用 Vite proxy `/api`）
+- `VITE_ENABLE_MOCK_AUTH`: 是否启用 DEV MOCK 登录（`true/false`）
+
+### 启动与验证
+
+```bash
+cd data-forge-frontend
+npm install
+npm run dev
+
+# 验证
+npm run lint
+npm run test
+npm run build
+npm run e2e
 ```
 
 ## API 文档

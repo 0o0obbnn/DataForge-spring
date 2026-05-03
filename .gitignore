@@ -1,6 +1,5 @@
 # Maven
 target/
-.worktrees/
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
@@ -147,3 +146,14 @@ tmp/
 
 # GitHub Actions temporary files
 .github/java-upgrade/
+.omx/
+
+# Local workspace/tooling artifacts
+.claude-plugin/
+config.json
+events.jsonl
+views.json
+labels/
+sessions/
+sources/
+statuses/

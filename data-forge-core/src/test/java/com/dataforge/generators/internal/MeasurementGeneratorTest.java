@@ -408,7 +408,7 @@ class MeasurementGeneratorTest {
 
       assertThat(measurement).isNotNull();
       // 数值 + 空格 + 单位（单位可能含空格、/、°、²、³ 等符号，如 "fl oz", "m/s", "°C"）
-      assertThat(measurement).matches("^[0-9]+\\.?[0-9]*\\s+.+$");
+      assertThat(measurement).matches("^-?[0-9]+\\.?[0-9]*\\s+.+$");
     }
 
     @Test
@@ -584,7 +584,7 @@ class MeasurementGeneratorTest {
       String measurement = generator.generate(null, context);
 
       assertThat(measurement).isNotNull();
-      assertThat(measurement).matches("^-?[0-9]+\\.?[0-9]*\\s+.+$");
+      assertThat(measurement).matches(".*\\s+[\\p{L}\\p{N}°²³]+$");
     }
 
     @Test

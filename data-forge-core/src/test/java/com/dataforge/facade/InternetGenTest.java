@@ -84,7 +84,7 @@ class InternetGenTest {
 
       assertThat(url).isNotNull();
       assertThat(url).isNotEmpty();
-      assertThat(url).matches("^https?://[\\w.-]+(?:\\.[a-zA-Z]{2,})(?::\\d{1,5})?(?:/.*)?$");
+      assertThat(url).matches("^https?://[\\w.-]+(?:\\.[a-zA-Z]{2,})(?::\\d+)?(?:/.*)?$");
     }
 
     @Test
@@ -149,13 +149,13 @@ class InternetGenTest {
     }
 
     @Test
-    @DisplayName("顶级域名应为合法字母标签")
-    void topLevelDomainShouldBeValidLetterLabel() {
+    @DisplayName("顶级域名应为2-6个字母")
+    void topLevelDomainShouldBeTwoToSixLetters() {
       String domain = internetGen.domain();
       int lastDotIndex = domain.lastIndexOf(".");
       String tld = domain.substring(lastDotIndex + 1);
 
-      assertThat(tld).matches("[a-zA-Z]{2,63}");
+      assertThat(tld).matches("[a-zA-Z]{2,6}");
     }
   }
 

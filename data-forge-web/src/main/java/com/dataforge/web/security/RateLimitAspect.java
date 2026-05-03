@@ -2,16 +2,12 @@ package com.dataforge.web.security;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -20,28 +16,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Aspect
 @Component
 public class RateLimitAspect {
-
-  private static final Logger log = LoggerFactory.getLogger(RateLimitAspect.class);
-
-  /** IPv4/IPv6 基本格式校验，防止注入畸形值作为 Redis Key。 允许：点分十进制、冒号分隔十六进制、及 "unknown"。 */
-  private static final Pattern VALID_IP_PATTERN = Pattern.compile("^([0-9a-fA-F:.]+|unknown)$");
-
-  /**
-   * 可信反向代理 IP 集合（从环境变量 TRUSTED_PROXIES 读取，逗号分隔）。
-   *
-   * <p>只有请求实际来自这些 IP 时，才信任其携带的 X-Forwarded-For / X-Real-IP 头。 生产环境请将 Nginx/LB 的出口 IP 配置到此处，例如：
-   * {@code TRUSTED_PROXIES=10.0.0.1,10.0.0.2}
-   */
-  private static final Set<String> TRUSTED_PROXIES = buildTrustedProxies();
-
-  private static Set<String> buildTrustedProxies() {
-    String envValue = System.getenv("TRUSTED_PROXIES");
-    if (envValue == null || envValue.isBlank()) {
-      // 默认信任本机回环地址（单机部署场景）
-      return Set.of("127.0.0.1", "0:0:0:0:0:0:0:1", "::1");
-    }
-    return Set.of(envValue.split(","));
-  }
 
   private final RedisTemplate<String, String> redisTemplate;
 
@@ -103,14 +77,11 @@ public class RateLimitAspect {
   }
 
   /**
-   * 获取客户端真实 IP 地址（可信代理模式）。
+   * 获取客户端真实IP地址。
    *
-   * <p>安全策略：只有请求确实来自 {@link #TRUSTED_PROXIES} 中的 IP 时， 才信任其携带的 {@code X-Forwarded-For} / {@code
-   * X-Real-IP} 请求头。 否则直接使用 TCP 连接的 {@code RemoteAddr}，防止客户端伪造请求头绕过限流。
+   * <p>考虑代理和负载均衡的情况，按优先级检查以下请求头： 1. X-Forwarded-For 2. X-Real-IP 3. RemoteAddr
    *
-   * <p>可信代理通过环境变量 {@code TRUSTED_PROXIES}（逗号分隔 IP 列表）配置。
-   *
-   * @return 客户端 IP 地址（已校验格式），无法获取时返回 "unknown"
+   * @return 客户端IP地址
    */
   private String getClientIpAddress() {
     ServletRequestAttributes attributes =
@@ -120,39 +91,28 @@ public class RateLimitAspect {
     }
 
     HttpServletRequest request = attributes.getRequest();
-    String remoteAddr = request.getRemoteAddr();
 
-    // 只有请求来自可信代理，才信任其 X-Forwarded-For / X-Real-IP 头
-    if (remoteAddr != null && TRUSTED_PROXIES.contains(remoteAddr.trim())) {
-      // 优先取 X-Forwarded-For 最左侧的 IP（最接近真实客户端）
-      String xForwardedFor = request.getHeader("X-Forwarded-For");
-      if (xForwardedFor != null && !xForwardedFor.isBlank()) {
-        String candidate = xForwardedFor.split(",")[0].trim();
-        if (isValidIp(candidate)) {
-          return candidate;
-        }
-        log.warn("Invalid IP format in X-Forwarded-For header, falling back to RemoteAddr");
-      }
-
-      // 次选 X-Real-IP
-      String xRealIp = request.getHeader("X-Real-IP");
-      if (xRealIp != null && !xRealIp.isBlank() && isValidIp(xRealIp.trim())) {
-        return xRealIp.trim();
+    // 检查 X-Forwarded-For 头（可能包含多个IP，取第一个）
+    String xForwardedFor = request.getHeader("X-Forwarded-For");
+    if (xForwardedFor != null
+        && !xForwardedFor.isEmpty()
+        && !"unknown".equalsIgnoreCase(xForwardedFor)) {
+      // X-Forwarded-For 可能包含多个IP，用逗号分隔，取第一个
+      String[] ips = xForwardedFor.split(",");
+      if (ips.length > 0) {
+        return ips[0].trim();
       }
     }
 
-    // 非可信代理来源，或代理头无效：直接使用 TCP 连接 IP，不可被客户端伪造
-    return remoteAddr != null ? remoteAddr : "unknown";
-  }
+    // 检查 X-Real-IP 头
+    String xRealIp = request.getHeader("X-Real-IP");
+    if (xRealIp != null && !xRealIp.isEmpty() && !"unknown".equalsIgnoreCase(xRealIp)) {
+      return xRealIp.trim();
+    }
 
-  /**
-   * 校验 IP 地址格式，防止畸形值被写入 Redis Key。
-   *
-   * @param ip 待校验的 IP 字符串
-   * @return true 表示格式合法
-   */
-  private boolean isValidIp(String ip) {
-    return ip != null && VALID_IP_PATTERN.matcher(ip).matches();
+    // 使用 RemoteAddr 作为最后备选
+    String remoteAddr = request.getRemoteAddr();
+    return remoteAddr != null ? remoteAddr : "unknown";
   }
 
   /** 限流异常类。 */

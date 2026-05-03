@@ -63,10 +63,15 @@ public class LoginAttemptService {
                 lockAccount(user);
               }
 
-              // 同时更新Redis缓存
+              // 同时更新Redis缓存（失败时降级到仅数据库）
               String attemptKey = LOGIN_ATTEMPT_PREFIX + username;
-              redisTemplate.opsForValue().increment(attemptKey);
-              redisTemplate.expire(attemptKey, lockDurationMinutes, TimeUnit.MINUTES);
+              try {
+                redisTemplate.opsForValue().increment(attemptKey);
+                redisTemplate.expire(attemptKey, lockDurationMinutes, TimeUnit.MINUTES);
+              } catch (Exception ex) {
+                logger.warn(
+                    "Redis unavailable when recording failed attempt for user: {}", username);
+              }
             });
   }
 
@@ -85,9 +90,13 @@ public class LoginAttemptService {
     // 更新最后登录时间
     userRepository.updateLastLoginTime(username, LocalDateTime.now());
 
-    // 清除Redis缓存
-    redisTemplate.delete(LOGIN_ATTEMPT_PREFIX + username);
-    redisTemplate.delete(ACCOUNT_LOCK_PREFIX + username);
+    // 清除Redis缓存（失败时降级）
+    try {
+      redisTemplate.delete(LOGIN_ATTEMPT_PREFIX + username);
+      redisTemplate.delete(ACCOUNT_LOCK_PREFIX + username);
+    } catch (Exception ex) {
+      logger.warn("Redis unavailable when recording success attempt for user: {}", username);
+    }
   }
 
   /**
@@ -97,25 +106,40 @@ public class LoginAttemptService {
    * @return 如果被锁定返回true
    */
   public boolean isAccountLocked(String username) {
-    // 先检查Redis缓存
     String lockKey = ACCOUNT_LOCK_PREFIX + username;
-    Boolean isLocked = redisTemplate.hasKey(lockKey);
-    if (Boolean.TRUE.equals(isLocked)) {
-      return true;
+    boolean redisLocked = false;
+    try {
+      redisLocked = Boolean.TRUE.equals(redisTemplate.hasKey(lockKey));
+    } catch (Exception ex) {
+      logger.warn("Redis unavailable when checking lock status for user: {}", username);
     }
+    final boolean redisLockedFinal = redisLocked;
 
-    // 再检查数据库
+    // 以数据库为最终真值，避免 Redis 残留锁导致账号“假锁定”
     return userRepository
         .findByUsername(username)
         .map(
             user -> {
+              if (redisLockedFinal && user.isAccountNonLocked()) {
+                logger.info("Found stale Redis lock for user: {}, clearing it", username);
+                try {
+                  redisTemplate.delete(lockKey);
+                  redisTemplate.delete(LOGIN_ATTEMPT_PREFIX + username);
+                } catch (Exception ex) {
+                  logger.warn("Redis unavailable when clearing stale lock for user: {}", username);
+                }
+                return false;
+              }
+
+              if (redisLockedFinal) {
+                return true;
+              }
+
               if (!user.isAccountNonLocked()) {
-                // 检查锁定时间是否过期
                 if (user.getLockTime() != null) {
                   long minutesLocked =
                       ChronoUnit.MINUTES.between(user.getLockTime(), LocalDateTime.now());
                   if (minutesLocked >= lockDurationMinutes) {
-                    // 锁定时间已过，自动解锁
                     unlockAccount(user);
                     return false;
                   }
@@ -124,7 +148,7 @@ public class LoginAttemptService {
               }
               return false;
             })
-        .orElse(false);
+        .orElse(redisLockedFinal);
   }
 
   /**
@@ -134,11 +158,14 @@ public class LoginAttemptService {
    * @return 剩余锁定时间，如果未锁定返回0
    */
   public long getRemainingLockTime(String username) {
-    // 检查Redis缓存
     String lockKey = ACCOUNT_LOCK_PREFIX + username;
-    Long ttl = redisTemplate.getExpire(lockKey, TimeUnit.MINUTES);
-    if (ttl != null && ttl > 0) {
-      return ttl;
+    try {
+      Long ttl = redisTemplate.getExpire(lockKey, TimeUnit.MINUTES);
+      if (ttl != null && ttl > 0) {
+        return ttl;
+      }
+    } catch (Exception ex) {
+      logger.warn("Redis unavailable when reading remaining lock time for user: {}", username);
     }
 
     // 检查数据库
@@ -169,9 +196,13 @@ public class LoginAttemptService {
     // 更新数据库
     userRepository.lockAccount(user.getUsername(), LocalDateTime.now());
 
-    // 设置Redis缓存
+    // 设置Redis缓存（失败时降级）
     String lockKey = ACCOUNT_LOCK_PREFIX + user.getUsername();
-    redisTemplate.opsForValue().set(lockKey, "locked", lockDurationMinutes, TimeUnit.MINUTES);
+    try {
+      redisTemplate.opsForValue().set(lockKey, "locked", lockDurationMinutes, TimeUnit.MINUTES);
+    } catch (Exception ex) {
+      logger.warn("Redis unavailable when locking account for user: {}", user.getUsername());
+    }
   }
 
   /**
@@ -185,9 +216,13 @@ public class LoginAttemptService {
     // 更新数据库
     userRepository.resetLoginAttemptsAndUnlock(user.getUsername());
 
-    // 清除Redis缓存
-    redisTemplate.delete(ACCOUNT_LOCK_PREFIX + user.getUsername());
-    redisTemplate.delete(LOGIN_ATTEMPT_PREFIX + user.getUsername());
+    // 清除Redis缓存（失败时降级）
+    try {
+      redisTemplate.delete(ACCOUNT_LOCK_PREFIX + user.getUsername());
+      redisTemplate.delete(LOGIN_ATTEMPT_PREFIX + user.getUsername());
+    } catch (Exception ex) {
+      logger.warn("Redis unavailable when unlocking user: {}", user.getUsername());
+    }
   }
 
   /**
@@ -200,8 +235,12 @@ public class LoginAttemptService {
     logger.info("Manually unlocking account for user: {}", username);
 
     userRepository.resetLoginAttemptsAndUnlock(username);
-    redisTemplate.delete(ACCOUNT_LOCK_PREFIX + username);
-    redisTemplate.delete(LOGIN_ATTEMPT_PREFIX + username);
+    try {
+      redisTemplate.delete(ACCOUNT_LOCK_PREFIX + username);
+      redisTemplate.delete(LOGIN_ATTEMPT_PREFIX + username);
+    } catch (Exception ex) {
+      logger.warn("Redis unavailable when manually unlocking user: {}", username);
+    }
   }
 
   /**
@@ -211,15 +250,18 @@ public class LoginAttemptService {
    * @return 失败次数
    */
   public int getCurrentAttempts(String username) {
-    // 先检查Redis缓存
     String attemptKey = LOGIN_ATTEMPT_PREFIX + username;
-    String attempts = redisTemplate.opsForValue().get(attemptKey);
-    if (attempts != null) {
-      try {
-        return Integer.parseInt(attempts);
-      } catch (NumberFormatException e) {
-        logger.warn("Invalid attempt count in Redis for user: {}", username);
+    try {
+      String attempts = redisTemplate.opsForValue().get(attemptKey);
+      if (attempts != null) {
+        try {
+          return Integer.parseInt(attempts);
+        } catch (NumberFormatException e) {
+          logger.warn("Invalid attempt count in Redis for user: {}", username);
+        }
       }
+    } catch (Exception ex) {
+      logger.warn("Redis unavailable when reading attempt count for user: {}", username);
     }
 
     // 再检查数据库

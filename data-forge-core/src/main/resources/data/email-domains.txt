@@ -1,0 +1,43 @@
+# 邮箱域名数据库
+# 格式：域名:类型:权重(可选)
+
+# 国内主流邮箱
+qq.com:PERSONAL:20
+163.com:PERSONAL:15
+126.com:PERSONAL:12
+sina.com:PERSONAL:10
+sohu.com:PERSONAL:8
+139.com:PERSONAL:6
+189.cn:PERSONAL:5
+wo.cn:PERSONAL:4
+21cn.com:PERSONAL:3
+tom.com:PERSONAL:2
+
+# 企业邮箱
+gmail.com:BUSINESS:15
+outlook.com:BUSINESS:12
+hotmail.com:BUSINESS:8
+yahoo.com:BUSINESS:6
+icloud.com:BUSINESS:5
+live.com:BUSINESS:4
+msn.com:BUSINESS:3
+
+# 教育邮箱
+edu.cn:EDUCATION:3
+ac.cn:EDUCATION:2
+org.cn:EDUCATION:2
+
+# 政府邮箱
+gov.cn:GOVERNMENT:1
+mil.cn:GOVERNMENT:1
+
+# 临时邮箱
+10minutemail.com:TEMP:1
+guerrillamail.com:TEMP:1
+mailinator.com:TEMP:1
+
+# 国际邮箱
+yandex.com:INTERNATIONAL:2
+mail.ru:INTERNATIONAL:2
+protonmail.com:INTERNATIONAL:1
+tutanota.com:INTERNATIONAL:1

@@ -398,7 +398,7 @@ public class BankCardGenerator extends BaseGenerator implements DataGenerator<St
       card.append(random.nextInt(10));
     }
 
-    return ensureNumericCardFailsLuhn(card.toString());
+    return card.toString();
   }
 
   /**
@@ -461,24 +461,11 @@ public class BankCardGenerator extends BaseGenerator implements DataGenerator<St
     ThreadLocalRandom random = ThreadLocalRandom.current();
     // 生成全0或全相同数字的卡号
     if (random.nextBoolean()) {
-      return ensureNumericCardFailsLuhn("0000000000000000");
+      return "0000000000000000";
     } else {
       int digit = random.nextInt(10);
-      return ensureNumericCardFailsLuhn(String.valueOf(digit).repeat(16));
+      return String.valueOf(digit).repeat(16);
     }
-  }
-
-  /** 确保数字卡号不会偶然通过Luhn校验。 */
-  private String ensureNumericCardFailsLuhn(String cardNumber) {
-    if (!luhnValidator.isValid(cardNumber)) {
-      return cardNumber;
-    }
-
-    StringBuilder invalidCard = new StringBuilder(cardNumber);
-    int lastIndex = invalidCard.length() - 1;
-    int lastDigit = Character.getNumericValue(invalidCard.charAt(lastIndex));
-    invalidCard.setCharAt(lastIndex, (char) ('0' + ((lastDigit + 1) % 10)));
-    return invalidCard.toString();
   }
 
   /**
