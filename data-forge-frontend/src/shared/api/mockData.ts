@@ -1,29 +1,29 @@
 import { GenerationTask, DataTemplate } from "@/shared/types/dataforge";
 
-// Mock data for API endpoints
+// Mock data for API endpoints (returns same format as real API)
 export async function getMockData<T>(path: string, options: RequestInit): Promise<T> {
   // Simulate network delay
   await new Promise((resolve) => setTimeout(resolve, 300));
 
   // Parse path to determine which mock data to return
   if (path.includes("/tasks") && options.method === "GET") {
-    return mockTasks as T;
+    return { data: mockTasks, code: 200, message: "Success" } as T;
   }
 
   if (path.includes("/templates") && options.method === "GET") {
-    return mockTemplates as T;
+    return { data: mockTemplates, code: 200, message: "Success" } as T;
   }
 
   if (path.includes("/generators") && options.method === "GET") {
-    return mockGenerators as T;
+    return { data: mockGenerators, code: 200, message: "Success" } as T;
   }
 
   if (path.includes("/sync") || path.includes("/async")) {
-    return mockGenerationResult as T;
+    return { data: mockGenerationResult, code: 200, message: "Generation started" } as T;
   }
 
   // Default empty response
-  return {} as T;
+  return { data: {}, code: 200, message: "Success" } as T;
 }
 
 // Mock tasks data
