@@ -17,7 +17,7 @@ const TasksPage = lazy(() => import("@/pages/TasksPage").then((module) => ({ def
 const TemplatesPage = lazy(() => import("@/pages/TemplatesPage").then((module) => ({ default: module.TemplatesPage })));
 
 function page(element: ReactElement) {
-  return <Suspense fallback={<LoadingState label="Loading page" />}>{element}</Suspense>;
+  return <Suspense fallback={<LoadingState label="页面加载中" />}>{element}</Suspense>;
 }
 
 export const router = createBrowserRouter([

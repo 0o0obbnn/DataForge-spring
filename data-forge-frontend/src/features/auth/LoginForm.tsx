@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 
@@ -9,13 +10,6 @@ import { useAuthStore } from "@/features/auth/authStore";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 
-const loginSchema = z.object({
-  username: z.string().trim().min(1, "Username is required"),
-  password: z.string().min(1, "Password is required"),
-});
-
-type LoginFormValues = z.infer<typeof loginSchema>;
-
 interface LoginFormProps {
   enableMockAuth: boolean;
 }
@@ -23,7 +17,16 @@ interface LoginFormProps {
 export function LoginForm({ enableMockAuth }: LoginFormProps) {
   const navigate = useNavigate();
   const storeLogin = useAuthStore((state) => state.login);
+  const { t } = useTranslation("common");
   const [errorMessage, setErrorMessage] = useState<string>();
+
+  const loginSchema = z.object({
+    username: z.string().trim().min(1, t("auth.usernameRequired")),
+    password: z.string().min(1, t("auth.passwordRequired")),
+  });
+
+  type LoginFormValues = z.infer<typeof loginSchema>;
+
   const {
     register,
     handleSubmit,
@@ -36,15 +39,14 @@ export function LoginForm({ enableMockAuth }: LoginFormProps) {
     },
   });
 
-  const handleMockLogin = () => {
-    storeLogin({
-      accessToken: "mock-access-token",
-      refreshToken: "mock-refresh-token",
-      username: "mock-operator",
-      expiresIn: 3600,
-      mock: true,
-    });
-    navigate("/dashboard", { replace: true });
+  const handleMockLogin = async () => {
+    try {
+      const session = await loginApi({ username: "admin", password: "admin123456*" });
+      storeLogin({ ...session, mock: true });
+      navigate("/dashboard", { replace: true });
+    } catch {
+      setErrorMessage(t("auth.loginFailed"));
+    }
   };
 
   const onSubmit = async (values: LoginFormValues) => {
@@ -54,58 +56,58 @@ export function LoginForm({ enableMockAuth }: LoginFormProps) {
       storeLogin({ ...session, mock: false });
       navigate("/dashboard", { replace: true });
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : "Login failed");
+      setErrorMessage(error instanceof Error ? error.message : t("auth.loginFailed"));
     }
   };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-200" htmlFor="username">
-            Username
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium text-slate-300" htmlFor="username">
+            {t("auth.username")}
           </label>
           <Input
             id="username"
             autoComplete="username"
-            className="border-slate-700/60 bg-slate-950/60 text-slate-50"
+            className="border-slate-700 bg-slate-900 text-slate-100"
             {...register("username")}
           />
-          {errors.username ? <p className="text-sm text-rose-300">{errors.username.message}</p> : null}
+          {errors.username ? <p className="text-sm text-red-400">{errors.username.message}</p> : null}
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-200" htmlFor="password">
-            Password
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium text-slate-300" htmlFor="password">
+            {t("auth.password")}
           </label>
           <Input
             id="password"
             type="password"
             autoComplete="current-password"
-            className="border-slate-700/60 bg-slate-950/60 text-slate-50"
+            className="border-slate-700 bg-slate-900 text-slate-100"
             {...register("password")}
           />
-          {errors.password ? <p className="text-sm text-rose-300">{errors.password.message}</p> : null}
+          {errors.password ? <p className="text-sm text-red-400">{errors.password.message}</p> : null}
         </div>
 
         {errorMessage ? (
-          <p className="rounded-2xl border border-rose-400/30 bg-rose-950/20 px-4 py-3 text-sm text-rose-200">
+          <p className="rounded-lg border border-red-800 bg-red-950/50 px-3 py-2 text-sm text-red-300">
             {errorMessage}
           </p>
         ) : null}
 
         <Button className="w-full" type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Signing in..." : "Sign in"}
+          {isSubmitting ? t("auth.signingIn") : t("auth.signIn")}
         </Button>
       </form>
 
       {enableMockAuth ? (
         <Button className="w-full" type="button" variant="outline" onClick={handleMockLogin}>
-          Continue with DEV MOCK
+          {t("auth.mockLogin")}
         </Button>
       ) : (
-        <p className="rounded-2xl border border-slate-700/60 bg-slate-900/50 px-4 py-3 text-sm text-slate-400">
-          Dev mock login is disabled for this environment.
+        <p className="rounded-lg border border-slate-800 bg-slate-900/50 px-3 py-2 text-sm text-slate-500">
+          {t("auth.mockDisabled")}
         </p>
       )}
     </div>

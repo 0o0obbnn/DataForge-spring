@@ -12,8 +12,8 @@ describe("apiRequest", () => {
 
   it("attaches bearer token for authenticated requests", async () => {
     useAuthStore.getState().login({
-      accessToken: "access-token",
-      refreshToken: "refresh-token",
+      accessToken: "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0In0.test",
+      refreshToken: "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJyZWZyZXNoIn0.test",
       username: "admin",
       expiresIn: 3600,
       mock: false,
@@ -30,13 +30,13 @@ describe("apiRequest", () => {
     const headers = fetchMock.mock.calls[0][1]?.headers as Headers;
 
     expect(result.ready).toBe(true);
-    expect(headers.get("Authorization")).toBe("Bearer access-token");
+    expect(headers.get("Authorization")).toBe("Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0In0.test");
   });
 
   it("skips bearer token when requested", async () => {
     useAuthStore.getState().login({
-      accessToken: "access-token",
-      refreshToken: "refresh-token",
+      accessToken: "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0In0.test",
+      refreshToken: "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJyZWZyZXNoIn0.test",
       username: "admin",
       expiresIn: 3600,
       mock: false,

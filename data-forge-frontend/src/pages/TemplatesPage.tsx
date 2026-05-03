@@ -1,159 +1,104 @@
-import { FileStack, Plus } from "lucide-react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
-import { EmptyState } from "@/shared/components/EmptyState";
-import { ErrorState } from "@/shared/components/ErrorState";
-import { LoadingState } from "@/shared/components/LoadingState";
-import { Button } from "@/shared/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog";
 import { TemplateForm } from "@/features/templates/TemplateForm";
 import { TemplateTable } from "@/features/templates/TemplateTable";
 import {
   useCreateTemplateMutation,
   useDeleteTemplateMutation,
-  useGenerateFromTemplateMutation,
   useTemplatesQuery,
   useUpdateTemplateMutation,
 } from "@/features/templates/templateQueries";
-import { DataTemplate, GenerateRequest } from "@/shared/types/dataforge";
-
-const defaultTemplateGenerateRequest: GenerateRequest = {
-  count: 100,
-  validate: true,
-  output: {
-    format: "JSON",
-    encoding: "UTF-8",
-  },
-  fields: [{ name: "id", type: "uuid" }],
-};
+import { DataTemplate } from "@/shared/types/dataforge";
+import { EmptyState } from "@/shared/components/EmptyState";
+import { ErrorState } from "@/shared/components/ErrorState";
+import { LoadingState } from "@/shared/components/LoadingState";
+import { Button } from "@/shared/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/shared/components/ui/dialog";
 
 export function TemplatesPage() {
-  const navigate = useNavigate();
-  const [editingTemplate, setEditingTemplate] = useState<DataTemplate>();
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [feedback, setFeedback] = useState<string>();
+  const { t } = useTranslation(["pages", "common"]);
+  const [editingTemplate, setEditingTemplate] = useState<DataTemplate | null>(null);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+
   const templatesQuery = useTemplatesQuery();
-  const createTemplateMutation = useCreateTemplateMutation();
-  const updateTemplateMutation = useUpdateTemplateMutation();
-  const deleteTemplateMutation = useDeleteTemplateMutation();
-  const generateFromTemplateMutation = useGenerateFromTemplateMutation();
+  const createMutation = useCreateTemplateMutation();
+  const updateMutation = useUpdateTemplateMutation();
+  const deleteMutation = useDeleteTemplateMutation();
 
-  const handleCreate = () => {
-    setEditingTemplate(undefined);
-    setIsFormOpen(true);
+  const templates = templatesQuery.data ?? [];
+
+  const handleCreate = async (values: { name: string; description?: string; config: string }) => {
+    await createMutation.mutateAsync(values);
+    setIsCreateOpen(false);
   };
 
-  const handleSubmit = (template: DataTemplate) => {
-    if (editingTemplate?.id) {
-      updateTemplateMutation.mutate(
-        { id: editingTemplate.id, template: { ...editingTemplate, ...template } },
-        {
-          onSuccess: () => {
-            setIsFormOpen(false);
-            setFeedback("Template updated successfully.");
-          },
-        },
-      );
-      return;
-    }
-
-    createTemplateMutation.mutate(template, {
-      onSuccess: () => {
-        setIsFormOpen(false);
-        setFeedback("Template created successfully.");
-      },
-    });
+  const handleUpdate = async (values: { name: string; description?: string; config: string }) => {
+    if (!editingTemplate?.id) return;
+    await updateMutation.mutateAsync({ id: editingTemplate.id, template: values as DataTemplate });
+    setEditingTemplate(null);
   };
 
-  const handleDelete = (template: DataTemplate) => {
-    if (!template.id || !window.confirm(`Delete template "${template.name}"?`)) {
-      return;
+  const handleDelete = async (template: DataTemplate) => {
+    if (!template.id) return;
+    if (window.confirm(`${t("common:actions.delete")} "${template.name}"?`)) {
+      await deleteMutation.mutateAsync(template.id);
     }
-
-    deleteTemplateMutation.mutate(template.id, {
-      onSuccess: () => {
-        setFeedback("Template deleted successfully.");
-      },
-    });
-  };
-
-  const handleGenerate = (template: DataTemplate) => {
-    if (!template.id) {
-      return;
-    }
-
-    const count = Number(window.prompt("Record count", "100"));
-    const request = {
-      ...defaultTemplateGenerateRequest,
-      count: Number.isFinite(count) && count > 0 ? count : defaultTemplateGenerateRequest.count,
-    };
-
-    generateFromTemplateMutation.mutate(
-      { templateId: template.id, request },
-      {
-        onSuccess: (taskId) => {
-          navigate("/tasks", { state: { highlightedTaskId: taskId } });
-        },
-      },
-    );
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-start justify-between gap-6">
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
         <div>
-          <p className="flex items-center gap-2 text-sm uppercase tracking-[0.28em] text-cyan-200">
-            <FileStack className="size-4" aria-hidden="true" />
-            Templates
-          </p>
-          <h1 className="mt-3 text-4xl font-semibold tracking-tight">Reuse generation configurations</h1>
+          <h1 className="text-2xl font-semibold text-slate-100">{t("pages:templates.title")}</h1>
+          <p className="mt-1 text-sm text-slate-400">{t("pages:templates.subtitle")}</p>
         </div>
-        <Button type="button" onClick={handleCreate}>
-          <Plus className="size-4" aria-hidden="true" />
-          New Template
-        </Button>
+        <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+          <DialogTrigger asChild>
+            <Button>{t("common:actions.createTemplate")}</Button>
+          </DialogTrigger>
+          <DialogContent className="border-slate-700 bg-slate-900 text-slate-100">
+            <DialogHeader>
+              <DialogTitle>{t("common:actions.createTemplate")}</DialogTitle>
+            </DialogHeader>
+            <TemplateForm onSubmit={handleCreate} />
+          </DialogContent>
+        </Dialog>
       </div>
 
-      {feedback ? (
-        <p className="rounded-2xl border border-emerald-400/30 bg-emerald-950/20 px-4 py-3 text-sm text-emerald-100">
-          {feedback}
-        </p>
-      ) : null}
-      {templatesQuery.isPending ? <LoadingState label="Loading templates" /> : null}
+      {templatesQuery.isPending ? <LoadingState label={t("common:status.loadingTemplates")} /> : null}
       {templatesQuery.isError ? (
         <ErrorState
-          title="Unable to load templates"
-          message={templatesQuery.error instanceof Error ? templatesQuery.error.message : "Template request failed"}
+          title={t("common:error.loadTemplates")}
+          message={templatesQuery.error instanceof Error ? templatesQuery.error.message : t("common:error.unknown")}
         />
       ) : null}
-      {templatesQuery.isSuccess && templatesQuery.data.length === 0 ? (
-        <EmptyState title="No templates yet" message="Create a template to reuse a generation configuration." />
+      {templatesQuery.isSuccess && templates.length === 0 ? (
+        <EmptyState title={t("common:empty.noTemplates")} message={t("common:empty.noTemplatesMessage")} />
       ) : null}
-      {templatesQuery.data && templatesQuery.data.length > 0 ? (
-        <TemplateTable
-          templates={templatesQuery.data}
-          onEdit={(template) => {
-            setEditingTemplate(template);
-            setIsFormOpen(true);
-          }}
-          onDelete={handleDelete}
-          onGenerate={handleGenerate}
-        />
+      {templates.length > 0 ? (
+        <TemplateTable templates={templates} onEdit={setEditingTemplate} onDelete={handleDelete} onGenerate={() => {}} />
       ) : null}
 
-      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="border-slate-700/60 bg-slate-950 text-slate-50">
-          <DialogHeader>
-            <DialogTitle>{editingTemplate ? "Edit Template" : "Create Template"}</DialogTitle>
-          </DialogHeader>
-          <TemplateForm
-            template={editingTemplate}
-            isSubmitting={createTemplateMutation.isPending || updateTemplateMutation.isPending}
-            onSubmit={handleSubmit}
-          />
-        </DialogContent>
-      </Dialog>
+      {editingTemplate ? (
+        <Dialog open onOpenChange={() => setEditingTemplate(null)}>
+          <DialogContent className="border-slate-700 bg-slate-900 text-slate-100">
+            <DialogHeader>
+              <DialogTitle>{t("common:actions.edit")}</DialogTitle>
+            </DialogHeader>
+            <TemplateForm
+              template={editingTemplate}
+              onSubmit={handleUpdate}
+            />
+          </DialogContent>
+        </Dialog>
+      ) : null}
     </div>
   );
 }

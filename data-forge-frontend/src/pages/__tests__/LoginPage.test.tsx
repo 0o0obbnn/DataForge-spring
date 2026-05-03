@@ -18,7 +18,7 @@ describe("LoginPage", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.queryByRole("button", { name: /continue with dev mock/i })).toBeNull();
+    expect(screen.queryByRole("button", { name: /dev mock login/i })).toBeNull();
   });
 
   it("shows dev mock login when explicitly enabled", async () => {
@@ -31,6 +31,6 @@ describe("LoginPage", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole("button", { name: /continue with dev mock/i })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /dev mock login/i })).toBeTruthy();
   });
 });

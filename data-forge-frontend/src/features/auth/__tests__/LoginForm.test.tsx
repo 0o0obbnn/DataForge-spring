@@ -58,6 +58,12 @@ describe("LoginForm", () => {
   });
 
   it("stores mock session when dev mock auth is enabled", async () => {
+    vi.mocked(loginApi).mockResolvedValue({
+      accessToken: "eyJhbGciOiJIUzI1NiJ9.test",
+      refreshToken: "eyJhbGciOiJIUzI1NiJ9.refresh",
+      username: "admin",
+      expiresIn: 3600,
+    });
     const user = userEvent.setup();
 
     render(
@@ -66,10 +72,10 @@ describe("LoginForm", () => {
       </MemoryRouter>,
     );
 
-    await user.click(screen.getByRole("button", { name: /continue with dev mock/i }));
+    await user.click(screen.getByRole("button", { name: /dev mock login/i }));
 
-    expect(useAuthStore.getState().isAuthenticated).toBe(true);
+    await waitFor(() => expect(useAuthStore.getState().isAuthenticated).toBe(true));
     expect(useAuthStore.getState().isMockMode).toBe(true);
-    expect(loginApi).not.toHaveBeenCalled();
+    expect(loginApi).toHaveBeenCalledWith({ username: "admin", password: "admin123456*" });
   });
 });

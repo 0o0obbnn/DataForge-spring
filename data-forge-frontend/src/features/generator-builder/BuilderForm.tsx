@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { Copy, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { FormEvent, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 import { RequestPreview } from "@/features/generator-builder/RequestPreview";
@@ -33,6 +34,7 @@ function parseParams(value: string) {
 
 export function BuilderForm() {
   const navigate = useNavigate();
+  const { t } = useTranslation("common");
   const draft = useBuilderStore((state) => state.draft);
   const addField = useBuilderStore((state) => state.addField);
   const duplicateField = useBuilderStore((state) => state.duplicateField);
@@ -59,7 +61,7 @@ export function BuilderForm() {
 
     if (!result.success) {
       setSyncMessage(undefined);
-      setValidationError(result.error.issues[0]?.message ?? "Generation request is invalid");
+      setValidationError(result.error.issues[0]?.message ?? t("builder.invalidRequest"));
       return undefined;
     }
 
@@ -79,7 +81,7 @@ export function BuilderForm() {
       setSyncMessage(result.outputPath ? `${result.message} Output: ${result.outputPath}` : result.message);
     } catch (error) {
       setSyncMessage(undefined);
-      setValidationError(error instanceof Error ? error.message : "Sync generation failed");
+      setValidationError(error instanceof Error ? error.message : t("builder.syncFailed"));
     }
   };
 
@@ -94,7 +96,7 @@ export function BuilderForm() {
       const taskId = await asyncMutation.mutateAsync(request);
       navigate("/tasks", { state: { highlightedTaskId: taskId } });
     } catch (error) {
-      setValidationError(error instanceof Error ? error.message : "Async generation failed");
+      setValidationError(error instanceof Error ? error.message : t("builder.asyncFailed"));
     }
   };
 
@@ -106,7 +108,7 @@ export function BuilderForm() {
 
     const suggestedName = `template-${new Date().toISOString().replace(/[:.]/g, "-")}`;
     setTemplateName(suggestedName);
-    setTemplateDescription("Saved from Generator Builder");
+    setTemplateDescription(t("builder.savedFromBuilder"));
     setIsSaveTemplateDialogOpen(true);
   };
 
@@ -120,7 +122,7 @@ export function BuilderForm() {
 
     const normalizedName = templateName.trim();
     if (normalizedName.length === 0) {
-      setValidationError("Template name is required");
+      setValidationError(t("error.nameRequired"));
       return;
     }
 
@@ -135,14 +137,14 @@ export function BuilderForm() {
       setValidationError(undefined);
       setSyncMessage(`Template "${normalizedName}" saved successfully.`);
     } catch (error) {
-      setValidationError(error instanceof Error ? error.message : "Template save failed");
+      setValidationError(error instanceof Error ? error.message : t("builder.saveFailed"));
     }
   };
 
   return (
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_28rem]">
       <form className="space-y-6" onSubmit={handlePendingSubmit}>
-        <Card className="border-slate-700/50 bg-slate-950/60 text-slate-50">
+        <Card className="border-slate-800 bg-slate-900 text-slate-100">
           <CardHeader>
             <CardTitle>Execution Controls</CardTitle>
           </CardHeader>
@@ -155,7 +157,7 @@ export function BuilderForm() {
                 max={1_000_000}
                 value={draft.count}
                 onChange={(event) => updateDraft({ count: Number(event.target.value) })}
-                className="border-slate-700/60 bg-slate-950/70"
+                className="border-slate-700 bg-slate-950"
               />
             </label>
             <label className="space-y-2 text-sm">
@@ -166,7 +168,7 @@ export function BuilderForm() {
                 max={16}
                 value={draft.threads ?? ""}
                 onChange={(event) => updateDraft({ threads: parseOptionalNumber(event.target.value) })}
-                className="border-slate-700/60 bg-slate-950/70"
+                className="border-slate-700 bg-slate-950"
               />
             </label>
             <label className="space-y-2 text-sm">
@@ -175,13 +177,13 @@ export function BuilderForm() {
                 type="number"
                 value={draft.seed ?? ""}
                 onChange={(event) => updateDraft({ seed: parseOptionalNumber(event.target.value) })}
-                className="border-slate-700/60 bg-slate-950/70"
+                className="border-slate-700 bg-slate-950"
               />
             </label>
             <label className="space-y-2 text-sm">
               <span className="font-medium text-slate-300">Output Format</span>
               <Select value={draft.output.format} onValueChange={(format) => updateOutput({ format: format as typeof draft.output.format })}>
-                <SelectTrigger className="w-full border-slate-700/60 bg-slate-950/70">
+                <SelectTrigger className="w-full border-slate-700 bg-slate-950">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -197,30 +199,30 @@ export function BuilderForm() {
               <span className="font-medium text-slate-300">Output File</span>
               <Input
                 value={draft.output.file ?? ""}
-                placeholder="Optional backend output path"
+                placeholder={t("form.outputPath")}
                 onChange={(event) => updateOutput({ file: event.target.value || undefined })}
-                className="border-slate-700/60 bg-slate-950/70"
+                className="border-slate-700 bg-slate-950"
               />
             </label>
-            <label className="flex items-center gap-3 rounded-2xl border border-slate-700/60 bg-slate-900/40 px-4 py-3 text-sm text-slate-300">
+            <label className="flex items-center gap-3 rounded-lg border border-slate-700/60 bg-slate-800 px-4 py-3 text-sm text-slate-300">
               <input
                 type="checkbox"
                 checked={draft.validate}
                 onChange={(event) => updateDraft({ validate: event.target.checked })}
-                className="size-4 accent-cyan-300"
+                className="size-4 accent-blue-600"
               />
               Validate generated records
             </label>
           </CardContent>
         </Card>
 
-        <Card className="border-slate-700/50 bg-slate-950/60 text-slate-50">
+        <Card className="border-slate-800 bg-slate-900 text-slate-100">
           <CardHeader className="flex-row items-center justify-between">
             <CardTitle>Fields</CardTitle>
             <div className="flex gap-2">
               <Select onValueChange={addField}>
-                <SelectTrigger className="w-44 border-slate-700/60 bg-slate-950/70">
-                  <SelectValue placeholder="Add generator" />
+                <SelectTrigger className="w-44 border-slate-700 bg-slate-950">
+                  <SelectValue placeholder={t("form.addGenerator")} />
                 </SelectTrigger>
                 <SelectContent>
                   {generatorCatalog.map((generator) => (
@@ -239,20 +241,20 @@ export function BuilderForm() {
           <CardContent className="space-y-4">
             {draft.fields.length > 0 ? (
               draft.fields.map((field, index) => (
-                <div key={`${field.type}-${index}`} className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
+                <div key={`${field.type}-${index}`} className="rounded-lg border border-slate-800 bg-slate-800 p-4">
                   <div className="grid gap-3 md:grid-cols-[1fr_1fr_auto]">
                     <label className="space-y-2 text-sm">
                       <span className="font-medium text-slate-300">Field Name</span>
                       <Input
                         value={field.name}
                         onChange={(event) => updateField(index, { name: event.target.value })}
-                        className="border-slate-700/60 bg-slate-950/70"
+                        className="border-slate-700 bg-slate-950"
                       />
                     </label>
                     <label className="space-y-2 text-sm">
                       <span className="font-medium text-slate-300">Generator Type</span>
                       <Select value={field.type} onValueChange={(type) => updateField(index, { type })}>
-                        <SelectTrigger className="w-full border-slate-700/60 bg-slate-950/70">
+                        <SelectTrigger className="w-full border-slate-700 bg-slate-950">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -265,10 +267,10 @@ export function BuilderForm() {
                       </Select>
                     </label>
                     <div className="flex items-end gap-2">
-                      <Button type="button" variant="outline" size="icon" onClick={() => duplicateField(index)} aria-label="Duplicate field">
+                      <Button type="button" variant="outline" size="icon" onClick={() => duplicateField(index)} aria-label={t("actions.duplicate")}>
                         <Copy className="size-4" aria-hidden="true" />
                       </Button>
-                      <Button type="button" variant="outline" size="icon" onClick={() => removeField(index)} aria-label="Remove field">
+                      <Button type="button" variant="outline" size="icon" onClick={() => removeField(index)} aria-label={t("actions.delete")}>
                         <Trash2 className="size-4" aria-hidden="true" />
                       </Button>
                     </div>
@@ -278,13 +280,13 @@ export function BuilderForm() {
                     <Textarea
                       defaultValue={JSON.stringify(field.params ?? {}, null, 2)}
                       onBlur={(event) => updateField(index, { params: parseParams(event.target.value) })}
-                      className="min-h-20 border-slate-700/60 bg-slate-950/70 font-mono text-xs"
+                      className="min-h-20 border-slate-700 bg-slate-950 font-mono text-xs"
                     />
                   </label>
                 </div>
               ))
             ) : (
-              <div className="rounded-2xl border border-dashed border-slate-700/70 bg-slate-900/30 p-8 text-center text-sm text-slate-400">
+              <div className="rounded-lg border border-dashed border-slate-700 bg-slate-800/50 p-8 text-center text-sm text-slate-400">
                 Add a generator field from the catalog or the selector above.
               </div>
             )}
@@ -293,10 +295,10 @@ export function BuilderForm() {
 
         <div className="flex flex-wrap gap-3">
           <Button type="button" onClick={handleRunSync} disabled={syncMutation.isPending || asyncMutation.isPending}>
-            {syncMutation.isPending ? "Running Sync..." : "Run Sync"}
+            {syncMutation.isPending ? t("builder.runningSync") : t("builder.runSync")}
           </Button>
           <Button type="button" variant="outline" onClick={handleRunAsync} disabled={syncMutation.isPending || asyncMutation.isPending}>
-            {asyncMutation.isPending ? "Submitting..." : "Run Async"}
+            {asyncMutation.isPending ? t("builder.submitting") : t("builder.runAsync")}
           </Button>
           <Button
             type="button"
@@ -312,12 +314,12 @@ export function BuilderForm() {
           </Button>
         </div>
         {validationError ? (
-          <p className="rounded-2xl border border-rose-400/30 bg-rose-950/20 px-4 py-3 text-sm text-rose-100">
+          <p className="rounded-lg border border-red-800 bg-red-950/30 px-4 py-3 text-sm text-red-300">
             {validationError}
           </p>
         ) : null}
         {syncMessage ? (
-          <p className="rounded-2xl border border-emerald-400/30 bg-emerald-950/20 px-4 py-3 text-sm text-emerald-100">
+          <p className="rounded-lg border border-emerald-800 bg-emerald-950/30 px-4 py-3 text-sm text-emerald-300">
             {syncMessage}
           </p>
         ) : null}
@@ -336,7 +338,7 @@ export function BuilderForm() {
               <Input
                 value={templateName}
                 onChange={(event) => setTemplateName(event.target.value)}
-                className="border-slate-700/60 bg-slate-950/70"
+                className="border-slate-700 bg-slate-950"
               />
             </label>
             <label className="block space-y-2 text-sm">
@@ -344,11 +346,11 @@ export function BuilderForm() {
               <Input
                 value={templateDescription}
                 onChange={(event) => setTemplateDescription(event.target.value)}
-                className="border-slate-700/60 bg-slate-950/70"
+                className="border-slate-700 bg-slate-950"
               />
             </label>
             <Button className="w-full" type="submit" disabled={saveTemplateMutation.isPending}>
-              {saveTemplateMutation.isPending ? "Saving..." : "Save Template"}
+              {saveTemplateMutation.isPending ? t("status.saving") : t("actions.save")}
             </Button>
           </form>
         </DialogContent>

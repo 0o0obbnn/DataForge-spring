@@ -11,6 +11,12 @@ function hasRequestBody(options: RequestOptions) {
   return options.body !== undefined && options.body !== null;
 }
 
+function isValidJwt(token: string | undefined): token is string {
+  if (!token || token === "null" || token === "undefined") return false;
+  const parts = token.split(".");
+  return parts.length === 3 && parts.every((p) => p.length > 0);
+}
+
 export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const token = useAuthStore.getState().accessToken;
   const headers = new Headers(options.headers);
@@ -19,7 +25,7 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     headers.set("Content-Type", "application/json");
   }
 
-  if (!options.skipAuth && token) {
+  if (!options.skipAuth && isValidJwt(token)) {
     headers.set("Authorization", `Bearer ${token}`);
   }
 

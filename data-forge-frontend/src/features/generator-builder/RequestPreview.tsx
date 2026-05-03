@@ -1,4 +1,5 @@
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { generateRequestSchema } from "@/features/generator-builder/builderSchema";
 import { BuilderDraft } from "@/features/generator-builder/builderStore";
@@ -9,6 +10,7 @@ interface RequestPreviewProps {
 }
 
 export function RequestPreview({ draft }: RequestPreviewProps) {
+  const { t } = useTranslation("common");
   const validationResult = generateRequestSchema.safeParse(draft);
   const previewJson = JSON.stringify(draft, null, 2);
 
@@ -16,16 +18,16 @@ export function RequestPreview({ draft }: RequestPreviewProps) {
     <Card className="sticky top-8 border-slate-700/50 bg-slate-950/70 text-slate-50">
       <CardHeader>
         <CardTitle className="flex items-center justify-between gap-3 text-lg">
-          Request Preview
+          {t("builder.requestPreview")}
           {validationResult.success ? (
             <span className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-emerald-200">
               <CheckCircle2 className="size-4" aria-hidden="true" />
-              Valid
+              {t("builder.valid")}
             </span>
           ) : (
             <span className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-amber-200">
               <AlertTriangle className="size-4" aria-hidden="true" />
-              Needs Fix
+              {t("builder.needsFix")}
             </span>
           )}
         </CardTitle>

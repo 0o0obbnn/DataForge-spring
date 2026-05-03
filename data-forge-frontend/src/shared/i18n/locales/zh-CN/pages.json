@@ -1,0 +1,38 @@
+{
+  "login": {
+    "title": "DataForge 数据生成工作台",
+    "subtitle": "为开发测试、数据验证和演示环境快速生成结构化测试数据",
+    "signInTitle": "登录",
+    "signInDesc": "使用账号密码登录系统，或切换开发模式快速进入。",
+    "brand": "DataForge",
+    "productName": "数据生成工作台"
+  },
+  "dashboard": {
+    "title": "工作台",
+    "subtitle": "查看最近的数据生成任务、服务状态和快捷入口。",
+    "recentTasks": "最近任务",
+    "recentTasksDesc": "来自后端的异步和同步生成历史记录。",
+    "quickActions": "快捷操作"
+  },
+  "appShell": {
+    "headerTitle": "数据生成工作台",
+    "headerSubtitle": "",
+    "userDefault": "用户"
+  },
+  "builder": {
+    "title": "生成器构建",
+    "subtitle": "配置字段、选择生成器类型并预览请求。"
+  },
+  "catalog": {
+    "title": "生成器目录",
+    "subtitle": "浏览所有可用的数据生成器及其详细说明。"
+  },
+  "tasks": {
+    "title": "任务管理",
+    "subtitle": "查看和管理数据生成任务。"
+  },
+  "templates": {
+    "title": "模板管理",
+    "subtitle": "创建和管理可复用的生成配置模板。"
+  }
+}
