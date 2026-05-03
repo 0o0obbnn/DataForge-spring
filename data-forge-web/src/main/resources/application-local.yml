@@ -1,0 +1,86 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+
+  datasource:
+    url: jdbc:h2:mem:dataforge;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        '[format_sql]': true
+
+  flyway:
+    enabled: false
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: false
+
+  data:
+    redis:
+      enabled: true
+      host: localhost
+      port: 6379
+      password:
+      database: 0
+
+server:
+  port: 8080
+
+logging:
+  level:
+    root: INFO
+    "[com.dataforge]": DEBUG
+    "[org.springframework.web]": DEBUG
+    "[org.hibernate.SQL]": DEBUG
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+      base-path: /actuator
+
+app:
+  jwt:
+    secret: local-dev-secret-key-at-least-32-characters-long-for-testing-only
+    expiration: 3600000
+    refresh-expiration: 604800000
+  security:
+    max-login-attempts: 5
+    lock-duration-minutes: 30
+
+dataforge:
+  tasks:
+    default-page-size: 10
+  cache:
+    enabled: true
+    ttl: 300
+  performance:
+    enabled: true
+  security:
+    max-record-count: 1000000
+    max-thread-count: 32
+    max-field-count: 500
+    max-config-size-mb: 50
+    enable-resource-monitoring: true
+    memory-warning-threshold: 80
+    memory-error-threshold: 90
