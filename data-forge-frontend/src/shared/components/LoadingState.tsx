@@ -1,15 +1,14 @@
-import { Skeleton } from "@/shared/components/ui/skeleton";
+import { Loader2 } from "lucide-react";
 
 interface LoadingStateProps {
   label?: string;
 }
 
-export function LoadingState({ label = "Loading DataForge console data" }: LoadingStateProps) {
+export function LoadingState({ label }: LoadingStateProps) {
   return (
-    <div className="space-y-4" role="status" aria-label={label}>
-      <Skeleton className="h-8 w-56 bg-slate-700/50" />
-      <Skeleton className="h-32 w-full bg-slate-800/70" />
-      <Skeleton className="h-32 w-full bg-slate-800/70" />
+    <div className="flex items-center gap-2 py-8 text-slate-500">
+      <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+      <span className="text-sm">{label ?? "加载中..."}</span>
     </div>
   );
 }

@@ -1,0 +1,249 @@
+{
+  "nav": {
+    "dashboard": "工作台",
+    "builder": "生成器构建",
+    "catalog": "生成器目录",
+    "tasks": "任务管理",
+    "templates": "模板管理"
+  },
+  "auth": {
+    "username": "用户名",
+    "password": "密码",
+    "usernameRequired": "请输入用户名",
+    "passwordRequired": "请输入密码",
+    "signIn": "登录",
+    "signingIn": "登录中...",
+    "loginFailed": "登录失败",
+    "mockLogin": "开发模式登录",
+    "mockDisabled": "当前环境已禁用开发模式登录",
+    "logout": "退出登录"
+  },
+  "actions": {
+    "newGeneration": "新建生成任务",
+    "browseCatalog": "浏览生成器",
+    "monitorTasks": "查看任务",
+    "createTemplate": "创建模板",
+    "search": "搜索",
+    "submit": "提交",
+    "cancel": "取消",
+    "edit": "编辑",
+    "delete": "删除",
+    "duplicate": "复制",
+    "save": "保存",
+    "generate": "生成数据",
+    "preview": "预览请求",
+    "actions": "操作",
+    "reset": "重置",
+    "viewDetails": "查看详情"
+  },
+  "status": {
+    "loading": "加载中...",
+    "loadingPage": "页面加载中",
+    "loadingTasks": "加载任务列表",
+    "loadingTemplates": "加载模板列表",
+    "loadingDashboard": "加载工作台数据",
+    "loadingCatalog": "加载生成器目录",
+    "apiReady": "服务正常",
+    "devMock": "开发模式",
+    "jwt": "正式认证",
+    "active": "启用",
+    "inactive": "停用",
+    "version": "版本",
+    "updated": "更新时间",
+    "error": "错误原因",
+    "duration": "耗时",
+    "created": "创建时间",
+    "completed": "完成时间",
+    "saving": "保存中...",
+    "status": "状态"
+  },
+  "empty": {
+    "noTasks": "暂无任务",
+    "noTasksMessage": "运行一个数据生成任务后，这里将显示活动记录。",
+    "noTemplates": "暂无模板",
+    "noTemplatesMessage": "创建模板以复用生成配置。",
+    "noGenerators": "未找到生成器",
+    "noGeneratorsMessage": "调整搜索关键词或切换分类。",
+    "noTaskFilters": "没有符合条件的任务",
+    "noTaskFiltersMessage": "当前筛选条件下没有任务。",
+    "noDescription": "暂无描述"
+  },
+  "error": {
+    "loadDashboard": "无法加载工作台数据",
+    "loadTasks": "无法加载任务列表",
+    "loadTemplates": "无法加载模板列表",
+    "loadCatalog": "无法加载生成器目录",
+    "unknown": "发生未知错误",
+    "nameRequired": "请输入名称",
+    "configRequired": "请输入配置内容"
+  },
+  "form": {
+    "addGenerator": "添加生成器",
+    "outputPath": "输出路径（可选）",
+    "searchGenerators": "按名称、分类或用途搜索...",
+    "searchTasks": "按任务 ID 搜索...",
+    "fieldName": "字段名称",
+    "fieldType": "字段类型",
+    "recordCount": "记录数量",
+    "templateName": "模板名称",
+    "description": "描述",
+    "configYaml": "配置 YAML",
+    "activeTemplate": "启用模板",
+    "outputFormat": "输出格式",
+    "outputFile": "输出文件",
+    "count": "记录数",
+    "threads": "线程数",
+    "seed": "随机种子",
+    "validate": "验证",
+    "paramsJson": "参数 JSON"
+  },
+  "builder": {
+    "executionControls": "执行控制",
+    "validateRecords": "验证生成记录",
+    "fields": "字段配置",
+    "addField": "添加字段",
+    "addFieldHint": "从目录或上方选择器添加生成器字段。",
+    "runSync": "同步执行",
+    "runAsync": "异步执行",
+    "saveAsTemplate": "保存为模板",
+    "runningSync": "同步执行中...",
+    "submitting": "提交中...",
+    "savedFromBuilder": "从生成器构建器保存",
+    "syncFailed": "同步生成失败",
+    "asyncFailed": "异步生成失败",
+    "invalidRequest": "生成请求无效",
+    "saveFailed": "模板保存失败",
+    "requestPreview": "请求预览",
+    "valid": "有效",
+    "needsFix": "需要修正"
+  },
+  "language": {
+    "zh": "中",
+    "en": "EN",
+    "switch": "切换语言"
+  },
+  "catalog": {
+    "all": "全部",
+    "sampleOutput": "示例输出",
+    "parameters": "参数",
+    "noParameters": "无需参数。",
+    "addToBuilder": "添加到构建器",
+    "categories": {
+      "All": "全部",
+      "Core": "核心",
+      "Identity": "身份",
+      "Date/Time": "日期/时间",
+      "Internet": "互联网",
+      "Address": "地址",
+      "Finance": "金融",
+      "Company": "公司",
+      "Vehicle": "车辆",
+      "Custom": "自定义"
+    },
+    "generators": {
+      "uuid": {
+        "name": "UUID",
+        "summary": "生成 RFC 风格唯一标识符，用于主键和相关 ID。"
+      },
+      "string": {
+        "name": "字符串",
+        "summary": "生成有界随机字符串，用于名称、标签和自由格式值。"
+      },
+      "integer": {
+        "name": "整数",
+        "summary": "生成整数值，用于计数器、数量和数值维度。"
+      },
+      "decimal": {
+        "name": "小数",
+        "summary": "生成小数，用于价格、测量值和比率。"
+      },
+      "boolean": {
+        "name": "布尔值",
+        "summary": "生成真/假值，用于标志和状态列。"
+      },
+      "date": {
+        "name": "日期",
+        "summary": "在可选范围内生成日历日期。"
+      },
+      "timestamp": {
+        "name": "时间戳",
+        "summary": "生成精确时间戳，用于事件流和审计记录。"
+      },
+      "name": {
+        "name": "姓名",
+        "summary": "生成真实人名，用于客户或员工数据集。"
+      },
+      "email": {
+        "name": "邮箱",
+        "summary": "生成邮箱地址，用于账户和联系人数据集。"
+      },
+      "phone": {
+        "name": "电话",
+        "summary": "生成电话号码，用于联系人记录。"
+      },
+      "idcard": {
+        "name": "身份证",
+        "summary": "生成类身份证值，用于受监管测试数据集。"
+      },
+      "address": {
+        "name": "地址",
+        "summary": "生成包含城市、街道和区域信息的邮政地址。"
+      },
+      "bankcard": {
+        "name": "银行卡",
+        "summary": "生成类银行卡号，适用于非生产测试。"
+      },
+      "ip": {
+        "name": "IP 地址",
+        "summary": "生成 IPv4 或 IPv6 地址，用于网络数据集。"
+      },
+      "mac": {
+        "name": "MAC 地址",
+        "summary": "生成硬件地址值，用于设备清单。"
+      },
+      "url": {
+        "name": "URL",
+        "summary": "生成 URL，用于爬虫、分析和内容数据集。"
+      },
+      "domain": {
+        "name": "域名",
+        "summary": "生成域名，用于账户、DNS 和 Web 测试数据。"
+      },
+      "company": {
+        "name": "公司",
+        "summary": "生成公司名称，用于 CRM 和 B2B 数据集。"
+      },
+      "vehicle": {
+        "name": "车辆",
+        "summary": "生成车辆标识符和类模型值。"
+      },
+      "yaml": {
+        "name": "YAML",
+        "summary": "生成 YAML 片段，用于面向配置的测试用例。"
+      }
+    },
+    "params": {
+      "version": "版本",
+      "minLength": "最小长度",
+      "maxLength": "最大长度",
+      "min": "最小值",
+      "max": "最大值",
+      "scale": "小数位数",
+      "trueRate": "真值概率",
+      "start": "最早日期",
+      "end": "最晚日期",
+      "timezone": "输出时区",
+      "locale": "名称地区偏好",
+      "domain": "固定邮箱域名",
+      "country": "国家或地区代码",
+      "masked": "隐藏敏感段",
+      "issuer": "发卡机构提示",
+      "separator": "地址分隔符",
+      "protocol": "URL 协议",
+      "tld": "顶级域名",
+      "suffix": "包含法律后缀",
+      "type": "车辆类型提示",
+      "template": "YAML 结构模板"
+    }
+  }
+}

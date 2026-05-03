@@ -1,86 +1,51 @@
-import { ListChecks, RefreshCw } from "lucide-react";
-import { useMemo, useState } from "react";
+import { Search } from "lucide-react";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
+import { TaskTable } from "@/features/tasks/TaskTable";
+import { useRecentTasksQuery } from "@/features/tasks/taskQueries";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { ErrorState } from "@/shared/components/ErrorState";
 import { LoadingState } from "@/shared/components/LoadingState";
-import { Button } from "@/shared/components/ui/button";
-import { Card, CardContent } from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
-import { TaskTable } from "@/features/tasks/TaskTable";
-import { useRecentTasksQuery } from "@/features/tasks/taskQueries";
-
-const statusFilters = ["ALL", "IN_PROGRESS", "COMPLETED", "FAILED"] as const;
-type StatusFilter = (typeof statusFilters)[number];
 
 export function TasksPage() {
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
-  const [taskQuery, setTaskQuery] = useState("");
+  const { t } = useTranslation(["pages", "common"]);
+  const [search, setSearch] = useState("");
   const tasksQuery = useRecentTasksQuery();
-  const filteredTasks = useMemo(() => {
-    const tasks = tasksQuery.data ?? [];
-    const query = taskQuery.trim();
-
-    return tasks.filter((task) => {
-      const matchesStatus = statusFilter === "ALL" || task.status === statusFilter;
-      const matchesQuery = query.length === 0 || String(task.id).includes(query);
-
-      return matchesStatus && matchesQuery;
-    });
-  }, [statusFilter, taskQuery, tasksQuery.data]);
+  const tasks = (tasksQuery.data ?? []).filter((task) =>
+    search ? String(task.id).includes(search) : true,
+  );
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-start justify-between gap-6">
-        <div>
-          <p className="flex items-center gap-2 text-sm uppercase tracking-[0.28em] text-cyan-200">
-            <ListChecks className="size-4" aria-hidden="true" />
-            Tasks
-          </p>
-          <h1 className="mt-3 text-4xl font-semibold tracking-tight">Monitor async generation</h1>
-        </div>
-        <Button type="button" variant="outline" onClick={() => void tasksQuery.refetch()} disabled={tasksQuery.isFetching}>
-          <RefreshCw className="size-4" aria-hidden="true" />
-          {tasksQuery.isFetching ? "Refreshing..." : "Refresh"}
-        </Button>
+    <div className="space-y-4">
+      <div>
+        <h1 className="text-2xl font-semibold text-slate-100">{t("pages:tasks.title")}</h1>
+        <p className="mt-1 text-sm text-slate-400">{t("pages:tasks.subtitle")}</p>
       </div>
 
-      <Card className="border-slate-700/50 bg-slate-950/60 text-slate-50">
-        <CardContent className="grid gap-4 p-4 md:grid-cols-[1fr_14rem]">
-          <Input
-            value={taskQuery}
-            onChange={(event) => setTaskQuery(event.target.value)}
-            placeholder="Search by task id..."
-            className="border-slate-700/60 bg-slate-950/70"
-            aria-label="Search tasks by id"
-          />
-          <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as StatusFilter)}>
-            <SelectTrigger className="w-full border-slate-700/60 bg-slate-950/70">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {statusFilters.map((status) => (
-                <SelectItem key={status} value={status}>
-                  {status === "ALL" ? "All statuses" : status.replace("_", " ")}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </CardContent>
-      </Card>
+      <div className="relative max-w-sm">
+        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-500" aria-hidden="true" />
+        <Input
+          placeholder={t("common:form.searchTasks")}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="border-slate-700 bg-slate-900 pl-9 text-slate-100"
+          aria-label={t("common:form.searchTasks")}
+        />
+      </div>
 
-      {tasksQuery.isPending ? <LoadingState label="Loading recent generation tasks" /> : null}
+      {tasksQuery.isPending ? <LoadingState label={t("common:status.loadingTasks")} /> : null}
       {tasksQuery.isError ? (
         <ErrorState
-          title="Unable to load tasks"
-          message={tasksQuery.error instanceof Error ? tasksQuery.error.message : "Task request failed"}
+          title={t("common:error.loadTasks")}
+          message={tasksQuery.error instanceof Error ? tasksQuery.error.message : t("common:error.unknown")}
         />
       ) : null}
-      {tasksQuery.isSuccess && filteredTasks.length === 0 ? (
-        <EmptyState title="No tasks found" message="No recent generation tasks match the current filters." />
+      {tasksQuery.isSuccess && tasks.length === 0 ? (
+        <EmptyState title={t("common:empty.noTaskFilters")} message={t("common:empty.noTaskFiltersMessage")} />
       ) : null}
-      {filteredTasks.length > 0 ? <TaskTable tasks={filteredTasks} /> : null}
+      {tasks.length > 0 ? <TaskTable tasks={tasks} /> : null}
     </div>
   );
 }

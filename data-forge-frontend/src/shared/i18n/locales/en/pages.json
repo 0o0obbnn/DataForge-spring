@@ -1,0 +1,38 @@
+{
+  "login": {
+    "title": "DataForge Console",
+    "subtitle": "Generate structured test data for development, validation, and demo environments.",
+    "signInTitle": "Sign in",
+    "signInDesc": "Log in with your account, or use dev mock mode to enter quickly.",
+    "brand": "DataForge",
+    "productName": "Console"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Track recent generation work and backend connectivity.",
+    "recentTasks": "Recent Tasks",
+    "recentTasksDesc": "Latest async and sync generation history from the backend.",
+    "quickActions": "Quick Actions"
+  },
+  "appShell": {
+    "headerTitle": "DataForge Console",
+    "headerSubtitle": "Developer Operations",
+    "userDefault": "operator"
+  },
+  "builder": {
+    "title": "Generator Builder",
+    "subtitle": "Configure fields, select generator types and preview requests."
+  },
+  "catalog": {
+    "title": "Generator Catalog",
+    "subtitle": "Browse all available data generators and their details."
+  },
+  "tasks": {
+    "title": "Task Management",
+    "subtitle": "View and manage data generation tasks."
+  },
+  "templates": {
+    "title": "Template Management",
+    "subtitle": "Create and manage reusable generation configuration templates."
+  }
+}

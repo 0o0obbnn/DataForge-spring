@@ -1,0 +1,249 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "builder": "Builder",
+    "catalog": "Catalog",
+    "tasks": "Tasks",
+    "templates": "Templates"
+  },
+  "auth": {
+    "username": "Username",
+    "password": "Password",
+    "usernameRequired": "Username is required",
+    "passwordRequired": "Password is required",
+    "signIn": "Sign in",
+    "signingIn": "Signing in...",
+    "loginFailed": "Login failed",
+    "mockLogin": "Dev Mock Login",
+    "mockDisabled": "Dev mock login is disabled for this environment.",
+    "logout": "Logout"
+  },
+  "actions": {
+    "newGeneration": "New Generation",
+    "browseCatalog": "Browse Catalog",
+    "monitorTasks": "Monitor Tasks",
+    "createTemplate": "Create Template",
+    "search": "Search",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "duplicate": "Duplicate",
+    "save": "Save",
+    "generate": "Generate Data",
+    "preview": "Preview Request",
+    "actions": "Actions",
+    "reset": "Reset",
+    "viewDetails": "View Details"
+  },
+  "status": {
+    "loading": "Loading...",
+    "loadingPage": "Loading page",
+    "loadingTasks": "Loading tasks",
+    "loadingTemplates": "Loading templates",
+    "loadingDashboard": "Loading dashboard",
+    "loadingCatalog": "Loading catalog",
+    "apiReady": "API Ready",
+    "devMock": "DEV MOCK",
+    "jwt": "JWT",
+    "active": "Active",
+    "inactive": "Inactive",
+    "version": "Version",
+    "updated": "Updated",
+    "error": "Error",
+    "duration": "Duration",
+    "created": "Created",
+    "completed": "Completed",
+    "saving": "Saving...",
+    "status": "Status"
+  },
+  "empty": {
+    "noTasks": "No recent tasks",
+    "noTasksMessage": "Run a generation job to populate dashboard activity.",
+    "noTemplates": "No templates yet",
+    "noTemplatesMessage": "Create a template to reuse a generation configuration.",
+    "noGenerators": "No generators found",
+    "noGeneratorsMessage": "Adjust the search text or switch categories.",
+    "noTaskFilters": "No tasks found",
+    "noTaskFiltersMessage": "No recent generation tasks match the current filters.",
+    "noDescription": "No description"
+  },
+  "error": {
+    "loadDashboard": "Unable to load dashboard data",
+    "loadTasks": "Unable to load tasks",
+    "loadTemplates": "Unable to load templates",
+    "loadCatalog": "Unable to load catalog",
+    "unknown": "An unknown error occurred",
+    "nameRequired": "Name is required",
+    "configRequired": "Config is required"
+  },
+  "form": {
+    "addGenerator": "Add generator",
+    "outputPath": "Optional backend output path",
+    "searchGenerators": "Search by name, category, output, or use case...",
+    "searchTasks": "Search by task id...",
+    "fieldName": "Field name",
+    "fieldType": "Field type",
+    "recordCount": "Record count",
+    "templateName": "Template Name",
+    "description": "Description",
+    "configYaml": "Config YAML",
+    "activeTemplate": "Active template",
+    "outputFormat": "Output Format",
+    "outputFile": "Output File",
+    "count": "Count",
+    "threads": "Threads",
+    "seed": "Seed",
+    "validate": "Validate",
+    "paramsJson": "Params JSON"
+  },
+  "builder": {
+    "executionControls": "Execution Controls",
+    "validateRecords": "Validate generated records",
+    "fields": "Fields",
+    "addField": "Add Field",
+    "addFieldHint": "Add a generator field from the catalog or the selector above.",
+    "runSync": "Run Sync",
+    "runAsync": "Run Async",
+    "saveAsTemplate": "Save as Template",
+    "runningSync": "Running Sync...",
+    "submitting": "Submitting...",
+    "savedFromBuilder": "Saved from Generator Builder",
+    "syncFailed": "Sync generation failed",
+    "asyncFailed": "Async generation failed",
+    "invalidRequest": "Generation request is invalid",
+    "saveFailed": "Template save failed",
+    "requestPreview": "Request Preview",
+    "valid": "Valid",
+    "needsFix": "Needs Fix"
+  },
+  "language": {
+    "zh": "中",
+    "en": "EN",
+    "switch": "Switch Language"
+  },
+  "catalog": {
+    "all": "All",
+    "sampleOutput": "Sample Output",
+    "parameters": "Parameters",
+    "noParameters": "No parameters required.",
+    "addToBuilder": "Add to Builder",
+    "categories": {
+      "All": "All",
+      "Core": "Core",
+      "Identity": "Identity",
+      "Date/Time": "Date/Time",
+      "Internet": "Internet",
+      "Address": "Address",
+      "Finance": "Finance",
+      "Company": "Company",
+      "Vehicle": "Vehicle",
+      "Custom": "Custom"
+    },
+    "generators": {
+      "uuid": {
+        "name": "UUID",
+        "summary": "Generate RFC-style unique identifiers for primary keys and related IDs."
+      },
+      "string": {
+        "name": "String",
+        "summary": "Generate bounded random strings for names, tags, and free-form values."
+      },
+      "integer": {
+        "name": "Integer",
+        "summary": "Generate integer values for counters, quantities, and numeric dimensions."
+      },
+      "decimal": {
+        "name": "Decimal",
+        "summary": "Generate decimal numbers for prices, measurements, and ratios."
+      },
+      "boolean": {
+        "name": "Boolean",
+        "summary": "Generate true/false values for flags and status columns."
+      },
+      "date": {
+        "name": "Date",
+        "summary": "Generate calendar dates within an optional range."
+      },
+      "timestamp": {
+        "name": "Timestamp",
+        "summary": "Generate precise timestamps for event streams and audit records."
+      },
+      "name": {
+        "name": "Name",
+        "summary": "Generate realistic human names for customer or employee datasets."
+      },
+      "email": {
+        "name": "Email",
+        "summary": "Generate email addresses for account and contact datasets."
+      },
+      "phone": {
+        "name": "Phone",
+        "summary": "Generate phone numbers for contact records."
+      },
+      "idcard": {
+        "name": "ID Card",
+        "summary": "Generate ID card-like values for regulated test datasets."
+      },
+      "address": {
+        "name": "Address",
+        "summary": "Generate postal addresses with cities, streets, and regions."
+      },
+      "bankcard": {
+        "name": "Bank Card",
+        "summary": "Generate bank card-like numbers for non-production testing."
+      },
+      "ip": {
+        "name": "IP Address",
+        "summary": "Generate IPv4 or IPv6 addresses for network datasets."
+      },
+      "mac": {
+        "name": "MAC Address",
+        "summary": "Generate hardware address values for device inventories."
+      },
+      "url": {
+        "name": "URL",
+        "summary": "Generate URLs for crawlers, analytics, and content datasets."
+      },
+      "domain": {
+        "name": "Domain",
+        "summary": "Generate domain names for accounts, DNS, and web test data."
+      },
+      "company": {
+        "name": "Company",
+        "summary": "Generate company names for CRM and B2B datasets."
+      },
+      "vehicle": {
+        "name": "Vehicle",
+        "summary": "Generate vehicle identifiers and model-like values."
+      },
+      "yaml": {
+        "name": "YAML",
+        "summary": "Generate YAML fragments for configuration-oriented test cases."
+      }
+    },
+    "params": {
+      "version": "Version",
+      "minLength": "Minimum length",
+      "maxLength": "Maximum length",
+      "min": "Minimum value",
+      "max": "Maximum value",
+      "scale": "Number of decimal places",
+      "trueRate": "Probability of true values",
+      "start": "Earliest date",
+      "end": "Latest date",
+      "timezone": "Output timezone",
+      "locale": "Name locale preference",
+      "domain": "Fixed email domain",
+      "country": "Country or region code",
+      "masked": "Mask sensitive segments",
+      "issuer": "Card issuer hint",
+      "separator": "Address separator",
+      "protocol": "URL protocol",
+      "tld": "Top-level domain",
+      "suffix": "Include legal suffix",
+      "type": "Vehicle type hint",
+      "template": "YAML structure template"
+    }
+  }
+}
