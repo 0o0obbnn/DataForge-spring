@@ -39,14 +39,17 @@ export function LoginForm({ enableMockAuth }: LoginFormProps) {
     },
   });
 
-  const handleMockLogin = async () => {
-    try {
-      const session = await loginApi({ username: "admin", password: "admin123456*" });
-      storeLogin({ ...session, mock: true });
-      navigate("/dashboard", { replace: true });
-    } catch {
-      setErrorMessage(t("auth.loginFailed"));
-    }
+  const handleMockLogin = () => {
+    // Mock JWT token (valid format for isValidJwt check)
+    const mockToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJtb2NrLW9wZXJhdG9yIiwiaWF0IjoxNjE2MjM5MDIyfQ.mocksignature";
+    storeLogin({
+      accessToken: mockToken,
+      refreshToken: "mock-refresh-token",
+      username: "mock-operator",
+      expiresIn: 3600,
+      mock: true,
+    });
+    navigate("/dashboard", { replace: true });
   };
 
   const onSubmit = async (values: LoginFormValues) => {

@@ -58,12 +58,6 @@ describe("LoginForm", () => {
   });
 
   it("stores mock session when dev mock auth is enabled", async () => {
-    vi.mocked(loginApi).mockResolvedValue({
-      accessToken: "eyJhbGciOiJIUzI1NiJ9.test",
-      refreshToken: "eyJhbGciOiJIUzI1NiJ9.refresh",
-      username: "admin",
-      expiresIn: 3600,
-    });
     const user = userEvent.setup();
 
     render(
@@ -76,6 +70,8 @@ describe("LoginForm", () => {
 
     await waitFor(() => expect(useAuthStore.getState().isAuthenticated).toBe(true));
     expect(useAuthStore.getState().isMockMode).toBe(true);
-    expect(loginApi).toHaveBeenCalledWith({ username: "admin", password: "admin123456*" });
+    expect(useAuthStore.getState().username).toBe("mock-operator");
+    expect(useAuthStore.getState().accessToken).toMatch(/^eyJ/); // JWT format
+    expect(loginApi).not.toHaveBeenCalled();
   });
 });

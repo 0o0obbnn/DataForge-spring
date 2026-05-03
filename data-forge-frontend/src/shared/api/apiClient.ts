@@ -2,6 +2,7 @@ import { useAuthStore } from "@/features/auth/authStore";
 import { normalizeApiError } from "@/shared/api/apiErrors";
 import { ApiResponse } from "@/shared/api/apiTypes";
 import { env } from "@/shared/config/env";
+import { getMockData } from "@/shared/api/mockData";
 
 type RequestOptions = RequestInit & {
   skipAuth?: boolean;
@@ -17,8 +18,20 @@ function isValidJwt(token: string | undefined): token is string {
   return parts.length === 3 && parts.every((p) => p.length > 0);
 }
 
+function isMockMode(token: string | undefined): boolean {
+  if (!token) return false;
+  return token.startsWith("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJtb2NrLW9wZXJhdG9y");
+}
+
 export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const token = useAuthStore.getState().accessToken;
+  const isMock = isMockMode(token);
+
+  // Mock mode: return mock data
+  if (isMock && !options.skipAuth) {
+    return getMockData<T>(path, options);
+  }
+
   const headers = new Headers(options.headers);
 
   if (hasRequestBody(options) && !headers.has("Content-Type")) {
