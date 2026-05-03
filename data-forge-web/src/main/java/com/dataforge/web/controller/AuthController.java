@@ -178,8 +178,7 @@ public class AuthController {
     try {
       Authentication authentication =
           authenticationManager.authenticate(
-              new UsernamePasswordAuthenticationToken(
-                  username, loginRequest.getPassword()));
+              new UsernamePasswordAuthenticationToken(username, loginRequest.getPassword()));
 
       String authenticatedUsername = authentication.getName();
       loginAttemptService.recordSuccessAttempt(authenticatedUsername);

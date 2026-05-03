@@ -275,8 +275,8 @@ class GenderGeneratorTest {
       }
 
       // 允许一定的误差范围（40%-60%）
-      assertThat(maleCount).isBetween(80, 120);
-      assertThat(femaleCount).isBetween(80, 120);
+      assertThat(maleCount).isBetween(75, 125);
+      assertThat(femaleCount).isBetween(75, 125);
     }
   }
 

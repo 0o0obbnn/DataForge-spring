@@ -84,7 +84,7 @@ class InternetGenTest {
 
       assertThat(url).isNotNull();
       assertThat(url).isNotEmpty();
-      assertThat(url).matches("^https?://[\\w.-]+(?:\\.[a-zA-Z]{2,})(?:/.*)?$");
+      assertThat(url).matches("^https?://[\\w.-]+(?:\\.[a-zA-Z]{2,})(?::\\d+)?(?:/.*)?$");
     }
 
     @Test
@@ -422,10 +422,12 @@ class InternetGenTest {
       List<String> emails = internetGen.emails(count);
 
       assertThat(emails).hasSize(count);
-      assertThat(emails).allSatisfy(e -> {
-        assertThat(e).isNotNull();
-        assertThat(e).matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$");
-      });
+      assertThat(emails)
+          .allSatisfy(
+              e -> {
+                assertThat(e).isNotNull();
+                assertThat(e).matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$");
+              });
     }
 
     @Test
@@ -435,11 +437,13 @@ class InternetGenTest {
       List<String> urls = internetGen.urls(count);
 
       assertThat(urls).hasSize(count);
-      assertThat(urls).allSatisfy(u -> {
-        assertThat(u).isNotNull();
-        // URL格式：协议://域名[:端口][/路径][?查询]
-        assertThat(u).matches("^https?://[\\w.-]+(?:\\.[a-zA-Z]{2,})(?::\\d+)?(?:/.*)?$");
-      });
+      assertThat(urls)
+          .allSatisfy(
+              u -> {
+                assertThat(u).isNotNull();
+                // URL格式：协议://域名[:端口][/路径][?查询]
+                assertThat(u).matches("^https?://[\\w.-]+(?:\\.[a-zA-Z]{2,})(?::\\d+)?(?:/.*)?$");
+              });
     }
 
     @Test
@@ -449,10 +453,12 @@ class InternetGenTest {
       List<String> ipv4s = internetGen.ipv4s(count);
 
       assertThat(ipv4s).hasSize(count);
-      assertThat(ipv4s).allSatisfy(ip -> {
-        assertThat(ip).isNotNull();
-        assertThat(ip).matches("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
-      });
+      assertThat(ipv4s)
+          .allSatisfy(
+              ip -> {
+                assertThat(ip).isNotNull();
+                assertThat(ip).matches("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
+              });
     }
   }
 
@@ -542,10 +548,12 @@ class InternetGenTest {
       List<String> emails = internetGen.emails(count);
 
       assertThat(emails).hasSize(count);
-      assertThat(emails).allSatisfy(e -> {
-        assertThat(e).isNotNull();
-        assertThat(e).matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$");
-      });
+      assertThat(emails)
+          .allSatisfy(
+              e -> {
+                assertThat(e).isNotNull();
+                assertThat(e).matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$");
+              });
     }
 
     @Test

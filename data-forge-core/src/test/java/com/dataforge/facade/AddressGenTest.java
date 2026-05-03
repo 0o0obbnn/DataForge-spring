@@ -9,7 +9,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import org.junit.jupiter.api.Timeout;
 
 @DisplayName("AddressGen 测试")
 class AddressGenTest {
@@ -43,10 +42,12 @@ class AddressGenTest {
       List<String> addresses = addressGen.fullAddresses(count);
 
       assertThat(addresses).hasSize(count);
-      assertThat(addresses).allSatisfy(addr -> {
-        assertThat(addr).isNotNull();
-        assertThat(addr).isNotEmpty();
-      });
+      assertThat(addresses)
+          .allSatisfy(
+              addr -> {
+                assertThat(addr).isNotNull();
+                assertThat(addr).isNotEmpty();
+              });
     }
 
     @Test
@@ -79,10 +80,12 @@ class AddressGenTest {
       List<String> provinces = addressGen.provinces(count);
 
       assertThat(provinces).hasSize(count);
-      assertThat(provinces).allSatisfy(p -> {
-        assertThat(p).isNotNull();
-        assertThat(p).isNotEmpty();
-      });
+      assertThat(provinces)
+          .allSatisfy(
+              p -> {
+                assertThat(p).isNotNull();
+                assertThat(p).isNotEmpty();
+              });
     }
 
     @Test
@@ -115,10 +118,12 @@ class AddressGenTest {
       List<String> cities = addressGen.cities(count);
 
       assertThat(cities).hasSize(count);
-      assertThat(cities).allSatisfy(c -> {
-        assertThat(c).isNotNull();
-        assertThat(c).isNotEmpty();
-      });
+      assertThat(cities)
+          .allSatisfy(
+              c -> {
+                assertThat(c).isNotNull();
+                assertThat(c).isNotEmpty();
+              });
     }
 
     @Test
@@ -151,10 +156,12 @@ class AddressGenTest {
       List<String> districts = addressGen.districts(count);
 
       assertThat(districts).hasSize(count);
-      assertThat(districts).allSatisfy(d -> {
-        assertThat(d).isNotNull();
-        assertThat(d).isNotEmpty();
-      });
+      assertThat(districts)
+          .allSatisfy(
+              d -> {
+                assertThat(d).isNotNull();
+                assertThat(d).isNotEmpty();
+              });
     }
   }
 
@@ -178,10 +185,12 @@ class AddressGenTest {
       List<String> streets = addressGen.streets(count);
 
       assertThat(streets).hasSize(count);
-      assertThat(streets).allSatisfy(s -> {
-        assertThat(s).isNotNull();
-        assertThat(s).isNotEmpty();
-      });
+      assertThat(streets)
+          .allSatisfy(
+              s -> {
+                assertThat(s).isNotNull();
+                assertThat(s).isNotEmpty();
+              });
     }
 
     @Test
@@ -214,11 +223,13 @@ class AddressGenTest {
       List<String> zipCodes = addressGen.zipCodes(count);
 
       assertThat(zipCodes).hasSize(count);
-      assertThat(zipCodes).allSatisfy(zip -> {
-        assertThat(zip).isNotNull();
-        assertThat(zip).isNotEmpty();
-        assertThat(zip).matches("\\d{6}");
-      });
+      assertThat(zipCodes)
+          .allSatisfy(
+              zip -> {
+                assertThat(zip).isNotNull();
+                assertThat(zip).isNotEmpty();
+                assertThat(zip).matches("\\d{6}");
+              });
     }
 
     @Test
@@ -251,10 +262,12 @@ class AddressGenTest {
       List<String> countries = addressGen.countries(count);
 
       assertThat(countries).hasSize(count);
-      assertThat(countries).allSatisfy(c -> {
-        assertThat(c).isNotNull();
-        assertThat(c).isNotEmpty();
-      });
+      assertThat(countries)
+          .allSatisfy(
+              c -> {
+                assertThat(c).isNotNull();
+                assertThat(c).isNotEmpty();
+              });
     }
 
     @Test
@@ -327,10 +340,12 @@ class AddressGenTest {
       List<String> addresses = addressGen.fullAddresses(count);
 
       assertThat(addresses).hasSize(count);
-      assertThat(addresses).allSatisfy(addr -> {
-        assertThat(addr).isNotNull();
-        assertThat(addr).isNotEmpty();
-      });
+      assertThat(addresses)
+          .allSatisfy(
+              addr -> {
+                assertThat(addr).isNotNull();
+                assertThat(addr).isNotEmpty();
+              });
     }
 
     @Test

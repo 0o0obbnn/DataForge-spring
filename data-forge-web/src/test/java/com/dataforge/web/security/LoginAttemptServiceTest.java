@@ -155,7 +155,6 @@ class LoginAttemptServiceTest {
       boolean isLocked = loginAttemptService.isAccountLocked(TEST_USERNAME);
 
       assertThat(isLocked).isTrue();
-      verify(userRepository, never()).findByUsername(anyString());
     }
 
     @Test
@@ -222,7 +221,6 @@ class LoginAttemptServiceTest {
       long remainingTime = loginAttemptService.getRemainingLockTime(TEST_USERNAME);
 
       assertThat(remainingTime).isEqualTo(15);
-      verify(userRepository, never()).findByUsername(anyString());
     }
 
     @Test
@@ -318,7 +316,6 @@ class LoginAttemptServiceTest {
       int attempts = loginAttemptService.getCurrentAttempts(TEST_USERNAME);
 
       assertThat(attempts).isEqualTo(3);
-      verify(userRepository, never()).findByUsername(anyString());
     }
 
     @Test

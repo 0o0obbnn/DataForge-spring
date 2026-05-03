@@ -462,7 +462,7 @@ public class ConcurrentRequestHandlingTest extends BaseApiTest {
       latch.await(60, TimeUnit.SECONDS);
 
       // i % 3 == 0 意味着索引 0, 3, 6, 9 会被标记为无效请求，共4个错误请求
-      int invalidRequests = (totalRequests + 2) / 3;  // 向上取整计算
+      int invalidRequests = (totalRequests + 2) / 3; // 向上取整计算
       int validRequests = totalRequests - invalidRequests;
       assertThat(successCount.get()).isEqualTo(validRequests);
       assertThat(errorCount.get()).isEqualTo(invalidRequests);

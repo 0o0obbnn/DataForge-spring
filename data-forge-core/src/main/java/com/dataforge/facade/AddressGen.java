@@ -47,7 +47,7 @@ public class AddressGen {
   /** 生成邮政编码 */
   public String zipCode() {
     // Generate a random 6-digit zip code
-    return String.format("%06d", (int)(Math.random() * 1000000));
+    return String.format("%06d", (int) (Math.random() * 1000000));
   }
 
   /** 生成国家 */
@@ -80,22 +80,26 @@ public class AddressGen {
 
   /** 批量生成省份 */
   public List<String> provinces(int count) {
-    return gen.generateList("address", count, Map.of("detail_level", "PROVINCE", "include_zipcode", "false"));
+    return gen.generateList(
+        "address", count, Map.of("detail_level", "PROVINCE", "include_zipcode", "false"));
   }
 
   /** 批量生成城市 */
   public List<String> cities(int count) {
-    return gen.generateList("address", count, Map.of("detail_level", "CITY", "include_zipcode", "false"));
+    return gen.generateList(
+        "address", count, Map.of("detail_level", "CITY", "include_zipcode", "false"));
   }
 
   /** 批量生成区县 */
   public List<String> districts(int count) {
-    return gen.generateList("address", count, Map.of("detail_level", "DISTRICT", "include_zipcode", "false"));
+    return gen.generateList(
+        "address", count, Map.of("detail_level", "DISTRICT", "include_zipcode", "false"));
   }
 
   /** 批量生成街道 */
   public List<String> streets(int count) {
-    return gen.generateList("address", count, Map.of("detail_level", "STREET", "include_zipcode", "false"));
+    return gen.generateList(
+        "address", count, Map.of("detail_level", "STREET", "include_zipcode", "false"));
   }
 
   /** 批量生成邮政编码 */

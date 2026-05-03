@@ -268,7 +268,8 @@ public class DataGenerationEndToEndTest extends BaseApiTest {
 
       // 验证模板确实被保存了
       assertThat(savedTemplate.getId()).isNotNull();
-      DataTemplate verifiedTemplate = templateRepository.findById(savedTemplate.getId()).orElse(null);
+      DataTemplate verifiedTemplate =
+          templateRepository.findById(savedTemplate.getId()).orElse(null);
       assertThat(verifiedTemplate).isNotNull();
       assertThat(verifiedTemplate.getName()).isEqualTo("test-template");
 
@@ -276,9 +277,7 @@ public class DataGenerationEndToEndTest extends BaseApiTest {
       request.setCount(50);
       request.setOutput(TestDataFactory.createOutputConfig());
       // 添加字段配置以满足验证要求
-      request.setFields(List.of(
-          TestDataFactory.createField("test", "string")
-      ));
+      request.setFields(List.of(TestDataFactory.createField("test", "string")));
 
       MvcResult result =
           mockMvc

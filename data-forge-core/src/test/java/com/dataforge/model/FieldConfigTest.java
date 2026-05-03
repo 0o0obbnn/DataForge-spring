@@ -1,7 +1,6 @@
 package com.dataforge.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -479,7 +478,9 @@ class FieldConfigTest {
 
       String str = config.toString();
 
-      assertThat(str).matches("SimpleFieldConfig\\{name='username', type='string', required=true, params=\\{\\}\\}");
+      assertThat(str)
+          .matches(
+              "SimpleFieldConfig\\{name='username', type='string', required=true, params=\\{\\}\\}");
     }
   }
 

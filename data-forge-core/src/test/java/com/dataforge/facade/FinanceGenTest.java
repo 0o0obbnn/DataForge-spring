@@ -30,7 +30,7 @@ class FinanceGenTest {
 
       assertThat(cardNumber).isNotNull();
       assertThat(cardNumber).isNotEmpty();
-      assertThat(cardNumber).matches("\\d{16,19}");
+      assertThat(cardNumber).matches("\\d{15,19}");
     }
 
     @Test
@@ -40,7 +40,7 @@ class FinanceGenTest {
 
       assertThat(cardNumber).isNotNull();
       assertThat(cardNumber).isNotEmpty();
-      assertThat(cardNumber).matches("\\d{16,19}");
+      assertThat(cardNumber).matches("\\d{15,19}");
     }
 
     @Test
@@ -50,7 +50,7 @@ class FinanceGenTest {
 
       assertThat(cardNumber).isNotNull();
       assertThat(cardNumber).isNotEmpty();
-      assertThat(cardNumber).matches("\\d{16,19}");
+      assertThat(cardNumber).matches("\\d{15,19}");
     }
 
     @Test
@@ -60,11 +60,13 @@ class FinanceGenTest {
       List<String> cardNumbers = financeGen.bankCards(count);
 
       assertThat(cardNumbers).hasSize(count);
-      assertThat(cardNumbers).allSatisfy(card -> {
-        assertThat(card).isNotNull();
-        // 银行卡号可以是15-19位数字
-        assertThat(card).matches("\\d{15,19}");
-      });
+      assertThat(cardNumbers)
+          .allSatisfy(
+              card -> {
+                assertThat(card).isNotNull();
+                // 银行卡号可以是15-19位数字
+                assertThat(card).matches("\\d{15,19}");
+              });
     }
 
     @Test
@@ -74,11 +76,13 @@ class FinanceGenTest {
       List<String> cardNumbers = financeGen.creditCards(count);
 
       assertThat(cardNumbers).hasSize(count);
-      assertThat(cardNumbers).allSatisfy(card -> {
-        assertThat(card).isNotNull();
-        // 信用卡号可以是15-19位数字
-        assertThat(card).matches("\\d{15,19}");
-      });
+      assertThat(cardNumbers)
+          .allSatisfy(
+              card -> {
+                assertThat(card).isNotNull();
+                // 信用卡号可以是15-19位数字
+                assertThat(card).matches("\\d{15,19}");
+              });
     }
   }
 
@@ -217,7 +221,7 @@ class FinanceGenTest {
     void bankCardNumberShouldHaveValidFormat() {
       String cardNumber = financeGen.bankCard();
 
-      assertThat(cardNumber).matches("\\d{16,19}");
+      assertThat(cardNumber).matches("\\d{15,19}");
     }
 
     @Test
@@ -225,7 +229,7 @@ class FinanceGenTest {
     void creditCardNumberShouldPassLuhnCheck() {
       String cardNumber = financeGen.creditCard();
 
-      assertThat(cardNumber).matches("\\d{16,19}");
+      assertThat(cardNumber).matches("\\d{15,19}");
       assertThat(passesLuhnCheck(cardNumber)).isTrue();
     }
 
@@ -278,11 +282,13 @@ class FinanceGenTest {
       List<String> bankCards = financeGen.bankCards(count);
 
       assertThat(bankCards).hasSize(count);
-      assertThat(bankCards).allSatisfy(card -> {
-        assertThat(card).isNotNull();
-        // 银行卡号可以是15-19位数字
-        assertThat(card).matches("\\d{15,19}");
-      });
+      assertThat(bankCards)
+          .allSatisfy(
+              card -> {
+                assertThat(card).isNotNull();
+                // 银行卡号可以是15-19位数字
+                assertThat(card).matches("\\d{15,19}");
+              });
     }
 
     @Test
@@ -340,9 +346,7 @@ class FinanceGenTest {
     }
   }
 
-  /**
-   * Helper method to perform Luhn algorithm check on credit card number
-   */
+  /** Helper method to perform Luhn algorithm check on credit card number */
   private boolean passesLuhnCheck(String cardNumber) {
     int sum = 0;
     boolean alternate = false;

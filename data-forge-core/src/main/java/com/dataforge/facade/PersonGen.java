@@ -87,10 +87,12 @@ public class PersonGen {
   /** 生成年龄（指定范围） */
   public Integer age(int min, int max) {
     if (min < 0 || max < 0) {
-      throw new IllegalArgumentException("Age range must be non-negative: min=" + min + ", max=" + max);
+      throw new IllegalArgumentException(
+          "Age range must be non-negative: min=" + min + ", max=" + max);
     }
     if (min > max) {
-      throw new IllegalArgumentException("Min age must not exceed max: min=" + min + ", max=" + max);
+      throw new IllegalArgumentException(
+          "Min age must not exceed max: min=" + min + ", max=" + max);
     }
     return Integer.parseInt(gen.generate("random_number", Map.of("min", min, "max", max)));
   }

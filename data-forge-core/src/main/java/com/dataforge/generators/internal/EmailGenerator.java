@@ -131,7 +131,8 @@ public class EmailGenerator extends BaseGenerator implements DataGenerator<Strin
 
       // 从参数中获取用户名长度范围（支持 username_length 或 usernameLength，支持单数字固定长度）
       String usernameLengthParam =
-          getStringParam(config, "username_length", getStringParam(config, "usernameLength", "6,12"));
+          getStringParam(
+              config, "username_length", getStringParam(config, "usernameLength", "6,12"));
       int[] lengthRange = parseLengthRange(usernameLengthParam);
 
       // 从参数中获取是否使用姓名前缀
@@ -150,10 +151,12 @@ public class EmailGenerator extends BaseGenerator implements DataGenerator<Strin
         return generateInvalidEmail();
       }
 
-      return generateValidEmail(domains, lengthRange, prefixName, emailType, corporateFormat, context);
+      return generateValidEmail(
+          domains, lengthRange, prefixName, emailType, corporateFormat, context);
 
     } catch (Exception e) {
-      logger.error("Failed to generate email (domains/params may be invalid): {}", e.getMessage(), e);
+      logger.error(
+          "Failed to generate email (domains/params may be invalid): {}", e.getMessage(), e);
       // 返回一个默认邮箱作为fallback
       return "user@example.com";
     }

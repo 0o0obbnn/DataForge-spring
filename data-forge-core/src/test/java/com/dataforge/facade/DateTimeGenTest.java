@@ -3,9 +3,6 @@ package com.dataforge.facade;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
@@ -165,7 +162,7 @@ class DateTimeGenTest {
     }
   }
 
-@Nested
+  @Nested
   @DisplayName("相对日期生成测试")
   class RelativeDateTests {
     @Test
@@ -268,7 +265,8 @@ class DateTimeGenTest {
       assertThat(weekday).isNotNull();
       assertThat(weekday).isNotEmpty();
       // 验证返回的字符串包含星期名称
-      List<String> weekdays = List.of("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
+      List<String> weekdays =
+          List.of("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
       boolean containsWeekday = weekdays.stream().anyMatch(weekday::contains);
       assertThat(containsWeekday).isTrue();
     }
@@ -284,10 +282,12 @@ class DateTimeGenTest {
       List<String> dates = dateTimeGen.dates(count);
 
       assertThat(dates).hasSize(count);
-      assertThat(dates).allSatisfy(d -> {
-        assertThat(d).isNotNull();
-        assertThat(d).matches("\\d{4}-\\d{2}-\\d{2}");
-      });
+      assertThat(dates)
+          .allSatisfy(
+              d -> {
+                assertThat(d).isNotNull();
+                assertThat(d).matches("\\d{4}-\\d{2}-\\d{2}");
+              });
     }
 
     @Test
@@ -297,10 +297,12 @@ class DateTimeGenTest {
       List<String> timestamps = dateTimeGen.timestamps(count);
 
       assertThat(timestamps).hasSize(count);
-      assertThat(timestamps).allSatisfy(ts -> {
-        assertThat(ts).isNotNull();
-        assertThat(ts).matches("\\d{13}");
-      });
+      assertThat(timestamps)
+          .allSatisfy(
+              ts -> {
+                assertThat(ts).isNotNull();
+                assertThat(ts).matches("\\d{13}");
+              });
     }
   }
 
@@ -362,10 +364,12 @@ class DateTimeGenTest {
       List<String> dates = dateTimeGen.dates(count);
 
       assertThat(dates).hasSize(count);
-      assertThat(dates).allSatisfy(d -> {
-        assertThat(d).isNotNull();
-        assertThat(d).matches("\\d{4}-\\d{2}-\\d{2}");
-      });
+      assertThat(dates)
+          .allSatisfy(
+              d -> {
+                assertThat(d).isNotNull();
+                assertThat(d).matches("\\d{4}-\\d{2}-\\d{2}");
+              });
     }
 
     @Test

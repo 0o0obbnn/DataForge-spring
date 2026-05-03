@@ -105,7 +105,10 @@ public class YamlGenerator extends BaseGenerator implements DataGenerator<String
         if (all != null && !all.isEmpty()) {
           for (Map.Entry<String, Object> e : all.entrySet()) {
             Object v = e.getValue();
-            yaml.append(e.getKey()).append(": ").append(formatValue(v != null ? v : "null")).append("\n");
+            yaml.append(e.getKey())
+                .append(": ")
+                .append(formatValue(v != null ? v : "null"))
+                .append("\n");
           }
           yaml.append("\n");
         }

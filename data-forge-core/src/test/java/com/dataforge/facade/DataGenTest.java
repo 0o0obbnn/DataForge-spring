@@ -225,10 +225,12 @@ class DataGenTest {
       List<String> uuids = dataGen.uuids(count);
 
       assertThat(uuids).hasSize(count);
-      assertThat(uuids).allSatisfy(uuid -> {
-        assertThat(uuid).isNotNull();
-        assertThat(uuid).matches("[0-9a-fA-F-]{36}");
-      });
+      assertThat(uuids)
+          .allSatisfy(
+              uuid -> {
+                assertThat(uuid).isNotNull();
+                assertThat(uuid).matches("[0-9a-fA-F-]{36}");
+              });
     }
 
     @Test
@@ -238,10 +240,12 @@ class DataGenTest {
       List<String> names = dataGen.names(count);
 
       assertThat(names).hasSize(count);
-      assertThat(names).allSatisfy(name -> {
-        assertThat(name).isNotNull();
-        assertThat(name).isNotEmpty();
-      });
+      assertThat(names)
+          .allSatisfy(
+              name -> {
+                assertThat(name).isNotNull();
+                assertThat(name).isNotEmpty();
+              });
     }
 
     @Test
@@ -251,10 +255,12 @@ class DataGenTest {
       List<String> phones = dataGen.phones(count);
 
       assertThat(phones).hasSize(count);
-      assertThat(phones).allSatisfy(phone -> {
-        assertThat(phone).isNotNull();
-        assertThat(phone).matches("^[0-9+\\-\\s]+$");
-      });
+      assertThat(phones)
+          .allSatisfy(
+              phone -> {
+                assertThat(phone).isNotNull();
+                assertThat(phone).matches("^[0-9+\\-\\s]+$");
+              });
     }
 
     @Test
@@ -264,10 +270,12 @@ class DataGenTest {
       List<String> emails = dataGen.emails(count);
 
       assertThat(emails).hasSize(count);
-      assertThat(emails).allSatisfy(email -> {
-        assertThat(email).isNotNull();
-        assertThat(email).matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
-      });
+      assertThat(emails)
+          .allSatisfy(
+              email -> {
+                assertThat(email).isNotNull();
+                assertThat(email).matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+              });
     }
 
     @Test
@@ -277,11 +285,13 @@ class DataGenTest {
       List<String> bankCards = dataGen.bankCards(count);
 
       assertThat(bankCards).hasSize(count);
-      assertThat(bankCards).allSatisfy(card -> {
-        assertThat(card).isNotNull();
-        // 银行卡号可以是15-19位数字
-        assertThat(card).matches("\\d{15,19}");
-      });
+      assertThat(bankCards)
+          .allSatisfy(
+              card -> {
+                assertThat(card).isNotNull();
+                // 银行卡号可以是15-19位数字
+                assertThat(card).matches("\\d{15,19}");
+              });
     }
   }
 
@@ -304,10 +314,12 @@ class DataGenTest {
       List<String> uuids = dataGen.uuids(count);
 
       assertThat(uuids).hasSize(count);
-      assertThat(uuids).allSatisfy(uuid -> {
-        assertThat(uuid).isNotNull();
-        assertThat(uuid).isNotEmpty();
-      });
+      assertThat(uuids)
+          .allSatisfy(
+              uuid -> {
+                assertThat(uuid).isNotNull();
+                assertThat(uuid).isNotEmpty();
+              });
     }
 
     @Test
@@ -335,7 +347,8 @@ class DataGenTest {
     void shouldHaveValidUuidFormat() {
       String uuid = dataGen.uuid();
 
-      assertThat(uuid).matches("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}");
+      assertThat(uuid)
+          .matches("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}");
     }
 
     @Test

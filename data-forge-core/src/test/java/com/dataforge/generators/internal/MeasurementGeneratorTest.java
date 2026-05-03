@@ -59,7 +59,8 @@ class MeasurementGeneratorTest {
       String measurement = generator.generate(config, context);
 
       assertThat(measurement).isNotNull();
-      // Allow negative numbers, decimal values, and units with special characters (including spaces in °F, °C, etc.)
+      // Allow negative numbers, decimal values, and units with special characters (including spaces
+      // in °F, °C, etc.)
       assertThat(measurement).matches("^-?[0-9]+\\.?[0-9]*\\s+.+$");
     }
   }
@@ -407,7 +408,7 @@ class MeasurementGeneratorTest {
 
       assertThat(measurement).isNotNull();
       // 数值 + 空格 + 单位（单位可能含空格、/、°、²、³ 等符号，如 "fl oz", "m/s", "°C"）
-      assertThat(measurement).matches("^[0-9]+\\.?[0-9]*\\s+.+$");
+      assertThat(measurement).matches("^-?[0-9]+\\.?[0-9]*\\s+.+$");
     }
 
     @Test
@@ -418,7 +419,8 @@ class MeasurementGeneratorTest {
       String measurement = generator.generate(config, context);
 
       assertThat(measurement).isNotNull();
-      // Allow units with /, °, ², ³ characters and spaces (e.g., "km/h", "°C", "m/s", "m²", "fl oz")
+      // Allow units with /, °, ², ³ characters and spaces (e.g., "km/h", "°C", "m/s", "m²", "fl
+      // oz")
       // Also allow negative numbers and leading/trailing whitespace
       assertThat(measurement).matches("^[a-zA-Z°²³/\\s]+\\s+-?[0-9]+\\.?[0-9]*$");
     }

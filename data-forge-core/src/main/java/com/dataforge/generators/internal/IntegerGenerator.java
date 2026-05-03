@@ -93,22 +93,21 @@ public class IntegerGenerator extends BaseGenerator implements DataGenerator<Int
    */
   private Integer generateNormalInteger(int min, int max) {
     ThreadLocalRandom random = ThreadLocalRandom.current();
-    
+
     // 计算均值和标准差
     double mean = (min + max) / 2.0;
     double stdDev = (max - min) / 6.0; // 使用6sigma规则
-    
+
     // Box-Muller变换生成正态分布随机数
     double u1 = random.nextDouble();
     double u2 = random.nextDouble();
     double z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
-    
+
     // 转换为目标范围
     double value = mean + z0 * stdDev;
-    
+
     // 确保在范围内
     int result = (int) Math.round(value);
     return Math.max(min, Math.min(max, result));
   }
-
-  }
+}

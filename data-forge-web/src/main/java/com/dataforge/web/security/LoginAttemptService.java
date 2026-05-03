@@ -69,7 +69,8 @@ public class LoginAttemptService {
                 redisTemplate.opsForValue().increment(attemptKey);
                 redisTemplate.expire(attemptKey, lockDurationMinutes, TimeUnit.MINUTES);
               } catch (Exception ex) {
-                logger.warn("Redis unavailable when recording failed attempt for user: {}", username);
+                logger.warn(
+                    "Redis unavailable when recording failed attempt for user: {}", username);
               }
             });
   }

@@ -214,7 +214,7 @@ public final class TestDataFactory {
     fields.add(createField("url", "url"));
     fields.add(createField("ip", "ip"));
     fields.add(createField("mac", "mac"));
-    fields.add(createField("userAgent", "string"));  // Using string as a placeholder for userAgent
+    fields.add(createField("userAgent", "string")); // Using string as a placeholder for userAgent
     return fields;
   }
 
