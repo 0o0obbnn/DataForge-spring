@@ -42,7 +42,8 @@ public class HealthCheckController {
   private final GeneratorFactory generatorFactory;
   private final CacheManager cacheManager;
   private final MultiLevelCacheManager multiLevelCacheManager;
-  private final RedisTemplate<String, Object> redisTemplate;
+  @org.springframework.beans.factory.annotation.Autowired(required = false)
+  private RedisTemplate<String, Object> redisTemplate;
 
   @Value("${spring.application.version:1.0.0}")
   private String version;
@@ -50,12 +51,10 @@ public class HealthCheckController {
   public HealthCheckController(
       GeneratorFactory generatorFactory,
       CacheManager cacheManager,
-      MultiLevelCacheManager multiLevelCacheManager,
-      RedisTemplate<String, Object> redisTemplate) {
+      MultiLevelCacheManager multiLevelCacheManager) {
     this.generatorFactory = generatorFactory;
     this.cacheManager = cacheManager;
     this.multiLevelCacheManager = multiLevelCacheManager;
-    this.redisTemplate = redisTemplate;
   }
 
   // JVM 管理 Bean
@@ -234,6 +233,9 @@ public class HealthCheckController {
    * @return boolean Redis 是否可用
    */
   private boolean checkRedisConnection() {
+    if (redisTemplate == null) {
+      return false;
+    }
     try {
       RedisConnection connection = redisTemplate.getRequiredConnectionFactory().getConnection();
       String pong = connection.ping();

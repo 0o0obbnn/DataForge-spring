@@ -172,6 +172,44 @@ export const generatorCatalog: GeneratorDefinition[] = [
   },
 ];
 
+export function mergeWithBackendData(
+  staticCatalog: GeneratorDefinition[],
+  backendGenerators: { id: string; name: string; description: string }[] | undefined,
+): GeneratorDefinition[] {
+  if (!Array.isArray(backendGenerators)) {
+    return staticCatalog;
+  }
+  if (backendGenerators.length === 0) {
+    return staticCatalog;
+  }
+
+  const staticMap = new Map(staticCatalog.map((g) => [g.id, g]));
+  const merged: GeneratorDefinition[] = [];
+
+  for (const backend of backendGenerators) {
+    const staticGen = staticMap.get(backend.id);
+    if (staticGen) {
+      merged.push(staticGen);
+    } else {
+      merged.push({
+        id: backend.id,
+        name: backend.name,
+        category: "Core",
+        summary: backend.description,
+        sample: backend.name,
+        params: [],
+      });
+    }
+  }
+
+  return merged;
+}
+
+export function getAllCategories(generators: GeneratorDefinition[]): string[] {
+  const categories = new Set(generators.map((g) => g.category));
+  return ["All", ...Array.from(categories).sort()];
+}
+
 export const generatorCategories = [
   "All",
   ...Array.from(new Set(generatorCatalog.map((generator) => generator.category))).sort(),

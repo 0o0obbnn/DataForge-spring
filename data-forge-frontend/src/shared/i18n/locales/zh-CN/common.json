@@ -1,6 +1,7 @@
 {
   "nav": {
     "dashboard": "工作台",
+    "quickGenerate": "快速生成",
     "builder": "生成器构建",
     "catalog": "生成器目录",
     "tasks": "任务管理",
@@ -96,6 +97,23 @@
     "seed": "随机种子",
     "validate": "验证",
     "paramsJson": "参数 JSON"
+  },
+  "quickGenerate": {
+    "title": "快速生成",
+    "subtitle": "选择分类和生成器，设置数量，直接在页面中预览测试数据。",
+    "configTitle": "生成配置",
+    "categoryLabel": "分类",
+    "generatorLabel": "生成器",
+    "selectCategory": "选择分类...",
+    "selectGenerator": "选择生成器...",
+    "recordCount": "生成条数",
+    "generating": "生成中...",
+    "resultTitle": "生成结果",
+    "valueColumn": "值",
+    "pageInfo": "第 {{page}} / {{total}} 页",
+    "prev": "上一页",
+    "next": "下一页",
+    "error": "生成失败，请检查生成器类型和参数。"
   },
   "builder": {
     "executionControls": "执行控制",

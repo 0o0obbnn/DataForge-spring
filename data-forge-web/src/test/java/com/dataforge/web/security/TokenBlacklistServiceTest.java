@@ -55,7 +55,7 @@ class TokenBlacklistServiceTest {
     jwtProperties.setExpiration(3600000);
     jwtProperties.setRefreshExpiration(604800000);
 
-    tokenBlacklistService = new TokenBlacklistService(redisTemplate, jwtProperties);
+    tokenBlacklistService = new TokenBlacklistService(jwtProperties, redisTemplate);
   }
 
   @Nested

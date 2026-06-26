@@ -35,13 +35,23 @@ public class TokenBlacklistService {
   private static final Logger logger = LoggerFactory.getLogger(TokenBlacklistService.class);
   private static final String BLACKLIST_PREFIX = "token:blacklist:";
 
-  private final RedisTemplate<String, String> redisTemplate;
+  @org.springframework.beans.factory.annotation.Autowired(required = false)
+  private RedisTemplate<String, String> redisTemplate;
   private final JwtProperties jwtProperties;
 
-  public TokenBlacklistService(
-      RedisTemplate<String, String> redisTemplate, JwtProperties jwtProperties) {
-    this.redisTemplate = redisTemplate;
+  public TokenBlacklistService(JwtProperties jwtProperties) {
     this.jwtProperties = jwtProperties;
+  }
+
+  /**
+   * Constructor for testing purposes.
+   *
+   * @param jwtProperties JWT configuration properties
+   * @param redisTemplate Redis template for blacklist storage
+   */
+  public TokenBlacklistService(JwtProperties jwtProperties, RedisTemplate<String, String> redisTemplate) {
+    this.jwtProperties = jwtProperties;
+    this.redisTemplate = redisTemplate;
   }
 
   /**
@@ -59,6 +69,10 @@ public class TokenBlacklistService {
    * @param token 要撤销的Token
    */
   public void addToBlacklist(String token) {
+    if (redisTemplate == null) {
+      logger.warn("Redis not available, skipping blacklist add");
+      return;
+    }
     try {
       String jti = extractJti(token);
       Long ttl = calculateRemainingTtl(token);
@@ -90,6 +104,9 @@ public class TokenBlacklistService {
    * @return true如果在黑名单中，false否则
    */
   public boolean isBlacklisted(String token) {
+    if (redisTemplate == null) {
+      return false;
+    }
     try {
       String jti = extractJti(token);
       String key = BLACKLIST_PREFIX + jti;
@@ -103,6 +120,9 @@ public class TokenBlacklistService {
       // JWT格式错误，保守处理视为在黑名单中
       logger.error("Invalid JWT token format during blacklist check", e);
       return true;
+    } catch (org.springframework.data.redis.RedisConnectionFailureException | org.springframework.data.redis.RedisSystemException e) {
+      logger.warn("Redis unavailable, skipping blacklist check");
+      return false;
     } catch (Exception e) {
       logger.error("Failed to check token blacklist status", e);
       // 出现异常时保守处理，拒绝访问
@@ -160,6 +180,9 @@ public class TokenBlacklistService {
    * @return 清除的Token数量
    */
   public long clearAllBlacklistedTokens() {
+    if (redisTemplate == null) {
+      return 0;
+    }
     try {
       return redisTemplate.delete(redisTemplate.keys(BLACKLIST_PREFIX + "*"));
     } catch (Exception e) {
@@ -175,6 +198,9 @@ public class TokenBlacklistService {
    * @return 清除的Token数量
    */
   public long clearBlacklistByPrefix(String prefix) {
+    if (redisTemplate == null) {
+      return 0;
+    }
     try {
       return redisTemplate.delete(redisTemplate.keys(BLACKLIST_PREFIX + prefix + "*"));
     } catch (Exception e) {

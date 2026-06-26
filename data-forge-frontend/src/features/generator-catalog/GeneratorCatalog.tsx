@@ -3,7 +3,8 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { filterGenerators } from "@/features/generator-catalog/catalogFilters";
-import { generatorCatalog, generatorCategories } from "@/features/generator-catalog/generatorCatalogData";
+import { generatorCatalog, mergeWithBackendData, getAllCategories } from "@/features/generator-catalog/generatorCatalogData";
+import { useGeneratorsQuery } from "@/features/generator-catalog/generatorQueries";
 import { GeneratorDetailDrawer } from "@/features/generator-catalog/GeneratorDetailDrawer";
 import { GeneratorDefinition } from "@/features/generator-catalog/generatorCatalogTypes";
 import { EmptyState } from "@/shared/components/EmptyState";
@@ -18,10 +19,47 @@ export function GeneratorCatalog() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
   const [selectedGenerator, setSelectedGenerator] = useState<GeneratorDefinition>();
-  const filteredGenerators = useMemo(
-    () => filterGenerators(generatorCatalog, { query, category }),
-    [category, query],
+
+  const { data: backendGenerators, isLoading, isError } = useGeneratorsQuery();
+
+  const mergedGenerators = useMemo(
+    () => mergeWithBackendData(generatorCatalog, backendGenerators),
+    [backendGenerators],
   );
+
+  const generatorCategories = useMemo(
+    () => getAllCategories(mergedGenerators),
+    [mergedGenerators],
+  );
+
+  const filteredGenerators = useMemo(
+    () => filterGenerators(mergedGenerators, { query, category }),
+    [category, query, mergedGenerators],
+  );
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <div className="h-24 animate-pulse rounded-lg bg-slate-800" />
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="h-48 animate-pulse rounded-lg bg-slate-800" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <EmptyState
+        title={t("error.loadingFailed", { defaultValue: "加载失败" })}
+        message={t("error.generatorsLoadFailed", {
+          defaultValue: "无法从服务器获取生成器列表，请稍后重试。",
+        })}
+      />
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -74,7 +112,9 @@ export function GeneratorCatalog() {
                   <Badge className="border-blue-800 bg-blue-950 text-blue-300">
                     {t(`catalog.categories.${generator.category}`, { defaultValue: generator.category })}
                   </Badge>
-                  <span className="font-mono text-xs text-slate-500">{generator.params.length} {t("catalog.parameters")}</span>
+                  <span className="font-mono text-xs text-slate-500">
+                    {generator.params.length} {t("catalog.parameters")}
+                  </span>
                 </div>
                 <CardTitle className="text-lg">
                   {t(`catalog.generators.${generator.id}.name`, { defaultValue: generator.name })}
@@ -98,7 +138,10 @@ export function GeneratorCatalog() {
         <EmptyState title={t("empty.noGenerators")} message={t("empty.noGeneratorsMessage")} />
       )}
 
-      <GeneratorDetailDrawer generator={selectedGenerator} onOpenChange={(open) => !open && setSelectedGenerator(undefined)} />
+      <GeneratorDetailDrawer
+        generator={selectedGenerator}
+        onOpenChange={(open) => !open && setSelectedGenerator(undefined)}
+      />
     </div>
   );
 }

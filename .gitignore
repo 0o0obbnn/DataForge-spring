@@ -157,3 +157,18 @@ labels/
 sessions/
 sources/
 statuses/
+
+# AI/IDE tool caches
+.trae/
+.playwright-mcp/
+.worktrees/
+
+# Screenshot / ad-hoc report clutter at repo root
+/*.png
+test_output.txt
+*_FIX_PLAN*.md
+*_COMPLETION_REPORT*.md
+REPAIR_PLAN.md
+REVIEW_CHECKLIST.md
+IMPLEMENTATION_GUIDE.md
+CODE_REVIEW_VERIFICATION_REPORT.md

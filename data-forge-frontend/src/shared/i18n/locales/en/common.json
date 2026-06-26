@@ -1,6 +1,7 @@
 {
   "nav": {
     "dashboard": "Dashboard",
+    "quickGenerate": "Quick Generate",
     "builder": "Builder",
     "catalog": "Catalog",
     "tasks": "Tasks",
@@ -96,6 +97,23 @@
     "seed": "Seed",
     "validate": "Validate",
     "paramsJson": "Params JSON"
+  },
+  "quickGenerate": {
+    "title": "Quick Generate",
+    "subtitle": "Select a category and generator, set count, and preview test data directly in the page.",
+    "configTitle": "Generation Config",
+    "categoryLabel": "Category",
+    "generatorLabel": "Generator",
+    "selectCategory": "Select category...",
+    "selectGenerator": "Select a generator...",
+    "recordCount": "Record Count",
+    "generating": "Generating...",
+    "resultTitle": "Generated Results",
+    "valueColumn": "Value",
+    "pageInfo": "Page {{page}} / {{total}}",
+    "prev": "Previous",
+    "next": "Next",
+    "error": "Generation failed. Please check the generator type and parameters."
   },
   "builder": {
     "executionControls": "Execution Controls",

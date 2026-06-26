@@ -6,7 +6,7 @@ export async function getMockData<T>(path: string, options: RequestInit): Promis
   await new Promise((resolve) => setTimeout(resolve, 300));
 
   // Parse path to determine which mock data to return
-  if (path.includes("/tasks") && options.method === "GET") {
+  if (path.includes("/tasks") && (!options.method || options.method === "GET")) {
     return { data: mockTasks, code: 200, message: "Success" } as T;
   }
 

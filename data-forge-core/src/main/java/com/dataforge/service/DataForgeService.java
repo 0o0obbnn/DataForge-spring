@@ -12,6 +12,7 @@ import com.dataforge.model.FieldConfig;
 import com.dataforge.validation.SecurityValidator;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -28,6 +29,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.ThreadLocalRandom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -700,6 +702,60 @@ public class DataForgeService {
   }
 
   // ==================== 公共API方法 ====================
+
+  /**
+   * 生成预览数据 - 用于Web端直接展示。
+   *
+   * <p>根据指定的生成器类型和数量生成数据记录，直接返回数据列表而不写入文件。
+   * 适用于Web端快速预览和测试数据生成功能。
+   *
+   * @param generatorType 生成器类型标识符
+   * @param count 生成记录数量
+   * @param params 生成器参数
+   * @return 生成的数据记录列表，每条记录包含一个 "value" 字段
+   * @throws ConfigurationException 当生成器类型不存在时
+   */
+  @SuppressWarnings("unchecked")
+  public List<Map<String, Object>> generatePreviewData(
+      String generatorType, int count, Map<String, Object> params) {
+
+    DataGenerator<Object, FieldConfig> generator =
+        (DataGenerator<Object, FieldConfig>) generatorFactory.getGenerator(generatorType);
+
+    if (generator == null) {
+      throw new ConfigurationException(
+              "No generator found for type: " + generatorType)
+          .withContext("requestedType", generatorType)
+          .withContext("availableTypes", generatorFactory.getAvailableTypes());
+    }
+
+    FieldConfigWrapper fieldConfig = FieldConfigWrapper.of("value", generatorType);
+    if (params != null && !params.isEmpty()) {
+      fieldConfig.setParams(params);
+    }
+
+    List<Map<String, Object>> records = new ArrayList<>(count);
+
+    for (int i = 0; i < count; i++) {
+      try (DataForgeContext context = new DataForgeContext()) {
+        context.setCurrentRecordIndex(i);
+        Object value = generator.generate(fieldConfig, context);
+        Map<String, Object> record = new LinkedHashMap<>();
+        record.put("value", value);
+        records.add(record);
+      } catch (Exception e) {
+        logger.error("Failed to generate preview record at index {}", i, e);
+        Map<String, Object> record = new LinkedHashMap<>();
+        record.put("value", null);
+        records.add(record);
+      }
+    }
+
+    logger.info(
+        "Generated {} preview records for generator type: {}",
+        records.size(), generatorType);
+    return records;
+  }
 
   /**
    * 获取可用的数据生成器类型。

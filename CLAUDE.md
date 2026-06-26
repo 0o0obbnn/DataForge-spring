@@ -9,7 +9,7 @@ DataForge is a high-performance, flexible, and configurable test data generation
 - **data-forge-core**: Core engine with 60+ data generators and SPI framework
 - **data-forge-cli**: Command-line interface using Picocli
 - **data-forge-web**: Spring Boot web application with REST API
-- **data-forge-frontend**: Vue 3 + TypeScript frontend with Element Plus UI
+- **data-forge-frontend**: React 19 + TypeScript frontend with Vite
 
 ## Development Commands
 
@@ -147,11 +147,8 @@ All generators implement `DataGenerator<T, C extends FieldConfig>`:
 - All configured with Maven profiles `quality` and `quality-report`
 
 ### Frontend Technology Stack
-- **Vue 3** with Composition API and TypeScript
-- **Element Plus** UI component library
-- **Pinia** for state management
+- **React 19** with Hooks and TypeScript
 - **Vite** build tool with Hot Module Replacement
-- **Vitest** for unit testing
 
 ### Performance Considerations
 - Multi-threaded generation with configurable thread pools
@@ -230,7 +227,7 @@ npm run type-check
 Key directories to understand:
 - `data-forge-core/src/main/java/com/dataforge/generators/internal/`: All 60+ generators
 - `data-forge-web/src/main/java/com/dataforge/web/controller/`: REST API controllers  
-- `data-forge-frontend/src/components/`: Vue components
+- `data-forge-frontend/src/components/`: React components
 - `examples/`: Configuration file examples for all generator types
 - `output/`: Generated data files (gitignored)
 

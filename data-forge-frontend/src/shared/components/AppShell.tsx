@@ -1,4 +1,4 @@
-import { BarChart3, Boxes, DatabaseZap, FileStack, LayoutDashboard, ListChecks, LogOut } from "lucide-react";
+import { BarChart3, Boxes, DatabaseZap, FileStack, LayoutDashboard, ListChecks, LogOut, Zap } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 
@@ -22,6 +22,7 @@ export function AppShell() {
 
   const navigationItems = [
     { label: t("nav.dashboard"), href: "/dashboard", icon: LayoutDashboard },
+    { label: t("nav.quickGenerate"), href: "/quick-generate", icon: Zap },
     { label: t("nav.builder"), href: "/builder", icon: DatabaseZap },
     { label: t("nav.catalog"), href: "/catalog", icon: Boxes },
     { label: t("nav.tasks"), href: "/tasks", icon: ListChecks },

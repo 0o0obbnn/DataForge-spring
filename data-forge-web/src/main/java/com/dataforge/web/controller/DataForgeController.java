@@ -5,6 +5,7 @@ import com.dataforge.service.DataForgeService;
 import com.dataforge.web.config.DataForgeTasksProperties;
 import com.dataforge.web.entity.GenerationHistory;
 import com.dataforge.web.model.ApiResponse;
+import com.dataforge.web.model.GeneratePreviewRequest;
 import com.dataforge.web.model.GenerateRequest;
 import com.dataforge.web.service.AsyncDataGenerationService;
 import com.dataforge.web.service.GenerationHistoryService;
@@ -17,6 +18,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -221,6 +223,48 @@ public class DataForgeController extends BaseController {
   }
 
   /**
+   * 生成预览数据（Web端直接展示）。
+   *
+   * <p>根据指定的生成器类型和数量生成测试数据，直接以JSON数组形式返回生成的数据记录。
+   * 适用于Web端快速预览和测试数据生成功能，不写入文件或数据库。
+   *
+   * <p>预览模式下最多支持1000条记录，超出时校验失败返回400。
+   *
+   * @param request 预览请求，包含生成器类型、记录数量、可选参数
+   * @return ResponseEntity 生成的数据记录列表，每条记录包含 "value" 字段
+   */
+  @PostMapping("/generate/preview")
+  @Operation(
+      summary = "生成预览数据（Web端展示）",
+      description =
+          "根据生成器类型和数量生成测试数据，直接返回JSON数组。"
+              + "适用于Web端快速预览，不写入文件。最多支持1000条记录。")
+  @ApiResponses({
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+        responseCode = "200",
+        description = "成功生成预览数据，返回数据记录列表",
+        content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+        responseCode = "400",
+        description = "参数验证失败，如生成器类型为空、记录数量超出范围等",
+        content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+        responseCode = "500",
+        description = "服务器内部错误，如生成器执行失败等",
+        content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+  })
+  public ResponseEntity<ApiResponse<List<Map<String, Object>>>> generatePreview(
+      @Parameter(description = "预览请求，包含生成器类型和记录数量", required = true)
+          @RequestBody @Validated GeneratePreviewRequest request) {
+
+    List<Map<String, Object>> data =
+        dataForgeService.generatePreviewData(
+            request.getGeneratorType(), request.getCount(), request.getParams());
+
+    return buildSuccessResponse(data, "Preview data generated successfully");
+  }
+
+  /**
    * 异步生成测试数据。
    *
    * <p>根据提供的配置异步生成指定数量的测试数据。该方法立即返回任务ID，数据生成在后台进行。 适用于大批量数据生成场景。可通过任务ID查询生成进度和状态。
@@ -342,6 +386,59 @@ public class DataForgeController extends BaseController {
           Long taskId) {
     GenerationHistory history = generationHistoryService.getHistoryById(taskId);
     return buildSuccessResponse(history, "Task status retrieved successfully");
+  }
+
+  /**
+   * 获取所有可用的数据生成器列表。
+   *
+   * <p>返回系统中已注册的所有数据生成器的基本信息，包括类型标识和描述。 前端可通过此接口动态获取生成器目录，确保前后端生成器数量一致。
+   *
+   * @return ResponseEntity 生成器列表
+   */
+  @GetMapping("/generators")
+  @Operation(
+      summary = "获取可用生成器列表",
+      description =
+          "获取系统中所有已注册的数据生成器列表。"
+              + "返回每个生成器的类型标识（id）和描述信息，用于前端生成器目录展示。")
+  @ApiResponses({
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+        responseCode = "200",
+        description = "成功获取生成器列表",
+        content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+        responseCode = "500",
+        description = "服务器内部错误",
+        content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+  })
+  public ResponseEntity<ApiResponse<List<Map<String, String>>>> getAvailableGenerators() {
+    Map<String, String> generatorInfo = dataForgeService.getGeneratorInfo();
+    List<Map<String, String>> generators = new ArrayList<>();
+
+    for (Map.Entry<String, String> entry : generatorInfo.entrySet()) {
+      Map<String, String> generator = new LinkedHashMap<>();
+      generator.put("id", entry.getKey());
+      generator.put("name", entry.getKey());
+      // Extract description from the formatted info string
+      String info = entry.getValue();
+      String description = info;
+      int descIndex = info.indexOf(" - ");
+      if (descIndex >= 0) {
+        int priorityIndex = info.indexOf(" (priority=");
+        if (priorityIndex > descIndex) {
+          description = info.substring(descIndex + 3, priorityIndex);
+        } else {
+          description = info.substring(descIndex + 3);
+        }
+      }
+      generator.put("description", description);
+      generators.add(generator);
+    }
+
+    // Sort by id for consistent ordering
+    generators.sort((a, b) -> a.get("id").compareTo(b.get("id")));
+
+    return buildSuccessResponse(generators, "Available generators retrieved successfully");
   }
 
   /**

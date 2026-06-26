@@ -8,7 +8,7 @@ import { RequestPreview } from "@/features/generator-builder/RequestPreview";
 import { generateRequestSchema } from "@/features/generator-builder/builderSchema";
 import { useBuilderStore } from "@/features/generator-builder/builderStore";
 import { generateAsync, generateSync } from "@/features/generator-builder/generationApi";
-import { generatorCatalog } from "@/features/generator-catalog/generatorCatalogData";
+import { useGeneratorsQuery } from "@/features/generator-catalog/generatorQueries";
 import { createTemplate } from "@/features/templates/templateApi";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
@@ -48,6 +48,7 @@ export function BuilderForm() {
   const [isSaveTemplateDialogOpen, setIsSaveTemplateDialogOpen] = useState(false);
   const [templateName, setTemplateName] = useState("");
   const [templateDescription, setTemplateDescription] = useState("");
+  const { data: generatorCatalog = [] } = useGeneratorsQuery();
   const syncMutation = useMutation({ mutationFn: generateSync });
   const asyncMutation = useMutation({ mutationFn: generateAsync });
   const saveTemplateMutation = useMutation({ mutationFn: createTemplate });

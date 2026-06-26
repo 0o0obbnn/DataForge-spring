@@ -246,8 +246,12 @@
                             <goal>report</goal>
                         </goals>
                     </execution>
-                    <!-- jacoco-check removed: coverage thresholds need addressing as tech debt;
-                         report still generated during test phase -->
+                    <execution>
+                        <id>jacoco-check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
                 </executions>
             </plugin>
             

@@ -23,13 +23,32 @@ function isMockMode(token: string | undefined): boolean {
   return token.startsWith("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJtb2NrLW9wZXJhdG9y");
 }
 
+// Fallback: read token directly from localStorage if Zustand store not hydrated yet
+function getAccessToken(): string | undefined {
+  const storeToken = useAuthStore.getState().accessToken;
+  if (storeToken) return storeToken;
+
+  // Fallback to localStorage for early requests before store hydration
+  const persisted = localStorage.getItem("dataforge-auth");
+  if (persisted) {
+    try {
+      const parsed = JSON.parse(persisted);
+      return parsed.state?.accessToken;
+    } catch {
+      return undefined;
+    }
+  }
+  return undefined;
+}
+
 export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const token = useAuthStore.getState().accessToken;
+  const token = getAccessToken();
   const isMock = isMockMode(token);
 
-  // Mock mode: return mock data
+  // Mock mode: return mock data (extract .data field to match real API behavior)
   if (isMock && !options.skipAuth) {
-    return getMockData<T>(path, options);
+    const mockPayload = await getMockData<ApiResponse<T>>(path, options);
+    return mockPayload.data as T;
   }
 
   const headers = new Headers(options.headers);

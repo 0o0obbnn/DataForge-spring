@@ -6,6 +6,9 @@ import { LoadingState } from "@/shared/components/LoadingState";
 import { ProtectedRoute } from "@/shared/components/ProtectedRoute";
 
 const DashboardPage = lazy(() => import("@/pages/DashboardPage").then((module) => ({ default: module.DashboardPage })));
+const QuickGeneratePage = lazy(() =>
+  import("@/pages/QuickGeneratePage").then((module) => ({ default: module.QuickGeneratePage })),
+);
 const GeneratorBuilderPage = lazy(() =>
   import("@/pages/GeneratorBuilderPage").then((module) => ({ default: module.GeneratorBuilderPage })),
 );
@@ -30,6 +33,7 @@ export const router = createBrowserRouter([
         children: [
           { index: true, element: <Navigate to="/dashboard" replace /> },
           { path: "/dashboard", element: page(<DashboardPage />) },
+          { path: "/quick-generate", element: page(<QuickGeneratePage />) },
           { path: "/builder", element: page(<GeneratorBuilderPage />) },
           { path: "/catalog", element: page(<GeneratorCatalogPage />) },
           { path: "/tasks", element: page(<TasksPage />) },

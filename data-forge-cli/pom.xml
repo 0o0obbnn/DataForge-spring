@@ -93,6 +93,33 @@
 	                    <append>true</append>
 	                    <outputDirectory>target/jacoco-report</outputDirectory>
 	                    <outputEncoding>UTF-8</outputEncoding>
+	                    <rules>
+	                        <rule>
+	                            <element>CLASS</element>
+	                            <limits>
+	                                <limit>
+	                                    <counter>CLASS</counter>
+	                                    <value>COVEREDRATIO</value>
+	                                    <minimum>0.85</minimum>
+	                                </limit>
+	                                <limit>
+	                                    <counter>METHOD</counter>
+	                                    <value>COVEREDRATIO</value>
+	                                    <minimum>0.85</minimum>
+	                                </limit>
+	                                <limit>
+	                                    <counter>LINE</counter>
+	                                    <value>COVEREDRATIO</value>
+	                                    <minimum>0.85</minimum>
+	                                </limit>
+	                                <limit>
+	                                    <counter>BRANCH</counter>
+	                                    <value>COVEREDRATIO</value>
+	                                    <minimum>0.80</minimum>
+	                                </limit>
+	                            </limits>
+	                        </rule>
+	                    </rules>
 	                </configuration>
 	                <executions>
 	                    <execution>
@@ -107,6 +134,12 @@
 	                        <phase>test</phase>
 	                        <goals>
 	                            <goal>report</goal>
+	                        </goals>
+	                    </execution>
+	                    <execution>
+	                        <id>jacoco-check</id>
+	                        <goals>
+	                            <goal>check</goal>
 	                        </goals>
 	                    </execution>
 	                </executions>
